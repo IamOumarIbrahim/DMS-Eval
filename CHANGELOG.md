@@ -67,3 +67,8 @@
 - Replace MIT License with Apache License 2.0
 - Update README license badge and navigation
 - Add architecture acknowledgments and reorganize author credits
+
+## [2026-08-16 03:22:40] - Document controlled evaluation setup
+- Add evaluation setup table with standardized benchmark settings
+- Add 640×640 input resolution visual asset
+- Improve model comparison figure layout and README navigation

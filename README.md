@@ -9,8 +9,9 @@
 
 * [Overview](#overview)
   * [Paper Scope](#paper-scope)
+* [Evaluation Setup](#evaluation-setup)
 * [Evaluated Models](#evaluated-models)
-* [Evaluation Metrics](#evaluation-metrics) 
+* [Evaluation Metrics](#evaluation-metrics)
 * [Evaluation Results](#evaluation-results)
 * [Project Structure](#project-structure)
 * [Authors & Credits](#authors--credits)
@@ -27,15 +28,60 @@ DMS-Eval benchmarks lightweight object detection architectures for **driver stat
 
 The study evaluates models on a custom multi-condition dataset covering **normal driving, distraction, fatigue, and low-visibility nighttime scenarios**, with emphasis on the trade-off between **detection accuracy, inference speed, and deployment efficiency**.
 
-
-## Evaluated Models
+## Evaluation Setup
 
 > [!TIP]
 > All models operate within **2.4–4.0M parameters**, **5.4–7.0 GFLOPs**, and use **640×640 inputs**, keeping the comparison compute-constrained while preserving architectural diversity.
 
-**Controlled Evaluation:** All models are evaluated using the same dataset split, hardware, batch size, numerical precision, input resolution, and evaluation protocol. This provides a consistent basis for comparing detection accuracy, inference speed, and deployment efficiency across the selected architectures.
+**Controlled Evaluation:** All models are tested under an identical evaluation configuration to ensure a consistent comparison of detection accuracy, inference speed, and deployment efficiency.
 
 <div align="center">
+<table>
+<tr>
+<td align="center" width="40%">
+<img src="assets/640X640.png" width="90%" alt="640×640 benchmark input resolution">
+</td>
+<td align="center" width="60%">
+<table>
+<tr>
+<th align="center">Evaluation Setting</th>
+<th align="center">Configuration</th>
+</tr>
+<tr>
+<td align="center"><strong>Dataset Split</strong></td>
+<td align="center">—</td>
+</tr>
+<tr>
+<td align="center"><strong>Hardware</strong></td>
+<td align="center">—</td>
+</tr>
+<tr>
+<td align="center"><strong>Batch Size</strong></td>
+<td align="center">—</td>
+</tr>
+<tr>
+<td align="center"><strong>Numerical Precision</strong></td>
+<td align="center">—</td>
+</tr>
+<tr>
+<td align="center"><strong>Input Resolution</strong></td>
+<td align="center">640×640</td>
+</tr>
+<tr>
+<td align="center"><strong>Evaluation Protocol</strong></td>
+<td align="center">—</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</div>
+<br>
+
+## Evaluated Models
+
+<div align="center">
+
 
 <table>
   <tr>
@@ -80,19 +126,21 @@ The study evaluates models on a custom multi-condition dataset covering **normal
       <a href="https://docs.ultralytics.com/models/yolo26/"><strong>Ultralytics</strong></a>
     </td>
   </tr>
-
 </table>
 
 </div>
 
+<div align="center">
+
 <img src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(a).png" width="49.5%" alt="Parameter count comparison"><img src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(b).png" width="49.5%" alt="FLOPs comparison">
 
-<em>Figure 1. Relative computational footprint of the evaluated lightweight detector variants.</em>
+<p>
+  <em>Figure 1. Relative computational footprint of the evaluated lightweight detector variants.</em>
+</p>
 
 </div>
 
 ## Evaluation Metrics
-
 
 The benchmark evaluates each model across both **detection quality** and **deployment efficiency** under a controlled evaluation protocol.
 
@@ -125,8 +173,6 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 
 * **mAP@0.5:** Detection performance at an IoU threshold of 0.50.
 * **Peak Inference Memory:** Maximum memory consumption observed during inference.
-
-
 ## Evaluation Results
 
 <div align="center">
