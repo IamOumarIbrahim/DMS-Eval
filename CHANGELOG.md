@@ -72,3 +72,8 @@
 - Add evaluation setup table with standardized benchmark settings
 - Add 640×640 input resolution visual asset
 - Improve model comparison figure layout and README navigation
+
+## [2026-08-16 03:33:59] - Clarify benchmark metrics and evaluation setup
+- Add captions for standardized inputs and evaluation configuration
+- Introduce a categorized summary table for benchmark metrics
+- Standardize metric terminology across descriptions and results tables

@@ -28,19 +28,23 @@ DMS-Eval benchmarks lightweight object detection architectures for **driver stat
 
 The study evaluates models on a custom multi-condition dataset covering **normal driving, distraction, fatigue, and low-visibility nighttime scenarios**, with emphasis on the trade-off between **detection accuracy, inference speed, and deployment efficiency**.
 
+# Evaluation Setup
+
 ## Evaluation Setup
 
 > [!TIP]
 > All models operate within **2.4–4.0M parameters**, **5.4–7.0 GFLOPs**, and use **640×640 inputs**, keeping the comparison compute-constrained while preserving architectural diversity.
 
-**Controlled Evaluation:** All models are tested under an identical evaluation configuration to ensure a consistent comparison of detection accuracy, inference speed, and deployment efficiency.
-
 <div align="center">
 <table>
 <tr>
+
 <td align="center" width="40%">
 <img src="assets/640X640.png" width="90%" alt="640×640 benchmark input resolution">
+<br>
+<sub><strong>Figure 1.</strong> Standardized input resolution used across all evaluated models.</sub>
 </td>
+
 <td align="center" width="60%">
 <table>
 <tr>
@@ -72,11 +76,13 @@ The study evaluates models on a custom multi-condition dataset covering **normal
 <td align="center">—</td>
 </tr>
 </table>
+<br>
+<sub><strong>Table 1.</strong> Controlled evaluation configuration applied consistently across all models.</sub>
 </td>
+
 </tr>
 </table>
 </div>
-<br>
 
 ## Evaluated Models
 
@@ -142,11 +148,43 @@ The study evaluates models on a custom multi-condition dataset covering **normal
 
 ## Evaluation Metrics
 
+
 The benchmark evaluates each model across both **detection quality** and **deployment efficiency** under a controlled evaluation protocol.
+
+<div align="center">
+
+<table>
+  <tr>
+    <th>Category</th>
+    <th>Metrics</th>
+  </tr>
+  <tr>
+    <td><strong>Detection</strong></td>
+    <td>AP, AP<sub>50</sub>, Precision, Recall, F1</td>
+  </tr>
+  <tr>
+    <td><strong>Runtime</strong></td>
+    <td>FPS, Latency (ms)</td>
+  </tr>
+  <tr>
+    <td><strong>Complexity</strong></td>
+    <td>Params (M), GFLOPs</td>
+  </tr>
+  <tr>
+    <td><strong>Deployment</strong></td>
+    <td>Model Size (MB), Peak Memory (MB)</td>
+  </tr>
+</table>
+
+</div>
+
+<p align="center">
+  <sub><strong>AP</strong> denotes AP<sub>50:95</sub>, averaged over IoU thresholds from 0.50 to 0.95.</sub>
+</p>
 
 > **Primary Detection Metric**
 
-* **mAP@0.5:0.95:** Primary detection metric, averaged across IoU thresholds from 0.50 to 0.95.
+* **AP:** Primary detection metric, averaged across IoU thresholds from 0.50 to 0.95.
 
 > **Threshold-Controlled Metrics**
 
@@ -154,25 +192,26 @@ All models use the same confidence and IoU thresholds.
 
 * **Precision:** Proportion of predicted detections that are correct.
 * **Recall:** Proportion of ground-truth objects successfully detected.
-* **F1-Score:** Harmonic mean of precision and recall.
+* **F1:** Harmonic mean of precision and recall.
 
 > **Runtime Performance**
 
 All models are evaluated using the same hardware, batch size, numerical precision, input resolution, backend, warm-up procedure, and timing methodology.
 
-* **End-to-End FPS:** Processing throughput of the complete inference pipeline.
-* **Model-Only Latency (ms):** Raw model inference time excluding preprocessing and post-processing.
+* **FPS:** Processing throughput of the complete inference pipeline.
+* **Latency (ms):** Raw model inference time excluding preprocessing and post-processing.
 
 > **Deployment Characteristics**
 
-* **Parameters (M):** Total number of model parameters.
-* **FLOPs (G):** Approximate computational cost per 640×640 input.
-* **Model File Size (MB):** Stored model footprint for deployment.
+* **Params (M):** Total number of model parameters.
+* **GFLOPs:** Approximate computational cost per 640×640 input.
+* **Model Size (MB):** Stored model footprint for deployment.
 
 > **Optional Metrics**
 
-* **mAP@0.5:** Detection performance at an IoU threshold of 0.50.
+* **AP<sub>50</sub>:** Detection performance at an IoU threshold of 0.50.
 * **Peak Inference Memory:** Maximum memory consumption observed during inference.
+
 ## Evaluation Results
 
 <div align="center">
@@ -180,8 +219,8 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 <table>
   <tr>
     <th align="center">Model</th>
-    <th align="center">mAP@0.5:0.95</th>
-    <th align="center">mAP@0.5</th>
+    <th align="center">AP</th>
+    <th align="center">AP<sub>50</sub></th>
     <th align="center">Precision</th>
     <th align="center">Recall</th>
     <th align="center">F1</th>
@@ -230,8 +269,8 @@ All models are evaluated using the same hardware, batch size, numerical precisio
     <th align="center">Latency (ms)</th>
     <th align="center">FPS</th>
     <th align="center">Params (M)</th>
-    <th align="center">FLOPs (G)</th>
-    <th align="center">Size (MB)</th>
+    <th align="center">GFLOPs</th>
+    <th align="center">Model Size (MB)</th>
   </tr>
   <tr>
     <td align="center"><strong>YOLO11n</strong></td>
@@ -274,7 +313,7 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 .
 ├── assets/
 │   ├── Computational Characteristics of Evaluated Models (a).png // Parameters Table
-│   └── Computational Characteristics of Evaluated Models (b).png // GFLOPS Table
+│   └── Computational Characteristics of Evaluated Models (b).png // GFLOPs Table
 ├── core/
 ├── docs/
 ├── manuscript/
