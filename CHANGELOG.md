@@ -82,3 +82,8 @@
 - Balance image and configuration table widths
 - Align benchmark panels consistently at the top
 - Simplify nested HTML table structure
+
+## [2026-08-16 03:44:55] - Refine evaluation setup layout
+- Remove duplicate Evaluation Setup heading
+- Stack benchmark image above configuration table
+- Shorten figure and table captions

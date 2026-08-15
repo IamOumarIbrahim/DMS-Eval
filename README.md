@@ -28,7 +28,6 @@ DMS-Eval benchmarks lightweight object detection architectures for **driver stat
 
 The study evaluates models on a custom multi-condition dataset covering **normal driving, distraction, fatigue, and low-visibility nighttime scenarios**, with emphasis on the trade-off between **detection accuracy, inference speed, and deployment efficiency**.
 
-# Evaluation Setup
 
 ## Evaluation Setup
 
@@ -37,47 +36,46 @@ The study evaluates models on a custom multi-condition dataset covering **normal
 
 <div align="center">
 
-<table width="100%">
+<img src="assets/640X640.png" width="34%" alt="640×640 benchmark input resolution">
+
+<br>
+<sub><strong>Figure 1.</strong> Standardized 640×640 input resolution.</sub>
+
+<br><br>
+
+<table>
   <tr>
-    <td align="center" valign="top" width="50%">
-      <img src="assets/640X640.png" width="88%" alt="640×640 benchmark input resolution"><br>
-      <sub><strong>Figure 1.</strong> Standardized input resolution used across all evaluated models.</sub>
-    </td>
-    <td align="center" valign="top" width="50%">
-      <table width="88%">
-        <tr>
-          <th align="center">Evaluation Setting</th>
-          <th align="center">Configuration</th>
-        </tr>
-        <tr>
-          <td align="center"><strong>Dataset Split</strong></td>
-          <td align="center">—</td>
-        </tr>
-        <tr>
-          <td align="center"><strong>Hardware</strong></td>
-          <td align="center">—</td>
-        </tr>
-        <tr>
-          <td align="center"><strong>Batch Size</strong></td>
-          <td align="center">—</td>
-        </tr>
-        <tr>
-          <td align="center"><strong>Numerical Precision</strong></td>
-          <td align="center">—</td>
-        </tr>
-        <tr>
-          <td align="center"><strong>Input Resolution</strong></td>
-          <td align="center">640×640</td>
-        </tr>
-        <tr>
-          <td align="center"><strong>Evaluation Protocol</strong></td>
-          <td align="center">—</td>
-        </tr>
-      </table>
-      <sub><strong>Table 1.</strong> Controlled evaluation configuration applied consistently across all models.</sub>
-    </td>
+    <th align="center">Evaluation Setting</th>
+    <th align="center">Configuration</th>
+  </tr>
+  <tr>
+    <td align="center"><strong>Dataset Split</strong></td>
+    <td align="center">—</td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Hardware</strong></td>
+    <td align="center">—</td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Batch Size</strong></td>
+    <td align="center">—</td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Numerical Precision</strong></td>
+    <td align="center">—</td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Input Resolution</strong></td>
+    <td align="center">640×640</td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Evaluation Protocol</strong></td>
+    <td align="center">—</td>
   </tr>
 </table>
+
+<br>
+<sub><strong>Table 1.</strong> Controlled evaluation configuration.</sub>
 
 </div>
 
