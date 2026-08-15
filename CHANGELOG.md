@@ -77,3 +77,8 @@
 - Add captions for standardized inputs and evaluation configuration
 - Introduce a categorized summary table for benchmark metrics
 - Standardize metric terminology across descriptions and results tables
+
+## [2026-08-16 03:36:22] - Improve benchmark evaluation layout
+- Balance image and configuration table widths
+- Align benchmark panels consistently at the top
+- Simplify nested HTML table structure
