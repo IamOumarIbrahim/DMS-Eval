@@ -62,3 +62,8 @@
 - Rename Benchmark Results to Evaluation Results
 - Document assets core docs and manuscript directories
 - Add requirements file to the project structure
+
+## [2026-08-16 02:52:20] - Adopt Apache license and expand project credits
+- Replace MIT License with Apache License 2.0
+- Update README license badge and navigation
+- Add architecture acknowledgments and reorganize author credits

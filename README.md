@@ -2,7 +2,8 @@
 
 **DMS-Eval** is a benchmark for evaluating lightweight object detection architectures for real-time driver monitoring systems. It compares detection accuracy, inference performance, and deployment efficiency across a custom multi-condition dataset covering normal driving, distraction, fatigue, and low-visibility nighttime scenarios.
 
-![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat)[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 
 ## Table of Contents
 
@@ -10,13 +11,15 @@
   * [Paper Scope](#paper-scope)
 * [Evaluated Models](#evaluated-models)
 * [Evaluation Metrics](#evaluation-metrics) 
-* [Benchmark Results](#benchmark-results)
+* [Evaluation Results](#evaluation-results)
 * [Project Structure](#project-structure)
-* [Authors & Acknowledgments](#authors--acknowledgments)
+* [Authors & Credits](#authors--credits)
+  * [Authors](#authors)
+  * [Acknowledgments](#acknowledgments)
 * [License](#license)
 
 
-# Overview
+## Overview
 
 > ### Paper Scope
 
@@ -240,7 +243,10 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 ├── requirements.txt      // software requirements
 └── README.md             // Project documentation
 ```
-## Authors & Acknowledgments
+
+## Authors & Credits
+
+> ### Authors
 
 * **Dr. Mohamad Khairi bin Ishak** (Associate Professor)  
   Department of Computer Engineering, University of Sharjah  
@@ -250,9 +256,16 @@ All models are evaluated using the same hardware, batch size, numerical precisio
   Department of Computer Engineering, University of Sharjah  
   📧 [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae)
 
+> ### Acknowledgments
+
+This benchmark builds upon the excellent work of the teams behind [YOLO11](https://docs.ultralytics.com/models/yolo11/), [YOLOv12](https://github.com/sunsmarterjie/yolov12), [D-FINE](https://github.com/Peterande/D-FINE), and [YOLO26](https://docs.ultralytics.com/models/yolo26/).
+
+We sincerely thank their authors, contributors, and maintainers for making these architectures and their implementations available to the research community. Their work makes comparative studies such as **DMS-Eval** possible.
+
 > [!NOTE]
 > This research and codebase are prepared for submission to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+This project is licensed under the **Apache License 2.0** — see the [LICENSE](LICENSE) file for details.
