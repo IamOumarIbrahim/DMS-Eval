@@ -52,3 +52,8 @@
 - Adds benchmark comparison table for four models
 - Documents model parameters FLOPs and performance placeholders
 - Updates navigation and removes corrupted link text
+
+## [2026-08-16 02:31:34] - Reorganize benchmark results for clearer comparison
+- Split accuracy and efficiency metrics into separate tables
+- Remove redundant input resolution column
+- Preserve model parameters and FLOPs comparisons
