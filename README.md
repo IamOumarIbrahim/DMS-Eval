@@ -322,8 +322,9 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 ```text
 .
 ├── assets/
-│   ├── Computational Characteristics of Evaluated Models (a).png // Parameters Table
-│   └── Computational Characteristics of Evaluated Models (b).png // GFLOPs Table
+│   ├── 640X640.png                                               // Figure 1
+│   ├── Computational Characteristics of Evaluated Models (a).png // Figure 2(a)
+│   └── Computational Characteristics of Evaluated Models (b).png // Figure 2(b)
 ├── core/
 ├── docs/
 ├── manuscript/

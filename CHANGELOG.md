@@ -92,3 +92,8 @@
 - Add descriptive captions to architecture performance and runtime tables
 - Standardize figure numbering and caption formatting
 - Refine HTML spacing and caption placement throughout README
+
+## [2026-08-16 03:52:10] - Document asset figure mappings
+- Add 640X640 image to asset tree
+- Relabel parameters image as Figure 2a
+- Relabel GFLOPs image as Figure 2b
