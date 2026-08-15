@@ -87,3 +87,8 @@
 - Remove duplicate Evaluation Setup heading
 - Stack benchmark image above configuration table
 - Shorten figure and table captions
+
+## [2026-08-16 03:49:18] - Improve README figure and table captions
+- Add descriptive captions to architecture performance and runtime tables
+- Standardize figure numbering and caption formatting
+- Refine HTML spacing and caption placement throughout README

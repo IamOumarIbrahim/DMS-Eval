@@ -38,10 +38,10 @@ The study evaluates models on a custom multi-condition dataset covering **normal
 
 <img src="assets/640X640.png" width="34%" alt="640×640 benchmark input resolution">
 
-<br>
+
 <sub><strong>Figure 1.</strong> Standardized 640×640 input resolution.</sub>
 
-<br><br>
+<br>
 
 <table>
   <tr>
@@ -74,7 +74,7 @@ The study evaluates models on a custom multi-condition dataset covering **normal
   </tr>
 </table>
 
-<br>
+
 <sub><strong>Table 1.</strong> Controlled evaluation configuration.</sub>
 
 </div>
@@ -82,7 +82,6 @@ The study evaluates models on a custom multi-condition dataset covering **normal
 ## Evaluated Models
 
 <div align="center">
-
 
 <table>
   <tr>
@@ -129,6 +128,10 @@ The study evaluates models on a custom multi-condition dataset covering **normal
   </tr>
 </table>
 
+<p>
+  <sub><strong>Table 2.</strong> Architectural characteristics of the evaluated lightweight object detectors.</sub>
+</p>
+
 </div>
 
 <div align="center">
@@ -136,7 +139,7 @@ The study evaluates models on a custom multi-condition dataset covering **normal
 <img src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(a).png" width="49.5%" alt="Parameter count comparison"><img src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(b).png" width="49.5%" alt="FLOPs comparison">
 
 <p>
-  <em>Figure 1. Relative computational footprint of the evaluated lightweight detector variants.</em>
+  <sub><strong>Figure 2.</strong> Relative computational footprint of the evaluated lightweight detector variants.</sub>
 </p>
 
 </div>
@@ -170,12 +173,16 @@ The benchmark evaluates each model across both **detection quality** and **deplo
     <td>Model Size (MB), Peak Memory (MB)</td>
   </tr>
 </table>
-
-</div>
-
-<p align="center">
+<p>
   <sub><strong>AP</strong> denotes AP<sub>50:95</sub>, averaged over IoU thresholds from 0.50 to 0.95.</sub>
 </p>
+<p>
+  <sub><strong>Table 3.</strong> Evaluation metrics used to assess detection quality, runtime performance, model complexity, and deployment characteristics.</sub>
+</p>
+
+
+
+</div>
 
 > **Primary Detection Metric**
 
@@ -254,6 +261,10 @@ All models are evaluated using the same hardware, batch size, numerical precisio
   </tr>
 </table>
 
+<p>
+  <sub><strong>Table 4.</strong> Detection performance of the evaluated lightweight object detectors.</sub>
+</p>
+
 </div>
 
 <div align="center">
@@ -300,6 +311,10 @@ All models are evaluated using the same hardware, batch size, numerical precisio
     <td align="center">—</td>
   </tr>
 </table>
+
+<p>
+  <sub><strong>Table 5.</strong> Runtime performance and deployment characteristics of the evaluated lightweight object detectors.</sub>
+</p>
 
 </div>
 
