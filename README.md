@@ -2,6 +2,8 @@
 
 In this work, we introduce Driver Monitoring System, a comprehensive evaluation framework designed to assess the trade-offs between model efficiency and detection accuracy in real-world driving conditions.
 
+![Status: Under Review](https://img.shields.io/badge/Status-Under_Review-blue?style=flat)
+
 > ### Paper Scope
 Benchmarking lightweight models in driver state monitoring (drowsiness and distraction). This includes developing a novel dataset that spans normal, distracted, fatigued, and low-visibility nighttime conditions.
 
@@ -29,11 +31,8 @@ Benchmarking lightweight models in driver state monitoring (drowsiness and distr
   Department of Computer Engineering, University of Sharjah  
   📧 [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae)
 
-## Acknowledgments & Target Venue
-
-This research and codebase are prepared for submission to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026).
-
-
+> [!NOTE] Acknowledgments & Target Venue
+> This research and codebase are prepared for submission to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026).
 
 # LICENSE
 
