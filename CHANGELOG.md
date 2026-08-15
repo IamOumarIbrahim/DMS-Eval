@@ -27,3 +27,8 @@
 - Add parameter comparison chart
 - Add FLOPs comparison chart
 - Embed both charts in the README
+
+## [2026-08-16 02:08:15] - Refine model comparison documentation
+- Replace parameter and FLOPs columns with post processing details
+- Present computational charts in a balanced table layout
+- Add descriptive figure caption and improved image accessibility

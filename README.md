@@ -32,59 +32,60 @@ The study evaluates models on a custom multi-condition dataset covering **normal
 
 **Controlled Evaluation:** All models are evaluated using the same dataset split, hardware, batch size, numerical precision, input resolution, and evaluation protocol. This provides a consistent basis for comparing detection accuracy, inference speed, and deployment efficiency across the selected architectures.
 
-
 <div align="center">
 
 <table>
   <tr>
     <th align="center">Model</th>
-    <th align="center">Parameters (M)</th>
-    <th align="center">FLOPs (G)</th>
     <th align="center">Architectural Focus</th>
+    <th align="center">Post-processing</th>
   </tr>
   <tr>
     <td align="center">YOLO11n</td>
-    <td align="center">2.6</td>
-    <td align="center">6.5</td>
     <td align="center">Convolutional baseline (C3k2 / CSP-style)</td>
+    <td align="center">NMS-based</td>
   </tr>
   <tr>
     <td align="center">YOLOv12n</td>
-    <td align="center">2.6</td>
-    <td align="center">6.5</td>
     <td align="center">Area Attention / R-ELAN</td>
+    <td align="center">NMS-based</td>
   </tr>
   <tr>
     <td align="center">D-FINE-N</td>
-    <td align="center">4.0</td>
-    <td align="center">7.0</td>
     <td align="center">DETR-style fine-grained distribution refinement</td>
+    <td align="center">End-to-end / NMS-free</td>
   </tr>
   <tr>
     <td align="center">YOLO26n</td>
-    <td align="center">2.4</td>
-    <td align="center">5.4</td>
     <td align="center">DFL-free native end-to-end inference</td>
+    <td align="center">Native NMS-free</td>
   </tr>
 </table>
 
-</div>
+<br>
 
-<div align="center">
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img
+        src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(a).png"
+        width="95%"
+        alt="Parameter count comparison"
+      />
+    </td>
+    <td align="center" width="50%">
+      <img
+        src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(b).png"
+        width="95%"
+        alt="FLOPs comparison"
+      />
+    </td>
+  </tr>
+</table>
 
-  <img
-    src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(a).png"
-    width="46%"
-    alt="Parameters comparison"
-  />
-
-  &nbsp;&nbsp;&nbsp;&nbsp;
-
-  <img
-    src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(b).png"
-    width="46%"
-    alt="FLOPs comparison"
-  />
+<p>
+  <em>Figure 1. Relative computational footprint of the evaluated lightweight detector variants.</em>
+</p>
 
 </div>
 
