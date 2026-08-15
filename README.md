@@ -39,28 +39,48 @@ The study evaluates models on a custom multi-condition dataset covering **normal
     <th align="center">Model</th>
     <th align="center">Architectural Focus</th>
     <th align="center">Post-processing</th>
+    <th align="center">Official Source</th>
   </tr>
+
   <tr>
     <td align="center">YOLO11n</td>
     <td align="center">Convolutional baseline (C3k2 / CSP-style)</td>
     <td align="center">NMS-based</td>
+    <td align="center">
+      <a href="https://docs.ultralytics.com/models/yolo11/"><strong>Ultralytics ↗</strong></a>
+    </td>
   </tr>
+
   <tr>
     <td align="center">YOLOv12n</td>
     <td align="center">Area Attention / R-ELAN</td>
     <td align="center">NMS-based</td>
+    <td align="center">
+      <a href="https://github.com/sunsmarterjie/yolov12"><strong>Official Repo ↗</strong></a>
+    </td>
   </tr>
+
   <tr>
     <td align="center">D-FINE-N</td>
     <td align="center">DETR-style fine-grained distribution refinement</td>
     <td align="center">End-to-end / NMS-free</td>
+    <td align="center">
+      <a href="https://github.com/Peterande/D-FINE"><strong>Official Repo ↗</strong></a>
+    </td>
   </tr>
+
   <tr>
     <td align="center">YOLO26n</td>
     <td align="center">DFL-free native end-to-end inference</td>
     <td align="center">Native NMS-free</td>
+    <td align="center">
+      <a href="https://docs.ultralytics.com/models/yolo26/"><strong>Ultralytics ↗</strong></a>
+    </td>
   </tr>
+
 </table>
+
+</div>
 
 <img src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(a).png" width="49.5%" alt="Parameter count comparison"><img src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(b).png" width="49.5%" alt="FLOPs comparison">
 

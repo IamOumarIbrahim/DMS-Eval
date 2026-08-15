@@ -42,3 +42,8 @@
 - Replace table markup with inline comparison images
 - Preserve balanced widths and descriptive alt text
 - Simplify Figure 1 caption formatting
+
+## [2026-08-16 02:15:05] - Add official model sources to README
+- Added official source column to model comparison
+- Linked each model to its documentation or repository
+- Closed the model table container before figures
