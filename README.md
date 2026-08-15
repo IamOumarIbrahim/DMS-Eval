@@ -27,47 +27,48 @@ The study evaluates models on a custom multi-condition dataset covering **normal
 
 ## Evaluated Models
 
-Compute-Constrained Comparison: All models are lightweight variants operating within a narrow 2.4–4.0M parameter and 5.4–7.0 GFLOP budget at 640×640 input resolution. This constrains model capacity while preserving architectural diversity across convolutional, attention-based, DETR-style, and end-to-end detectors.
+> [!TIP]
+> All models operate within **2.4–4.0M parameters**, **5.4–7.0 GFLOPs**, and use **640×640 inputs**, keeping the comparison compute-constrained while preserving architectural diversity.
 
-Controlled Evaluation: All models are evaluated using the same dataset split, 640×640 input resolution, hardware, batch size, numerical precision, and evaluation protocol. Accuracy and runtime measurements therefore provide a controlled comparison of the practical accuracy–efficiency trade-offs among the selected architectures.
+**Controlled Evaluation:** All models are evaluated using the same dataset split, hardware, batch size, numerical precision, input resolution, and evaluation protocol. This provides a consistent basis for comparing detection accuracy, inference speed, and deployment efficiency across the selected architectures.
+
 
 <div align="center">
 
 <table>
   <tr>
-    <th>Model</th>
-    <th>Parameters (M)</th>
-    <th>FLOPs (G)</th>
-    <th>Architectural Focus</th>
+    <th align="center">Model</th>
+    <th align="center">Parameters (M)</th>
+    <th align="center">FLOPs (G)</th>
+    <th align="center">Architectural Focus</th>
   </tr>
   <tr>
-    <td>YOLO11n</td>
-    <td>2.6</td>
-    <td>6.5</td>
-    <td>Convolutional baseline (C3k2 / CSP-style)</td>
+    <td align="center">YOLO11n</td>
+    <td align="center">2.6</td>
+    <td align="center">6.5</td>
+    <td align="center">Convolutional baseline (C3k2 / CSP-style)</td>
   </tr>
   <tr>
-    <td>YOLOv12n</td>
-    <td>2.6</td>
-    <td>6.5</td>
-    <td>Area Attention / R-ELAN</td>
+    <td align="center">YOLOv12n</td>
+    <td align="center">2.6</td>
+    <td align="center">6.5</td>
+    <td align="center">Area Attention / R-ELAN</td>
   </tr>
   <tr>
-    <td>D-FINE-N</td>
-    <td>4.0</td>
-    <td>7.0</td>
-    <td>DETR-style fine-grained distribution refinement</td>
+    <td align="center">D-FINE-N</td>
+    <td align="center">4.0</td>
+    <td align="center">7.0</td>
+    <td align="center">DETR-style fine-grained distribution refinement</td>
   </tr>
   <tr>
-    <td>YOLO26n</td>
-    <td>2.4</td>
-    <td>5.4</td>
-    <td>DFL-free native end-to-end inference</td>
+    <td align="center">YOLO26n</td>
+    <td align="center">2.4</td>
+    <td align="center">5.4</td>
+    <td align="center">DFL-free native end-to-end inference</td>
   </tr>
 </table>
 
 </div>
-
 
 
 ## Evaluation Metrics

@@ -17,3 +17,8 @@
 - Clarify DMS Eval scope and dataset scenarios
 - Document evaluated models metrics and controlled protocol
 - Exclude unused candidate images from version control
+
+## [2026-08-16 01:44:39] - Improve evaluated models documentation and table formatting
+- Highlight compute constraints in a tip callout
+- Clarify the controlled evaluation methodology
+- Center model comparison table headers and values
