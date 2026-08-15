@@ -8,3 +8,6 @@
 *.synctex.gz
 *.fdb_latexmk
 *.fls
+
+# Ignore design drafts and unused candidate images
+assets/candidates/

@@ -12,3 +12,8 @@
 - Move references file to manuscript main source
 - Ignore common LaTeX build artifacts
 - Add empty Python requirements file
+
+## [2026-08-16 01:36:48] - Expand benchmark documentation and ignore design candidates
+- Clarify DMS Eval scope and dataset scenarios
+- Document evaluated models metrics and controlled protocol
+- Exclude unused candidate images from version control
