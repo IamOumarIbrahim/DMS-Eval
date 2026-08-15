@@ -1,16 +1,19 @@
 # DMS-Eval
 
-In this work, we introduce Driver Monitoring System, a comprehensive evaluation framework designed to assess the trade-offs between model efficiency and detection accuracy in real-world driving conditions.
+This paper presents a comprehensive benchmark of state-of-the-art lightweight vision architectures across a novel, multi-condition dataset to evaluate the critical trade-offs between real-time inference speed and detection accuracy for intelligent driver monitoring systems.
 
 ![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Table of Contents
 
 * [Overview](#overview)
+  * [Paper Scope](#paper-scope)
+  * [Evaluation Metrics](#evaluation-metrics)
+  * [Project Structure](#project-structure)
 * [Authors & Acknowledgments](#authors--acknowledgments)
 * [License](#license)
 
-## Overvieww
+## Overview 
 > ### Paper Scope
 Benchmarking lightweight models in driver state monitoring (drowsiness and distraction). This includes developing a novel dataset that spans normal, distracted, fatigued, and low-visibility nighttime conditions.
 
@@ -37,7 +40,6 @@ Benchmarking lightweight models in driver state monitoring (drowsiness and distr
 └── README.md             // Project documentation
 ```
 ## Authors & Acknowledgments
-> ### Authors 
 
 * **Dr. Mohamad Khairi bin Ishak** (Associate Professor)  
   Department of Computer Engineering, University of Sharjah  
@@ -47,9 +49,9 @@ Benchmarking lightweight models in driver state monitoring (drowsiness and distr
   Department of Computer Engineering, University of Sharjah  
   📧 [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae)
 
-> [!NOTE] Acknowledgments & Target Venue
+> [!NOTE]
 > This research and codebase are prepared for submission to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026).
 
-## LICENSE
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
