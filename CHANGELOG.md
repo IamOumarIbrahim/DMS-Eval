@@ -37,3 +37,8 @@
 - Center the computational characteristics table
 - Expand both comparison images to full cell width
 - Restyle the figure caption with smaller emphasized text
+
+## [2026-08-16 02:12:52] - Simplify model comparison figure layout
+- Replace table markup with inline comparison images
+- Preserve balanced widths and descriptive alt text
+- Simplify Figure 1 caption formatting
