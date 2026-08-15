@@ -7,3 +7,8 @@
 - Clarify the driver monitoring benchmark scope
 - Expand navigation with detailed overview sections
 - Fix heading consistency and acknowledgment formatting
+
+## [2026-08-16 00:40:59] - Reorganize manuscript and ignore LaTeX build artifacts
+- Move references file to manuscript main source
+- Ignore common LaTeX build artifacts
+- Add empty Python requirements file

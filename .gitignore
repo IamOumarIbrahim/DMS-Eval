@@ -1,4 +1,10 @@
-# References ---------------------
-
-./references
-*.pdf
+# LaTeX build artifacts ----------
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
