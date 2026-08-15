@@ -124,7 +124,7 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 * **Peak Inference Memory:** Maximum memory consumption observed during inference.
 
 
-## Benchmark Results
+## Evaluation Results
 
 <div align="center">
 
@@ -223,11 +223,21 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 ## Project Structure
 ```text
 .
-├── REFERENCES/
-│   └── references.bib    // BibTeX sources
+├── assets/
+│   ├── Computational Characteristics of Evaluated Models (a).png // Parameters Table
+│   └── Computational Characteristics of Evaluated Models (b).png // GFLOPS Table
+├── core/
+├── docs/
+├── manuscript/
+│   ├── archive/
+│   ├── bib/
+│   ├── figures/
+│   ├── style/
+│   └── main.tex          // manuscript LaTeX file
 ├── .gitignore            // Ignored files
 ├── CHANGELOG.md          // Version history
 ├── LICENSE               // Usage license
+├── requirements.txt      // software requirements
 └── README.md             // Project documentation
 ```
 ## Authors & Acknowledgments

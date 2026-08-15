@@ -57,3 +57,8 @@
 - Split accuracy and efficiency metrics into separate tables
 - Remove redundant input resolution column
 - Preserve model parameters and FLOPs comparisons
+
+## [2026-08-16 02:39:04] - Update evaluation documentation and project structure
+- Rename Benchmark Results to Evaluation Results
+- Document assets core docs and manuscript directories
+- Add requirements file to the project structure
