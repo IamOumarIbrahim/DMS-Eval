@@ -1,5 +1,6 @@
-# LLDM-Bench
+# DMS-Eval
 
+In this work, we introduce Driver Monitoring System, a comprehensive evaluation framework designed to assess the trade-offs between model efficiency and detection accuracy in real-world driving conditions.
 
 > ### Paper Scope
 Benchmarking lightweight models in driver state monitoring (drowsiness and distraction). This includes developing a novel dataset that spans normal, distracted, fatigued, and low-visibility nighttime conditions.
