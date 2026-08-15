@@ -10,7 +10,7 @@
 
   * [Paper Scope](#paper-scope)
 * [Evaluated Models](#evaluated-models)
-* [Evaluation Metrics](#evaluation-metrics)
+* [Evaluation Metrics](#evaluation-metrics) 
 * [Project Structure](#project-structure)
 * [Authors & Acknowledgments](#authors--acknowledgments)
 * [License](#license)
@@ -70,6 +70,23 @@ The study evaluates models on a custom multi-condition dataset covering **normal
 
 </div>
 
+<div align="center">
+
+  <img
+    src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(a).png"
+    width="46%"
+    alt="Parameters comparison"
+  />
+
+  &nbsp;&nbsp;&nbsp;&nbsp;
+
+  <img
+    src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(b).png"
+    width="46%"
+    alt="FLOPs comparison"
+  />
+
+</div>
 
 ## Evaluation Metrics
 

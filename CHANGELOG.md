@@ -22,3 +22,8 @@
 - Highlight compute constraints in a tip callout
 - Clarify the controlled evaluation methodology
 - Center model comparison table headers and values
+
+## [2026-08-16 02:03:11] - Add model computational comparison charts
+- Add parameter comparison chart
+- Add FLOPs comparison chart
+- Embed both charts in the README
