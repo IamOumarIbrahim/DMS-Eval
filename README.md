@@ -2,8 +2,15 @@
 
 In this work, we introduce Driver Monitoring System, a comprehensive evaluation framework designed to assess the trade-offs between model efficiency and detection accuracy in real-world driving conditions.
 
-![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat)
+![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+## Table of Contents
+
+* [Overview](#overview)
+* [Authors & Acknowledgments](#authors--acknowledgments)
+* [License](#license)
+
+## Overvieww
 > ### Paper Scope
 Benchmarking lightweight models in driver state monitoring (drowsiness and distraction). This includes developing a novel dataset that spans normal, distracted, fatigued, and low-visibility nighttime conditions.
 
@@ -43,6 +50,6 @@ Benchmarking lightweight models in driver state monitoring (drowsiness and distr
 > [!NOTE] Acknowledgments & Target Venue
 > This research and codebase are prepared for submission to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026).
 
-# LICENSE
+## LICENSE
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
