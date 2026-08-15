@@ -2,11 +2,10 @@
 
 In this work, we introduce Driver Monitoring System, a comprehensive evaluation framework designed to assess the trade-offs between model efficiency and detection accuracy in real-world driving conditions.
 
-![Status: Under Review](https://img.shields.io/badge/Status-Under_Review-blue?style=flat)
+![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat)
 
 > ### Paper Scope
 Benchmarking lightweight models in driver state monitoring (drowsiness and distraction). This includes developing a novel dataset that spans normal, distracted, fatigued, and low-visibility nighttime conditions.
-
 
 > ### Evaluation Metrics
 
@@ -20,8 +19,18 @@ Benchmarking lightweight models in driver state monitoring (drowsiness and distr
 
 
 
-
-> ### Authors & Correspondence
+> ### Project Structure
+```text
+.
+├── REFERENCES/
+│   └── references.bib    // BibTeX sources
+├── .gitignore            // Ignored files
+├── CHANGELOG.md          // Version history
+├── LICENSE               // Usage license
+└── README.md             // Project documentation
+```
+## Authors & Acknowledgments
+> ### Authors 
 
 * **Dr. Mohamad Khairi bin Ishak** (Associate Professor)  
   Department of Computer Engineering, University of Sharjah  
