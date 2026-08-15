@@ -7,10 +7,10 @@
 ## Table of Contents
 
 * [Overview](#overview)
-
   * [Paper Scope](#paper-scope)
 * [Evaluated Models](#evaluated-models)
 * [Evaluation Metrics](#evaluation-metrics) 
+* [Benchmark Results](#benchmark-results)
 * [Project Structure](#project-structure)
 * [Authors & Acknowledgments](#authors--acknowledgments)
 * [License](#license)
@@ -47,7 +47,7 @@ The study evaluates models on a custom multi-condition dataset covering **normal
     <td align="center">Convolutional baseline (C3k2 / CSP-style)</td>
     <td align="center">NMS-based</td>
     <td align="center">
-      <a href="https://docs.ultralytics.com/models/yolo11/"><strong>Ultralytics ↗</strong></a>
+      <a href="https://docs.ultralytics.com/models/yolo11/"><strong>Ultralytics</strong></a>
     </td>
   </tr>
 
@@ -56,7 +56,7 @@ The study evaluates models on a custom multi-condition dataset covering **normal
     <td align="center">Area Attention / R-ELAN</td>
     <td align="center">NMS-based</td>
     <td align="center">
-      <a href="https://github.com/sunsmarterjie/yolov12"><strong>Official Repo ↗</strong></a>
+      <a href="https://github.com/sunsmarterjie/yolov12"><strong>Official Repo</strong></a>
     </td>
   </tr>
 
@@ -65,7 +65,7 @@ The study evaluates models on a custom multi-condition dataset covering **normal
     <td align="center">DETR-style fine-grained distribution refinement</td>
     <td align="center">End-to-end / NMS-free</td>
     <td align="center">
-      <a href="https://github.com/Peterande/D-FINE"><strong>Official Repo ↗</strong></a>
+      <a href="https://github.com/Peterande/D-FINE"><strong>Official Repo</strong></a>
     </td>
   </tr>
 
@@ -74,7 +74,7 @@ The study evaluates models on a custom multi-condition dataset covering **normal
     <td align="center">DFL-free native end-to-end inference</td>
     <td align="center">Native NMS-free</td>
     <td align="center">
-      <a href="https://docs.ultralytics.com/models/yolo26/"><strong>Ultralytics ↗</strong></a>
+      <a href="https://docs.ultralytics.com/models/yolo26/"><strong>Ultralytics</strong></a>
     </td>
   </tr>
 
@@ -124,6 +124,89 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 * **Peak Inference Memory:** Maximum memory consumption observed during inference.
 
 
+## Benchmark Results
+
+<div align="center">
+
+<table>
+  <tr>
+    <th align="center">Model</th>
+    <th align="center">Input</th>
+    <th align="center">mAP@0.5:0.95</th>
+    <th align="center">mAP@0.5</th>
+    <th align="center">Precision</th>
+    <th align="center">Recall</th>
+    <th align="center">F1</th>
+    <th align="center">Params (M)</th>
+    <th align="center">FLOPs (G)</th>
+    <th align="center">Latency (ms)</th>
+    <th align="center">FPS</th>
+    <th align="center">Size (MB)</th>
+  </tr>
+
+  <tr>
+    <td align="center"><strong>YOLO11n</strong></td>
+    <td align="center">640×640</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">2.6</td>
+    <td align="center">6.5</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+  </tr>
+
+  <tr>
+    <td align="center"><strong>YOLOv12n</strong></td>
+    <td align="center">640×640</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">2.6</td>
+    <td align="center">6.5</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+  </tr>
+
+  <tr>
+    <td align="center"><strong>D-FINE-N</strong></td>
+    <td align="center">640×640</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">4.0</td>
+    <td align="center">7.0</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+  </tr>
+
+  <tr>
+    <td align="center"><strong>YOLO26n</strong></td>
+    <td align="center">640×640</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">2.4</td>
+    <td align="center">5.4</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+    <td align="center">—</td>
+  </tr>
+
+</table>
+
+</div>
 
 ## Project Structure
 ```text

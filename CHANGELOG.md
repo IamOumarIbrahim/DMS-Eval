@@ -47,3 +47,8 @@
 - Added official source column to model comparison
 - Linked each model to its documentation or repository
 - Closed the model table container before figures
+
+## [2026-08-16 02:30:14] - Add benchmark results to README
+- Adds benchmark comparison table for four models
+- Documents model parameters FLOPs and performance placeholders
+- Updates navigation and removes corrupted link text
