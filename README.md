@@ -64,28 +64,28 @@ The study evaluates models on a custom multi-condition dataset covering **normal
 
 <br>
 
+<div align="center">
+
 <table>
   <tr>
     <td align="center" width="50%">
       <img
         src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(a).png"
-        width="95%"
+        width="100%"
         alt="Parameter count comparison"
       />
     </td>
     <td align="center" width="50%">
       <img
         src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(b).png"
-        width="95%"
+        width="100%"
         alt="FLOPs comparison"
       />
     </td>
   </tr>
 </table>
 
-<p>
-  <em>Figure 1. Relative computational footprint of the evaluated lightweight detector variants.</em>
-</p>
+<sub><em>Figure 1. Relative computational footprint of the evaluated lightweight detector variants.</em></sub>
 
 </div>
 

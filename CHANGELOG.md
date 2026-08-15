@@ -32,3 +32,8 @@
 - Replace parameter and FLOPs columns with post processing details
 - Present computational charts in a balanced table layout
 - Add descriptive figure caption and improved image accessibility
+
+## [2026-08-16 02:10:14] - Center and refine computational comparison figure
+- Center the computational characteristics table
+- Expand both comparison images to full cell width
+- Restyle the figure caption with smaller emphasized text
