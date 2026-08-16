@@ -167,3 +167,8 @@
 - Add citations for detection models DMD and COCO
 - Document the August 20 benchmark design freeze
 - Expand literature ignore rules and update project structure
+
+## [2026-08-16 21:49:57] - Remove obsolete benchmark and methodology documentation
+- Removed the central documentation index
+- Deleted benchmark protocols model specifications scope and setup
+- Removed experiment timelines results contributions and limitations
