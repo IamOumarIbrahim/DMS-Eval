@@ -3,7 +3,7 @@
 
 **DMS-Eval** is a benchmark for evaluating lightweight object detection architectures for real-time driver drowsiness and distraction monitoring across diverse cabin operating conditions.
 
-![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) [![ORCID: Oumar](https://img.shields.io/badge/ORCID-0009--0008--0312--1605-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0008-0312-1605) ![Input: 640×640](https://img.shields.io/badge/Input-640%C3%97640-555?style=flat) ![Detectors: YOLO | DETR](https://img.shields.io/badge/Detectors-YOLO%20%7C%20DETR-4c1?style=flat)
+![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) ![Input: 640×640](https://img.shields.io/badge/Input-640%C3%97640-555?style=flat) ![Detectors: YOLO | DETR](https://img.shields.io/badge/Detectors-YOLO%20%7C%20DETR-4c1?style=flat)
 
 <p align="center">
   <img src="assets/socialpreview.png" width="640" alt="DMS-Eval">
@@ -448,13 +448,15 @@ Future extensions of DMS-Eval may investigate:
 
 * **Dr. Mohamad Khairi bin Ishak** (Associate Professor)  
   Department of Computer Engineering, University of Sharjah  
-  🆔 [0000-0002-3554-0061](https://orcid.org/0000-0002-3554-0061)  
-  📧 [mishak@sharjah.ac.ae](mailto:mishak@sharjah.ac.ae)
+
+  [![ORCID: Dr. Mohamad](https://img.shields.io/badge/ORCID-0000--0002--3554--0061-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-3554-0061)  
+  📧 | [mishak@sharjah.ac.ae](mailto:mishak@sharjah.ac.ae)
 
 * **Oumar Mamoun Ibrahim** (Senior Undergraduate Researcher)  
   Department of Computer Engineering, University of Sharjah  
-  🆔 [0009-0008-0312-1605](https://orcid.org/0009-0008-0312-1605)  
-  📧 [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae)
+
+  [![ORCID: Oumar](https://img.shields.io/badge/ORCID-0009--0008--0312--1605-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0008-0312-1605)  
+  📧 | [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae)
 
 > ### Acknowledgments
 

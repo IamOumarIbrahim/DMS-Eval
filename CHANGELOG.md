@@ -127,3 +127,8 @@
 - Add IEEE LaTeX class bst and abbreviation files to support manuscript formatting
 - Create benchmark protocol and 6 page manuscript outline for the paper
 - Update README author metadata and ignore local manuscript archive files
+
+## [2026-08-16 15:38:13] - update readme badges and author links
+- Removed the top level ORCID badge from the project status line
+- Replaced plain author ORCID text with badge links for both contributors
+- Standardized the contact lines in the acknowledgments section
