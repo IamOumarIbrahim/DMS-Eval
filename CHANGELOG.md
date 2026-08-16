@@ -212,3 +212,8 @@
 - Consolidate benchmark scope and preprocessing details into structured tables
 - Clarify cue salience categories exclusions and bounding box rules
 - Expand evaluation metrics with reporting granularity and protocol roles
+
+## [2026-08-17 02:28:51] - Add dataset metadata placeholders
+- Add empty annotations metadata file
+- Add excluded frames CSV placeholder
+- Add preprocessing and split configuration placeholders
