@@ -13,8 +13,10 @@
 
 * [Overview](#overview)
   * [Paper Scope](#paper-scope)
+  * [Research Question](#research-question)
 * [Evaluation Setup](#evaluation-setup)
 * [Evaluated Models](#evaluated-models)
+  * [Official Reference Benchmark](#official-reference-benchmark)
 * [Evaluation Metrics](#evaluation-metrics)
 * [Evaluation Dataset](#evaluation-dataset)
 * [Evaluation Scope](#evaluation-scope)
@@ -43,7 +45,8 @@ The study focuses on the trade-off between detection performance, inference late
 ## Evaluation Setup
 
 > [!TIP]
-> All models operate within **2.4–4.0M parameters**, **5.4–7.0 GFLOPs**, and use **640×640 inputs**, keeping the comparison compute-constrained while preserving architectural diversity.
+> All models operate within **2.4–4.0 M parameters**, **5.4–7.0 GFLOPs**, use **640×640 inputs**, and are initialized from **COCO-pretrained weights**, keeping the comparison compute-constrained while preserving architectural diversity.
+
 
 <div align="center">
 
@@ -99,25 +102,17 @@ The study focuses on the trade-off between detection performance, inference late
     <th align="center">Family</th>
     <th align="center">Architectural Focus</th>
     <th align="center">Post-processing</th>
-    <th align="center">Input</th>
-    <th align="center">Params (M)</th>
-    <th align="center">GFLOPs</th>
-    <th align="center">Implementation</th>
-    <th align="center">Pretrained Weights</th>
+    <th align="center">Source</th>
   </tr>
 
   <tr>
     <td align="center">YOLO11n</td>
     <td align="center">YOLO</td>
-    <td align="center">Convolutional baseline (C3k2 / CSP-style)</td>
+    <td align="center">C3k2 / CSP-style convolutional baseline</td>
     <td align="center">NMS-based</td>
-    <td align="center">640×640</td>
-    <td align="center">2.6</td>
-    <td align="center">6.5</td>
     <td align="center">
       <a href="https://docs.ultralytics.com/models/yolo11/"><strong>Ultralytics</strong></a>
     </td>
-    <td align="center">COCO</td>
   </tr>
 
   <tr>
@@ -125,13 +120,9 @@ The study focuses on the trade-off between detection performance, inference late
     <td align="center">YOLO</td>
     <td align="center">Area Attention / R-ELAN</td>
     <td align="center">NMS-based</td>
-    <td align="center">640×640</td>
-    <td align="center">2.5</td>
-    <td align="center">6.0</td>
     <td align="center">
       <a href="https://github.com/sunsmarterjie/yolov12"><strong>Official Repo</strong></a>
     </td>
-    <td align="center">COCO</td>
   </tr>
 
   <tr>
@@ -139,13 +130,9 @@ The study focuses on the trade-off between detection performance, inference late
     <td align="center">DETR</td>
     <td align="center">Fine-grained distribution refinement</td>
     <td align="center">End-to-end / NMS-free</td>
-    <td align="center">640×640</td>
-    <td align="center">4.0</td>
-    <td align="center">7.0</td>
     <td align="center">
       <a href="https://github.com/Peterande/D-FINE"><strong>Official Repo</strong></a>
     </td>
-    <td align="center">COCO</td>
   </tr>
 
   <tr>
@@ -153,28 +140,82 @@ The study focuses on the trade-off between detection performance, inference late
     <td align="center">YOLO</td>
     <td align="center">DFL-free native end-to-end inference</td>
     <td align="center">Native NMS-free</td>
-    <td align="center">640×640</td>
-    <td align="center">2.4</td>
-    <td align="center">5.4</td>
     <td align="center">
       <a href="https://docs.ultralytics.com/models/yolo26/"><strong>Ultralytics</strong></a>
     </td>
-    <td align="center">COCO</td>
   </tr>
 </table>
 
 <p>
-  <sub><strong>Table 2.</strong> Architectural and computational characteristics of the evaluated lightweight object detectors.</sub>
+  <sub><strong>Table 2.</strong> Architectural characteristics of the evaluated lightweight object detectors.</sub>
 </p>
 
 </div>
 
+### Official Reference Benchmark
+
+> [!NOTE]
+> The values below are **official COCO validation benchmarks reported by the respective model authors** and are provided only as reference points. They are **not DMS-Eval results**.
+
 <div align="center">
 
-<img src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(a).png" width="49.5%" alt="Parameter count comparison"><img src="assets/Computational%20Characteristics%20of%20Evaluated%20Models%20(b).png" width="49.5%" alt="FLOPs comparison">
+<table>
+  <tr>
+    <th align="center">Model</th>
+    <th align="center">Input</th>
+    <th align="center">AP<sup>val</sup><sub>50:95</sub></th>
+    <th align="center">T4 Latency<br>(ms)</th>
+    <th align="center">Params (M)</th>
+    <th align="center">GFLOPs</th>
+  </tr>
+
+  <tr>
+    <td align="center">
+      <a href="https://docs.ultralytics.com/models/yolo11#performance-metrics"><strong>YOLO11n</strong></a>
+    </td>
+    <td align="center">640×640</td>
+    <td align="center">39.5</td>
+    <td align="center">1.50</td>
+    <td align="center">2.6</td>
+    <td align="center">6.5</td>
+  </tr>
+
+  <tr>
+    <td align="center">
+      <a href="https://github.com/sunsmarterjie/yolov12#main-results"><strong>YOLOv12n (Turbo)</strong></a>
+    </td>
+    <td align="center">640×640</td>
+    <td align="center">40.4</td>
+    <td align="center">1.60</td>
+    <td align="center">2.5</td>
+    <td align="center">6.0</td>
+  </tr>
+
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Peterande/D-FINE#coco"><strong>D-FINE-N</strong></a>
+    </td>
+    <td align="center">640×640</td>
+    <td align="center">42.8</td>
+    <td align="center">2.12</td>
+    <td align="center">4.0</td>
+    <td align="center">7.0</td>
+  </tr>
+
+  <tr>
+    <td align="center">
+      <a href="https://docs.ultralytics.com/models/yolo26#performance-metrics"><strong>YOLO26n</strong></a>
+    </td>
+    <td align="center">640×640</td>
+    <td align="center">40.1<sup>e2e</sup></td>
+    <td align="center">1.70</td>
+    <td align="center">2.4</td>
+    <td align="center">5.4</td>
+  </tr>
+</table>
 
 <p>
-  <sub><strong>Figure 2.</strong> Relative computational footprint of the evaluated lightweight detector variants.</sub>
+  <sub><strong>Table 3.</strong> Official COCO reference performance reported for the evaluated lightweight detector variants. YOLO26n reports 40.1 AP<sub>50:95</sub> for its native end-to-end inference path (40.9 AP<sub>50:95</sub> for the conventional detection path).</sub>
 </p>
 
 </div>
@@ -193,7 +234,7 @@ The benchmark evaluates each model across both **detection quality** and **deplo
   </tr>
   <tr>
     <td><strong>Detection</strong></td>
-    <td>AP, AP<sub>50</sub>, Precision, Recall, F1</td>
+    <td>AP<sub>50:95</sub>, AP<sub>50</sub>, Precision, Recall, F1</td>
   </tr>
   <tr>
     <td><strong>Runtime</strong></td>
@@ -208,11 +249,9 @@ The benchmark evaluates each model across both **detection quality** and **deplo
     <td>Model footprint (MB), Peak Memory (MB)</td>
   </tr>
 </table>
+
 <p>
-  <sub><strong>AP</strong> denotes AP<sub>50:95</sub>, averaged over IoU thresholds from 0.50 to 0.95.</sub>
-</p>
-<p>
-  <sub><strong>Table 3.</strong> Evaluation metrics used to assess detection quality, runtime performance, model complexity, and deployment characteristics.</sub>
+  <sub><strong>Table 4.</strong> Evaluation metrics used to assess detection quality, runtime performance, model complexity, and deployment characteristics.</sub>
 </p>
 
 
@@ -221,7 +260,7 @@ The benchmark evaluates each model across both **detection quality** and **deplo
 
 > **Primary Detection Metric**
 
-* **AP:** Primary detection metric, averaged across IoU thresholds from 0.50 to 0.95.
+* **AP<sub>50:95</sub>:** Primary detection metric, averaged across IoU thresholds from 0.50 to 0.95.
 
 > **Threshold-Controlled Metrics**
 
@@ -277,7 +316,7 @@ The current benchmark focuses on spatially observable driver-monitoring cues ass
 <table>
   <tr>
     <th align="center">Model</th>
-    <th align="center">AP ↑</th>
+    <th align="center">AP<sub>50:95</sub> ↑</th>
     <th align="center">AP<sub>50</sub> ↑</th>
     <th align="center">Precision ↑</th>
     <th align="center">Recall ↑</th>
@@ -292,7 +331,7 @@ The current benchmark focuses on spatially observable driver-monitoring cues ass
     <td align="center">—</td>
   </tr>
   <tr>
-    <td align="center"><strong>YOLOv12n</strong></td>
+    <td align="center"><strong>YOLOv12n (Turbo)</strong></td>
     <td align="center">—</td>
     <td align="center">—</td>
     <td align="center">—</td>
@@ -318,7 +357,7 @@ The current benchmark focuses on spatially observable driver-monitoring cues ass
 </table>
 
 <p>
-  <sub><strong>Table 4.</strong> Detection performance of the evaluated lightweight object detectors.</sub>
+  <sub><strong>Table 5.</strong> Detection performance of the evaluated lightweight object detectors.</sub>
 </p>
 
 </div>
@@ -369,7 +408,7 @@ The current benchmark focuses on spatially observable driver-monitoring cues ass
 </table>
 
 <p>
-  <sub><strong>Table 5.</strong> Runtime performance and deployment characteristics of the evaluated lightweight object detectors.</sub>
+  <sub><strong>Table 6.</strong> Runtime performance and deployment characteristics of the evaluated lightweight object detectors.</sub>
 </p>
 
 </div>
@@ -388,13 +427,13 @@ Future extensions of DMS-Eval may investigate:
 .
 ├── assets/
 │   ├── 640X640.png                                               // Figure 1
-│   ├── Computational Characteristics of Evaluated Models (a).png // Figure 2(a)
-│   └── Computational Characteristics of Evaluated Models (b).png // Figure 2(b)
+│   └── socialpreview.png                                         // Social preview banner
 ├── core/
 ├── docs/
 ├── manuscript/
 │   ├── archive/
 │   ├── bib/
+│   │   └── references.bib
 │   ├── figures/
 │   ├── style/
 │   └── main.tex          // manuscript LaTeX file
@@ -424,7 +463,7 @@ This benchmark builds upon the excellent work of the teams behind [YOLO11](https
 We sincerely thank their authors, contributors, and maintainers for making these architectures and their implementations available to the research community. Their work makes comparative studies such as **DMS-Eval** possible.
 
 > [!NOTE]
-> This research and codebase are prepared for submission to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026).
+> This research and codebase are prepared for submission to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026), held November 25–27, 2026.
 
 ## License
 

@@ -112,3 +112,8 @@
 - Fix malformed research question text
 - Add model families inputs parameters and GFLOPs
 - Rename YOLOv12n Turbo and correct specifications
+
+## [2026-08-16 13:08:37] - Document official model benchmarks and references
+- Add official COCO performance and latency benchmarks
+- Clarify model architecture and evaluation metric documentation
+- Add YOLO11 and YOLOv12 bibliography references
