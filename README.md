@@ -38,11 +38,14 @@ This study will conduct a controlled empirical comparison of lightweight 2D obje
 
 > ### Research Question
 
-**RQ**: How do lightweight object detection architectures compare in terms of detection performance, inference efficiency, and deployment footprint for frame-level driver drowsiness and distraction detection under diverse driving conditions?
+**RQ**: ”Under a controlled compute-constrained evaluation, how do lightweight object detectors compare in accuracy, inference efficiency, and robustness when detecting visual cues associated with driver distraction and drowsiness across normal and low-light driving conditions?"
 
 ## Evaluation Setup
 
-> [!TIP] All target models represent diverse lightweight pretrained detector systems spanning conventional YOLO, attention-centric YOLO, DETR, and native end-to-end architectures. All models use standardized **640×640 inputs** and are initialized from official **COCO-pretrained weights** under a strictly controlled evaluation protocol.
+> **Identical experimental opportunity, identical data exposure, identical external preprocessing/evaluation/hardware, architecture-native internal mechanisms, and zero model-specific access to the held-out test set.**
+
+> [!TIP]
+> All target models represent diverse lightweight pretrained detector systems spanning conventional YOLO, DETR, and native end-to-end architectures. All models use standardized **640×640 inputs** and are initialized from official **COCO-pretrained weights** under a strictly controlled evaluation protocol.
 
 
 <div align="center">
@@ -113,16 +116,6 @@ This study will conduct a controlled empirical comparison of lightweight 2D obje
   </tr>
 
   <tr>
-    <td align="center">YOLOv12n (Turbo)</td>
-    <td align="center">YOLO</td>
-    <td align="center">Area Attention / R-ELAN</td>
-    <td align="center">NMS-based</td>
-    <td align="center">
-      <a href="https://github.com/sunsmarterjie/yolov12"><strong>Official Repo</strong></a>
-    </td>
-  </tr>
-
-  <tr>
     <td align="center">D-FINE-N</td>
     <td align="center">DETR</td>
     <td align="center">Fine-grained distribution refinement</td>
@@ -175,17 +168,6 @@ This study will conduct a controlled empirical comparison of lightweight 2D obje
     <td align="center">1.50</td>
     <td align="center">2.6</td>
     <td align="center">6.5</td>
-  </tr>
-
-  <tr>
-    <td align="center">
-      <a href="https://github.com/sunsmarterjie/yolov12#main-results"><strong>YOLOv12n (Turbo)</strong></a>
-    </td>
-    <td align="center">640×640</td>
-    <td align="center">40.4</td>
-    <td align="center">1.60</td>
-    <td align="center">2.5</td>
-    <td align="center">6.0</td>
   </tr>
 
   <tr>
@@ -313,112 +295,21 @@ The planned benchmark focuses strictly on spatially observable driver-monitoring
 
 ## Evaluation Results
 
-<div align="center">
-
-<table>
-  <tr>
-    <th align="center">Model</th>
-    <th align="center">AP<sub>50:95</sub> ↑</th>
-    <th align="center">AP<sub>50</sub> ↑</th>
-    <th align="center">Precision ↑</th>
-    <th align="center">Recall ↑</th>
-    <th align="center">F1 ↑</th>
-  </tr>
-  <tr>
-    <td align="center"><strong>YOLO11n</strong></td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-  </tr>
-  <tr>
-    <td align="center"><strong>YOLOv12n (Turbo)</strong></td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-  </tr>
-  <tr>
-    <td align="center"><strong>D-FINE-N</strong></td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-  </tr>
-  <tr>
-    <td align="center"><strong>YOLO26n</strong></td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-  </tr>
-</table>
+| Model | Params | AP50:95 | AP50 | Precision | Recall |  F1 | Low-light AP | Median latency | p95 latency | FPS | Weight size |
+| ----- | -----: | ------: | ---: | --------: | -----: | --: | -----------: | -------------: | ----------: | --: | ----------: |
+| **YOLO11n** | 2.6M | — | — | — | — | — | — | — | — | — | — |
+| **D-FINE-N** | 4.0M | — | — | — | — | — | — | — | — | — | — |
+| **YOLO26n** | 2.4M | — | — | — | — | — | — | — | — | — | — |
 
 <p>
-  <sub><strong>Table 5.</strong> Planned detection performance evaluation table (to be populated upon benchmark execution).</sub>
+  <sub><strong>Table 5.</strong> Planned evaluation results across detection accuracy, low-light robustness, latency percentiles, throughput, and model footprint (to be populated upon benchmark execution).</sub>
 </p>
-
-</div>
-
-<div align="center">
-
-<table>
-  <tr>
-    <th align="center">Model</th>
-    <th align="center">Model-Only Latency (ms) ↓</th>
-    <th align="center">End-to-End FPS ↑</th>
-    <th align="center">Params (M) ↓</th>
-    <th align="center">GFLOPs ↓</th>
-    <th align="center">Model Footprint (MB) ↓</th>
-  </tr>
-  <tr>
-    <td align="center"><strong>YOLO11n</strong></td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">2.6</td>
-    <td align="center">6.5</td>
-    <td align="center">—</td>
-  </tr>
-  <tr>
-    <td align="center"><strong>YOLOv12n (Turbo)</strong></td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">2.5</td>
-    <td align="center">6.0</td>
-    <td align="center">—</td>
-  </tr>
-  <tr>
-    <td align="center"><strong>D-FINE-N</strong></td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">4.0</td>
-    <td align="center">7.0</td>
-    <td align="center">—</td>
-  </tr>
-  <tr>
-    <td align="center"><strong>YOLO26n</strong></td>
-    <td align="center">—</td>
-    <td align="center">—</td>
-    <td align="center">2.4</td>
-    <td align="center">5.4</td>
-    <td align="center">—</td>
-  </tr>
-</table>
-
-<p>
-  <sub><strong>Table 6.</strong> Planned runtime performance and deployment characteristics table (to be populated upon benchmark execution).</sub>
-</p>
-
-</div>
 
 ## Future Work
 
 Future extensions of DMS-Eval may investigate:
 
+* **Attention-centric YOLO architectures:** Investigate models such as YOLOv12n (Turbo) featuring area attention and R-ELAN backbones once downstream deployment runtimes and tooling mature.
 * **Temporal driver-state modeling:** Aggregate frame-level detections across video sequences to capture cue persistence, duration, frequency, and temporal evolution.
 * **Benchmark expansion:** Extend the dataset with additional subjects, driving environments, camera viewpoints, and challenging low-illumination conditions.
 * **Cross-dataset evaluation:** Assess model generalization across independently collected driver-monitoring datasets.

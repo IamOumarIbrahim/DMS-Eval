@@ -147,3 +147,8 @@
 - Specify subject splits hardware precision and protocol settings
 - Add balanced accuracy and false positive safety metrics
 - Define DMD real car subset as benchmark dataset
+
+## [2026-08-16 19:24:12] - Refine benchmark scope and consolidate project schedule
+- Refocus evaluation on three lightweight detectors under controlled conditions
+- Expand results tracking with robustness and latency percentile metrics
+- Consolidate planning documents into a comprehensive project schedule
