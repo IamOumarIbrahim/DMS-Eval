@@ -192,3 +192,8 @@
 - Define fixed frame extraction cropping and naming rules
 - Establish subject disjoint splits and persistent manifests
 - Expand COCO structure and cue specific annotation guidance
+
+## [2026-08-17 01:29:26] - Expand benchmark documentation and annotation quality guidance
+- Reorganize sections into a consistent heading hierarchy
+- Standardize benchmark and cue definition tables
+- Add review rules for ambiguous annotations and data quality
