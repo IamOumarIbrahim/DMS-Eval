@@ -207,3 +207,8 @@
 - Clarify benchmark mission sampling and preprocessing constraints
 - Strengthen subject disjoint splits and annotation sources
 - Streamline cue definitions and bounding box rules
+
+## [2026-08-17 02:11:36] - Streamline benchmark documentation and evaluation specifications
+- Consolidate benchmark scope and preprocessing details into structured tables
+- Clarify cue salience categories exclusions and bounding box rules
+- Expand evaluation metrics with reporting granularity and protocol roles

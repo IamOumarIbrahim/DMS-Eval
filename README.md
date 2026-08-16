@@ -8,7 +8,7 @@
 
 ## Table of Contents
 
-* [Frozen Benchmark Scope](#frozen-benchmark-scope)
+* [🧊 Frozen Benchmark Scope](#-frozen-benchmark-scope)
 * [Frame Extraction & Preprocessing](#frame-extraction--preprocessing)
 * [Dataset Splits](#dataset-splits)
 * [Annotation Format](#annotation-format)
@@ -22,37 +22,35 @@
   * [`hand_over_mouth`](#hand_over_mouth)
   * [`phone_use`](#phone_use)
   * [`head_turned_away`](#head_turned_away)
-* [Cue Categories](#cue-categories)
-* [Cue Strength Ordering](#cue-strength-ordering)
-* [Removed Classes](#removed)
+* [Cue Categories & Visual Salience](#cue-categories--visual-salience)
+* [Removed Classes](#removed-classes)
 * [Annotation / Data Quality](#annotation--data-quality)
 * [Evaluation Protocol](#evaluation-protocol)
-* [Resolve Later](#resolve-later)
-* [Skipped / Unresolved Cue](#skipped--unresolved-cue)
+* [⚠️ Resolve Later](#-resolve-later)
+* [Skipped / ⚠️ Unresolved Cue](#skipped---unresolved-cue)
 * [Future Work](#future-work)
 * [Authors & Credits](#authors--credits)
 * [License](#license)
 
-## Frozen Benchmark Scope
+## 🧊 Frozen Benchmark Scope
 
-| Setting | Frozen value |
-| :--- | :--- |
-| Dataset | DMD-derived dataset |
-| Models | YOLO11n, D-FINE-N, YOLO26n |
-| Input resolution | 640×640 |
-| Model input unit | Individual image frames |
-| Source video frame rate | 29.76 FPS |
-| Source video duration range | 55.28–519.39 s |
-| Frame sampling | 1 frame every 1 second |
-| Sampling policy | Same fixed sampling rule for every video |
-| Saved frame format | JPG |
-| Master annotation format | COCO JSON |
-| Master annotation files | One COCO JSON for the full dataset |
-| Split file format | JSON |
-| Train / validation / test split | 8 / 3 / 3 subjects |
-| Split unit | Individual/subject |
-| Split policy | Fully subject-disjoint |
-| Split timing | Finalized before any model training |
+| Setting | 🧊 Frozen value | Specification Notes |
+| :--- | :--- | :--- |
+| **Dataset** | DMD-derived dataset | Real-cabin RGB video sequences |
+| **Models** | YOLO11n, D-FINE-N, YOLO26n | Nano-scale real-time detectors (YOLO vs. DETR) |
+| **Input resolution** | 640×640 | Direct spatial crop |
+| **Model input unit** | Individual image frames | Single static frame evaluation |
+| **Source video frame rate** | 29.76 FPS | Normalized video capture rate |
+| **Source video duration range** | 55.28–519.39 s | Variable naturalistic duration |
+| **Frame sampling** | 1 frame every 1 second | Systematic 1 FPS temporal rate |
+| **Sampling policy** | Fixed uniform sampling | Same sampling rule for every video |
+| **Saved frame format** | JPG | Standard lossy compression |
+| **Master annotation format** | COCO JSON | Single source of truth |
+| **Master annotation files** | One COCO JSON for full dataset | `annotations.json` |
+| **Split file format** | JSON | `splits.json` |
+| **Train / val / test split** | 8 / 3 / 3 subjects | 57.1% / 21.4% / 21.4% whole-subject partition |
+| **Split unit** | Individual / subject | Strictly subject-disjoint |
+| **Split timing** | Finalized prior to training | Permanent partition freeze |
 
 > [!NOTE]
 > * **Proportional Frame Yield:** Longer videos naturally contribute more sampled frames than shorter videos due to the uniform 1 FPS temporal sampling across full video durations.
@@ -60,20 +58,19 @@
 
 ## Frame Extraction & Preprocessing
 
-### Frozen
+### 🧊 Frozen
 
 > Standardized spatial cropping and temporal sampling procedure:
 
-* Source videos run at **29.76 FPS**.
-* Source video lengths range from approximately **55.28 s to 519.39 s**.
-* Extract **1 frame every 1 second**.
-* Use the **same sampling rule for every video**.
-* Longer videos are allowed to produce more sampled frames than shorter videos.
-* Extracted frames are saved as **JPG**.
-* Frames are stored at **640×640** from the start.
-* The source frame is **cropped** to target the driver-facing side of the image.
-* The **same fixed crop area** is used for every video and every sampled frame.
-* The crop is selected once using a representative driver-facing frame, and the resulting coordinates are reused across the entire dataset.
+| Preprocessing Parameter | 🧊 Frozen Value | Implementation Specification |
+| :--- | :--- | :--- |
+| **Source Video Frame Rate** | 29.76 FPS | Native temporal rate across synchronized streams |
+| **Video Duration Range** | 55.28–519.39 s | Natural session lengths across 14 volunteer participants |
+| **Temporal Sampling** | 1 frame / 1 second | Fixed uniform interval across all videos |
+| **Saved Image Format** | JPG | Compressed standard image container |
+| **Stored Image Resolution** | 640×640 | Direct benchmark model input dimension |
+| **Spatial Cropping Target** | Driver-facing cabin region | Selected once on a reference frame; coordinates reused dataset-wide |
+| **Aspect Ratio Handling** | Direct spatial crop | Zero padding / letterboxing borders; zero non-uniform stretching |
 
 > [!IMPORTANT]
 > **Spatial Preprocessing Constraints:**
@@ -97,7 +94,7 @@ width
 height
 ```
 
-#### Resolve Later
+#### ⚠️ Resolve Later
 
 The following preprocessing details are not yet frozen:
 
@@ -106,7 +103,7 @@ The following preprocessing details are not yet frozen:
 
 ## Dataset Splits
 
-### Frozen
+### 🧊 Frozen
 
 > Subject-disjoint partition across **14 unique subjects**:
 
@@ -142,7 +139,7 @@ The file will list subject IDs under:
 
 > **Source of Truth:** The saved `splits.json` file permanently defines the benchmark splits without reliance on runtime random seeds.
 
-#### Resolve Later
+#### ⚠️ Resolve Later
 
 * Which specific subject IDs belong to each split.
 * How the 14 subjects are assigned to the frozen 8/3/3 split, including whether assignment is random or considers cue representation.
@@ -150,7 +147,7 @@ The file will list subject IDs under:
 
 ## Annotation Format
 
-### Frozen
+### 🧊 Frozen
 
 > Master annotation structure and data layout:
 
@@ -183,7 +180,7 @@ The master COCO annotation file stores:
 
 ## Frame Naming
 
-### Frozen
+### 🧊 Frozen
 
 > Traceable, audit-ready naming schema encoding subject identity, source video, and absolute frame index:
 
@@ -201,9 +198,9 @@ subject_07_video_03_frame_002980.jpg
 
 ## Target Warning Cues
 
-> The DMS-Eval benchmark targets **6 frozen visual warning cues** with specified bounding-box extents:
+> The DMS-Eval benchmark targets **6 🧊 frozen visual warning cues** with specified bounding-box extents:
 
-| Frozen cue | Meaning | Bounding box |
+| 🧊 Frozen cue | Meaning | Bounding box |
 | :--- | :--- | :--- |
 | `eyes_closed` | Driver's eyes are visibly closed, including fully closed and visibly partially closed / heavy-lidded eyes | Separate box per eye |
 | `yawning` | Driver is visibly yawning; an ordinary open mouth is not sufficient | Mouth region only |
@@ -266,76 +263,38 @@ subject_07_video_03_frame_002980.jpg
 
 * **Bounding Box Extent:** Full head/face.
 
-## Cue Categories
+## Cue Categories & Visual Salience
 
-> Ontological breakdown of frozen cues by primary behavioral domain:
+> **Ontological Hierarchy:** Ranked from the most direct/unambiguous single-frame visual indicator to weaker/more ambiguous postural cues. *(Visual salience does not dictate expected model detection accuracy).*
 
-### Drowsiness-related
+| Behavioral Domain | Target Warning Cue | Salience Rank | Single-Frame Visual Trigger | Bounding Box Extent |
+| :--- | :--- | :---: | :--- | :--- |
+| **Drowsiness** | `eyes_closed` | 1 *(Highest)* | Visibly fully closed, partially closed, or heavy-lidded eyes | Separate box per eye |
+| | `yawning` | 2 | Visible yawning with wide oral opening and facial elongation | Mouth region only |
+| | `head_down` | 3 | Pronounced forward/downward head slouch | Full head/face |
+| | `hand_over_mouth` | 4 *(Lowest)* | Hand visibly covering or occluding the mouth region | Full head/face |
+| **Distraction** | `phone_use` | 1 *(Highest)* | Active handheld interaction or texting on smartphone | Hand + phone together |
+| | `head_turned_away` | 2 *(Lowest)* | Head substantially rotated left, right, or away from the roadway | Full head/face |
 
-```text
-eyes_closed
-yawning
-head_down
-hand_over_mouth
-```
+## Removed Classes
 
-### Attention/distraction-related
+> Deliberately excluded classes and merged concepts to eliminate label ambiguity:
 
-```text
-phone_use
-head_turned_away
-```
-
-## Cue Strength Ordering
-
-> **Visual Salience Hierarchy:** Ranked from the most direct/unambiguous single-frame visual indicator to weaker/more ambiguous postural cues. *(Does not imply expected model detection accuracy).*
-
-### Drowsiness-related
-
-1. `eyes_closed`
-2. `yawning`
-3. `head_down`
-4. `hand_over_mouth`
-
-### Attention/distraction-related
-
-1. `phone_use`
-2. `head_turned_away`
-
-## Removed
-
-> The following classes are deliberately excluded from the current ontology to prevent ambiguity and maintain benchmark focus:
-
-```text
-gaze_away
-eyes_open
-drinking
-smoking
-eating
-adjust_radio
-talk_passenger
-switch_gear
-talk_left
-talk_right
-drive_safe
-eye_rubbing
-face_occluded
-hand_on_face
-```
-
-> **Ontology Decisions & Merged Concepts:**
-> * Only **meaningful warning cues** are target classes; normal driving states (`eyes_open`, `drive_safe`) are treated as background.
-> * `talk_passenger` was removed due to substantial visual overlap with `head_turned_away`.
-> * `mouth_open` is subsumed under `yawning` rather than isolated as a distinct class.
-> * `eyes_partially_closed` is subsumed under `eyes_closed`.
-> * `hand_on_face` was narrowed to `hand_over_mouth`.
-> * `face_occluded` is treated as a data-quality flag rather than an object class.
-> * `yawning` bounding box was restricted from full-face to **mouth region only**.
-> * `hand_over_mouth` bounding box was expanded to **full head/face**.
+| Excluded / Merged Candidate | Category Disposition | Rationale / Benchmark Decision |
+| :--- | :--- | :--- |
+| `eyes_open`, `drive_safe` | Background / Negative | Normal driving baselines; evaluated as true negatives rather than positive targets |
+| `talk_passenger` | Removed | Substantial visual ambiguity and overlap with `head_turned_away` |
+| `mouth_open` | Merged | Subsumed directly under `yawning` |
+| `eyes_partially_closed` | Merged | Subsumed directly under `eyes_closed` |
+| `hand_on_face` | Narrowed | Refined specifically to `hand_over_mouth` |
+| `face_occluded` | Quality Flag | Handled as a data-quality / visibility condition rather than an object class |
+| `drinking`, `smoking`, `eating` | Removed | Secondary non-core object interactions outside the 6-cue benchmark scope |
+| `adjust_radio`, `switch_gear` | Removed | Momentary vehicle operation controls |
+| `gaze_away`, `eye_rubbing` | Removed | Highly ambiguous in single static frames without temporal gaze tracking |
 
 ## Annotation / Data Quality
 
-### Frozen
+### 🧊 Frozen
 
 #### Ambiguous / uncertain cues
 
@@ -395,38 +354,30 @@ exclusion_reason
 
 ## Evaluation Protocol
 
-### Frozen Metrics
+### 🧊 Frozen Metrics
 
-#### Detection quality
+> Comprehensive multi-dimensional evaluation matrix:
 
-* **mAP@0.5:0.95** — primary detection metric.
-* **mAP@0.5** — secondary detection metric.
-* **Precision**
-* **Recall**
-* **F1-score**
+| Dimension | Metric | Reporting Granularity | Optimization / Protocol Role |
+| :--- | :--- | :--- | :--- |
+| **Detection Quality** | `mAP@0.5:0.95` | Full Test Set & Per-Class | Primary benchmark accuracy metric; drives val checkpoint selection |
+| | `mAP@0.5` | Full Test Set & Per-Class | Secondary precision-recall threshold metric |
+| | Precision | Full Test Set | Evaluated at validation-optimal F1 confidence threshold |
+| | Recall | Full Test Set | Evaluated at validation-optimal F1 confidence threshold |
+| | F1-Score | Full Test Set | Primary criterion for per-model validation threshold sweeps |
+| **Runtime Efficiency** | Inference Latency (ms/image) | Full Test Set | Model forward-pass latency ($L_{\text{model}}$) & end-to-end timing (⚠️ Protocol TBD) |
+| | End-to-End FPS / Throughput | Full Test Set | Measured throughput across standardized iterations (⚠️ Protocol TBD) |
+| **Deployment Profile** | Parameters (M) | Architectural | Parameter count across backbone, neck, and prediction heads |
+| | Model File Size (MB) | Architectural | Serialized model weight footprint on disk |
+| | Computational Workload (GFLOPs) | Architectural | Floating-point operations per 640×640 forward pass |
 
 > [!NOTE]
 > DMS-Eval uses **mAP as the benchmark's detection-accuracy measure**. A separate generic classification `Accuracy` metric is not included.
 
-#### Runtime performance
-
-* **Inference latency (ms/image)**
-* **FPS**
-
-The exact runtime timing procedure remains unresolved.
-
-#### Model / deployment characteristics
-
-* **Parameters (M)**
-* **Model file size (MB)**
-* **FLOPs (G)**
-
 ### Reporting Structure
 
-> Comprehensive multi-metric reporting schema on the test partition:
-
-* **Overall test-set reporting:** mAP@0.5:0.95, mAP@0.5, Precision, Recall, F1-score, inference latency, FPS, Parameters, model file size, and FLOPs.
-* **Per-class reporting:** mAP@0.5:0.95 and mAP@0.5 only.
+* **Overall test-set reporting:** `mAP@0.5:0.95`, `mAP@0.5`, Precision, Recall, F1-score, inference latency, FPS, Parameters, model file size, and FLOPs.
+* **Per-class reporting:** `mAP@0.5:0.95` and `mAP@0.5` only.
 * Per-class Precision, Recall, and F1-score are not currently included.
 
 ### Shared Evaluation Harness
@@ -483,74 +434,28 @@ For each model:
 
 > **Condition-wise evaluation** is removed from the current benchmark because the working dataset does not contain the required low-light/nighttime cabin footage.
 
-## Resolve Later
+## ⚠️ Resolve Later
 
-> Unfrozen implementation parameters scheduled for finalization prior to benchmark execution:
+> ⚠️ Unfrozen implementation parameters scheduled for finalization prior to benchmark execution:
 
-### Dataset
+| Benchmark Domain | ⚠️ Unresolved Parameter | Scope & Next Action |
+| :--- | :--- | :--- |
+| **Dataset Partitioning** | Split Subject IDs | Assign specific subject IDs to 8 train / 3 val / 3 test in `splits.json` |
+| **Spatial Preprocessing** | Fixed Crop Geometry | Extract representative cabin frame and freeze `(x, y, width, height)` in `preprocessing.json` |
+| **Annotation Criteria** | Small Target Cutoff | Audit minimum bounding-box pixel thresholds during secondary annotation pass |
+| **Model Training** | Optimization Recipe | Freeze epochs, batch size, optimizer, learning-rate schedule, weight decay, and augmentations |
+| **Evaluation Harness** | IoU Matching Rules | Formalize matching IoU thresholds for threshold-controlled Precision/Recall/F1 |
+| **Runtime Profiling** | Execution Environment | Freeze hardware platform, CUDA/framework versions, precision, backend, and warmup iterations |
 
-* Exact train/validation/test subject IDs.
-* How the 14 subjects are assigned to the frozen 8/3/3 split.
-* Whether cue distributions should be kept approximately similar across splits.
-* Exact fixed driver-facing crop coordinates.
-* Coordinate representation used inside `preprocessing.json`.
+## Skipped / ⚠️ Unresolved Cue
 
-### Annotation / Data Quality
-
-* Exact minimum visibility required before a partially occluded cue can be annotated.
-* Whether the same physical region may receive two different class annotations when the boxes would overlap heavily.
-* Any additional visibility or ambiguity rules not already defined above.
-
-### Training
-
-* Training epochs.
-* Batch size.
-* Optimizer.
-* Learning rate.
-* Learning-rate schedule.
-* Weight decay.
-* Initialization / pretrained weights policy.
-* Early stopping.
-* Data augmentation.
-* Other training settings.
-
-> [!NOTE]
-> Checkpoint selection is no longer unresolved: it is frozen under [Evaluation Protocol](#evaluation-protocol).
-
-### Evaluation
-
-* Exact IoU threshold(s) used for threshold-controlled Precision / Recall / F1 matching.
-* Exact object-detection matching rules.
-* Exact runtime measurement procedure.
-* Exact FPS measurement procedure.
-* Exact latency measurement procedure.
-
-> [!NOTE]
-> Final evaluation metrics, confidence-threshold selection procedure, and evaluation harness are frozen under [Evaluation Protocol](#evaluation-protocol). Condition-wise evaluation is **removed from the current benchmark**, not unresolved.
-
-### Compute / Runtime
-
-* Hardware.
-* GPU.
-* CPU.
-* RAM.
-* Software environment.
-* CUDA version.
-* Framework versions.
-* Inference backend.
-* Inference precision.
-* Batch size used for inference.
-* Warm-up procedure.
-
-## Skipped / Unresolved Cue
-
-> Open cue candidate held in reserve:
+> Open cue candidate held in reserve (⚠️ unresolved):
 
 ```text
 hands_off_wheel / hands_free
 ```
 
-It remains unresolved unless explicitly reconsidered.
+It remains ⚠️ unresolved unless explicitly reconsidered.
 
 ## Future Work
 
