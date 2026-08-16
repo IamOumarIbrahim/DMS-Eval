@@ -187,3 +187,8 @@
 - Define frozen dataset models resolution and frame sampling policy
 - Refine six target cues with precise bounding box guidance
 - Add annotation rules cue categories ordering and future work
+
+## [2026-08-17 01:05:16] - Document frozen benchmark dataset and annotation protocols
+- Define fixed frame extraction cropping and naming rules
+- Establish subject disjoint splits and persistent manifests
+- Expand COCO structure and cue specific annotation guidance
