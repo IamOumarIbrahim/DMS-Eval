@@ -1,7 +1,7 @@
 # DMS-Eval
 
 
-**DMS-Eval** is a planned benchmark framework currently in development for evaluating lightweight object detection architectures for detecting visual cues associated with driver drowsiness and distraction in real-time across diverse cabin operating conditions.
+**DMS-Eval** is a planned benchmark framework currently in development for evaluating nano-scale (lightweight) object detection architectures for detecting visual cues associated with driver drowsiness and distraction in real-time across diverse cabin operating conditions.
 
 ![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) ![Input: 640×640](https://img.shields.io/badge/Input-640%C3%97640-555?style=flat) ![Detectors: YOLO | DETR](https://img.shields.io/badge/Detectors-YOLO%20%7C%20DETR-4c1?style=flat)
 
@@ -36,7 +36,7 @@
 
 > ### Paper Scope
 >
-> This study will conduct a controlled empirical comparison of lightweight 2D object detectors, assessing the multi-dimensional trade-offs between **detection accuracy, inference speed, and deployment footprint** under diverse cabin environments.
+>  This study will conduct a controlled empirical comparison of sub-5M parameter 2D object detectors, assessing the multi-dimensional trade-offs between detection accuracy, computational efficiency (specifically inference latency and memory footprint), and environmental robustness across diverse cabin conditions.
 
 > ### Research Question
 >
@@ -51,7 +51,7 @@
 
 ## Evaluation Setup
 
-> **Identical experimental opportunity, identical data exposure, identical external preprocessing/evaluation/hardware, architecture-native internal mechanisms, and zero model-specific access to the held-out test set.**
+> Identical experimental opportunity, identical data exposure, identical external preprocessing/evaluation/hardware, architecture-native internal mechanisms, and zero model-specific access to the held-out test set.
 
 > [!TIP]
 > All target models represent diverse lightweight pretrained detector systems spanning conventional YOLO, DETR, and native end-to-end architectures. All models use standardized **640×640 inputs** and are initialized from official **COCO-pretrained weights** under a strictly controlled evaluation protocol.
@@ -162,10 +162,10 @@
   <tr>
     <th align="center">Model</th>
     <th align="center">Input</th>
-    <th align="center">AP<sup>val</sup><sub>50:95</sub></th>
-    <th align="center">T4 Latency<br>(ms)</th>
-    <th align="center">Params (M)</th>
-    <th align="center">GFLOPs</th>
+    <th align="center">AP<sup>val</sup><sub>50:95</sub> (↑)</th>
+    <th align="center">T4 Latency<br>(ms) (↓)</th>
+    <th align="center">Params (M) (↓)</th>
+    <th align="center">GFLOPs (↓)</th>
   </tr>
 
   <tr>
@@ -256,17 +256,17 @@ The planned benchmark will evaluate each model across both **detection quality**
 
 > **Secondary Detection Metrics**
 
-All models will use standardized confidence and IoU thresholds.
+All models will use standardized IoU thresholds, with threshold-dependent metrics (Precision, Recall, F1) evaluated at the validation-selected operating confidence threshold.
 
 * **AP<sub>50</sub>:** Detection performance at an IoU threshold of 0.50.
 * **Precision:** Proportion of predicted detections that are correct.
 * **Recall:** Proportion of ground-truth objects successfully detected.
-* **F1:** Macro arithmetic mean of per-class F1 scores at the frozen operating point.
+* **F1:** Macro arithmetic mean of per-class F1 scores at the validation-selected operating point.
 * **Balanced Accuracy:** Macro balanced frame-level cue presence/absence accuracy across evaluable classes.
 
 > **Robustness & Slice Analysis**
 
-* **Condition-wise Breakdown:** Stratified slice evaluation reporting primary detection metrics (AP<sub>50:95</sub>, AP<sub>50</sub>, Precision, Recall, F1) disaggregated across environmental conditions (normal daylight vs. low-light/nighttime) and behavioral scenarios (normal, distracted, fatigued/drowsy) to evaluate operational sensitivity and failure modes.
+* **Condition-wise Breakdown:** Stratified slice evaluation reporting primary detection metrics (AP<sub>50:95</sub>, AP<sub>50</sub>, Precision, Recall, F1) disaggregated across behavioral slices (normal, distracted, fatigued/drowsy) and illumination slices (normal daylight vs. low-light/nighttime) to evaluate operational sensitivity and failure modes.
 
 > **Safety Diagnostic**
 
@@ -303,28 +303,40 @@ The planned benchmark focuses strictly on spatially observable driver-monitoring
 
 ## Evaluation Results
 
-### Detection Performance & Robustness
+### Overall Detection Performance
 
-| Model | AP<sub>50:95</sub> | AP<sub>50</sub> | Precision | Recall | F1 | Low-light AP<sub>50:95</sub> |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **YOLO11n** | — | — | — | — | — | — |
-| **D-FINE-N** | — | — | — | — | — | — |
-| **YOLO26n** | — | — | — | — | — | — |
+| Model | AP<sub>50:95</sub> (↑) | AP<sub>50</sub> (↑) | Precision (↑) | Recall (↑) | F1 (↑) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **YOLO11n** | — | — | — | — | — |
+| **D-FINE-N** | — | — | — | — | — |
+| **YOLO26n** | — | — | — | — | — |
 
 <p>
-  <sub><strong>Table 5.</strong> Planned detection performance and low-light robustness evaluation results (to be populated upon benchmark execution).</sub>
+  <sub><strong>Table 5.</strong> Planned overall detection performance evaluation results (Precision, Recall, and F1 computed at validation-selected operating threshold; to be populated upon benchmark execution).</sub>
 </p>
 
-### Inference Efficiency & Deployment Footprint
+### Condition-Wise Robustness
 
-| Model | Params (M) | Median Latency (ms) | p95 Latency (ms) | FPS | Weight Size (MB) |
+| Model | Normal AP<sub>50:95</sub> (↑) | Distracted AP<sub>50:95</sub> (↑) | Drowsy AP<sub>50:95</sub> (↑) | Low-light AP<sub>50:95</sub> (↑) |
+| :--- | :---: | :---: | :---: | :---: |
+| **YOLO11n** | — | — | — | — |
+| **D-FINE-N** | — | — | — | — |
+| **YOLO26n** | — | — | — | — |
+
+<p>
+  <sub><strong>Table 6.</strong> Planned condition-wise detection performance across behavioral and illumination evaluation slices (to be populated upon benchmark execution).</sub>
+</p>
+
+### Efficiency & Deployment
+
+| Model | Params (M) (↓) | Median Latency (ms) (↓) | p95 Latency (ms) (↓) | FPS (↑) | Weight Size (MB) (↓) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **YOLO11n** | 2.6 | — | — | — | — |
 | **D-FINE-N** | 4.0 | — | — | — | — |
 | **YOLO26n** | 2.4 | — | — | — | — |
 
 <p>
-  <sub><strong>Table 6.</strong> Planned runtime efficiency, latency percentiles, throughput, and model footprint on NVIDIA RTX 4060 (to be populated upon benchmark execution).</sub>
+  <sub><strong>Table 7.</strong> Planned runtime efficiency, latency percentiles, throughput, and model footprint on NVIDIA RTX 4060 (to be populated upon benchmark execution).</sub>
 </p>
 
 ## Execution Timeline
@@ -341,11 +353,12 @@ The planned benchmark focuses strictly on spatially observable driver-monitoring
 | **Aug 31** | **Phase 8: Paper Submission** | Final submission ahead of the September 1, 2026 deadline. |
 
 <p>
-  <sub><strong>Table 7.</strong> Project execution schedule and milestones leading to final paper submission.</sub>
+  <sub><strong>Table 8.</strong> Project execution schedule and milestones leading to final paper submission.</sub>
 </p>
 
 > [!IMPORTANT]
 > **After August 20, no new dataset, model, metric, ontology, or benchmark design change unless an existing choice is scientifically invalid.**
+
 
 ## Future Work
 
@@ -366,21 +379,12 @@ Future extensions of DMS-Eval may investigate:
 │   └── socialpreview.png         # Repository preview banner
 ├── core/                         # [Planned] Benchmark evaluation harness and dataset pipelines
 ├── docs/                         # Specifications, protocols, and planning documentation
-│   ├── README.md                 # Documentation index / navigation
-│   ├── benchmark/
-│   │   ├── benchmark-protocol.md # Master experimental contract
-│   │   ├── models.md             # YOLO11n / YOLO26n / D-FINE-N
-│   │   ├── scope.md              # In-scope / out-of-scope
-│   │   └── setup.md              # Hardware, software, environment
-│   ├── experiments/
-│   │   ├── execution-timeline.md # Schedule / freeze dates
-│   │   └── results.md            # Experimental outputs
-│   ├── literature/
-│   │   └── related-works.md      # Related-work notes / comparison matrix
-│   ├── methodology/
-│   │   ├── contribution.md       # Claimed contributions
-│   │   └── limitations.md        # Known methodological limitations
-│   └── quick-start.md            # How to reproduce/run DMS-Eval
+│   ├── literature/               # Curated research literature, standards, and references
+│   │   ├── PDFs/                 # Primary reference papers and publications
+│   │   ├── links.md              # Curated reference links and literature mapping
+│   │   ├── literature.bib        # BibTeX bibliography database
+│   │   └── standards.md          # Benchmarking standards and regulatory guidelines
+│   └── quick-start.md            # Benchmark execution and reproduction guide
 ├── manuscript/                   # IEEE conference manuscript source files
 │   ├── bib/
 │   │   └── references.bib        # BibTeX bibliography references

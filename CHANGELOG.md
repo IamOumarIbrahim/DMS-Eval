@@ -172,3 +172,8 @@
 - Removed the central documentation index
 - Deleted benchmark protocols model specifications scope and setup
 - Removed experiment timelines results contributions and limitations
+
+## [2026-08-16 22:44:33] - Refine benchmark documentation and add task taxonomy
+- Clarify sub 5M detector scope metrics and thresholds
+- Separate overall robustness and deployment result tables
+- Add computer vision taxonomy figure and citation

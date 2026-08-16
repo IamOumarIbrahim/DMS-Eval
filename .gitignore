@@ -30,11 +30,10 @@ docs/guide/
 manuscript/archive
 
 # Third party documentation and assets
-third-party/
+dataset/docs
 
 # Literature personal references and PDF repository
-docs/literature/PDFs/
-docs/literature/links.md
-docs/literature/literature.bib
-PDFs/
-
+docs/literature/
+
+# Dataset Raw Files
+dataset/DMD
