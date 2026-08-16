@@ -137,3 +137,8 @@
 - Reframes README and manuscript language from completed benchmark to planned in development
 - Adds a detailed DMD drowsiness dataset guide covering structure annotations and licensing
 - Updates docs and project structure to reflect manuscript scope budget and planned evaluation artifacts
+
+## [2026-08-16 17:15:03] - clean dataset docs and latex ignores
+- Remove the obsolete DMD dataset README from the repo
+- Expand `.gitignore` to cover more LaTeX build and sync artifacts
+- Stop tracking the generated `main.synctex(busy)` file in `manuscript`

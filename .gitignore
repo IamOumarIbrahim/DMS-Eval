@@ -1,13 +1,23 @@
-# LaTeX build artifacts ----------
+# LaTeX build artifacts & temporary files ----------
 *.aux
 *.bbl
 *.blg
 *.log
 *.out
 *.toc
-*.synctex.gz
-*.fdb_latexmk
+*.lof
+*.lot
 *.fls
+*.fdb_latexmk
+*.synctex*
+*.synctex
+*.synctex.gz
+*.synctex(busy)
+*.bcf
+*.run.xml
+*.nav
+*.snm
+*.vrb
 
 # Ignore design drafts and unused candidate images
 assets/candidates/
@@ -18,3 +28,6 @@ docs/guide/
 # TeX templates
 
 manuscript/archive
+
+# Third party documentation and assets
+third-party/
