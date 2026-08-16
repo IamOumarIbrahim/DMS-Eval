@@ -102,3 +102,8 @@
 - Document evaluation datasets visual cues and limitations
 - Clarify benchmark metrics terminology and optimization directions
 - Add social preview image and ignore terminology notes
+
+## [2026-08-16 12:09:23] - Refine README evaluation scope and dataset roadmap
+- Clarify frame level drowsiness and distraction benchmark scope
+- Document candidate datasets and pending curation protocol
+- Add research question badges and future work roadmap

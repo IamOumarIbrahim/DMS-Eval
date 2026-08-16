@@ -1,9 +1,9 @@
 # DMS-Eval
 
 
-**DMS-Eval** is a benchmark for evaluating lightweight object detection architectures for real-time driver monitoring systems. It compares detection accuracy, inference performance, and deployment efficiency across a custom multi-condition dataset covering normal driving, distraction, fatigue, and low-illumination scenarios.
+**DMS-Eval** is a benchmark for comparing lightweight object detection architectures for real-time driver drowsiness and distraction monitoring. It evaluates detection performance, inference efficiency, and deployment characteristics under normal, distracted, drowsy, and low-illumination driving conditions.
 
-![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat)[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) ![Input: 640×640](https://img.shields.io/badge/Input-640%C3%97640-555?style=flat) ![Detectors: YOLO | DETR](https://img.shields.io/badge/Detectors-YOLO%20%7C%20DETR-4c1?style=flat)
 
 <p align="center">
   <img src="assets/socialpreview.png" width="640" alt="DMS-Eval">
@@ -17,8 +17,9 @@
 * [Evaluated Models](#evaluated-models)
 * [Evaluation Metrics](#evaluation-metrics)
 * [Evaluation Dataset](#evaluation-dataset)
-* [Evaluation Limitations](#evaluation-limitations)
+* [Evaluation Scope](#evaluation-scope)
 * [Evaluation Results](#evaluation-results)
+* [Future Work](#future-work)
 * [Project Structure](#project-structure)
 * [Authors & Credits](#authors--credits)
   * [Authors](#authors)
@@ -31,10 +32,13 @@
 
 > ### Paper Scope
 
-DMS-Eval benchmarks lightweight object detection architectures for **driver state monitoring**, with a focus on detecting drowsiness and distraction under realistic operating conditions.
+DMS-Eval benchmarks lightweight object detection architectures for frame-level driver drowsiness and distraction detection under a controlled evaluation protocol.
 
-The study evaluates models on a custom multi-condition dataset covering **normal driving, distraction, fatigue, and low-visibility nighttime scenarios**, with emphasis on the trade-off between **detection accuracy, inference latency, and deployment efficiency**.
+The study focuses on the trade-off between detection performance, inference latency, and deployment efficiency, with evaluation spanning normal, distracted, drowsy, and low-illumination driving conditions.
 
+> ### Research Question
+
+**RQ:** How do lightweight object detection architectures compare in terms of Multi-Source Dataset Compositiondetection performance, inference efficiency, and deployment footprintMulti-Source Dataset Composition for frame-level driver drowsiness and distraction detection under diverse driving conditions?
 
 ## Evaluation Setup
 
@@ -223,40 +227,24 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 
 ## Evaluation Dataset
 
-> **Dataset Composition**
+> [!NOTE]
+> DMS-Eval targets a curated multi-condition benchmark derived from established driver-monitoring datasets. Dataset access, licensing, and redistribution remain subject to the terms specified by the original dataset providers.
+
+> **Candidate Source Datasets**
 
 * **DMD:** Driver Monitoring Dataset (Vicomtech): [Official Dataset Page](https://dmd.vicomtech.org/)
-  * Provides in-cabin recordings spanning distraction- and
-  drowsiness-related behaviors, gaze variation, and hand activity
-  under naturalistic driving conditions.
+  * Provides in-cabin recordings spanning distraction- and drowsiness-related behaviors, gaze variation, and hand activity under naturalistic driving conditions.
 * **NTHU-DDD:** NTHU Driver Drowsiness Detection Dataset: [Official Dataset Page](http://cv.cs.nthu.edu.tw/php/callforpaper/datasets/DDD/)
-  * Provides drowsiness-focused sequences captured under
-  daytime and nighttime illumination conditions, including eye closure,
-  yawning, and sleep-related behaviors.
+  * Provides drowsiness-focused sequences captured under daytime and nighttime illumination conditions, including eye closure, yawning, and sleep-related behaviors.
 
-## Evaluation Limitations
+The final benchmark composition, annotation schema, and train/validation/test protocol will be defined after dataset curation and harmonization.
+
+## Evaluation Scope
 
 > [!IMPORTANT]
-> DMS-Eval evaluates **frame-level visual DMS cue detection** using 2D object detection architectures. Accordingly, the benchmark focuses on spatially observable cues associated with driver distraction and drowsiness rather than **temporal driver-state inference** from video sequences.
+> DMS-Eval evaluates lightweight 2D object detection architectures at the **frame level** to provide a controlled comparison of detection performance and deployment efficiency.
 
-The evaluated cues are grouped according to the driver states they may indicate:
-
-```text
-Visual DMS cues
-│
-├── Distraction-related cues
-│   ├── Mobile-phone use
-│   ├── Drinking
-│   ├── Hands off wheel
-│   └── Off-road gaze
-│
-└── Drowsiness-related cues
-    ├── Eye closure
-    ├── Yawning
-    └── Head nodding
-```
-
-These cues are evaluated as spatial detection targets using bounding-box annotations and AP-based metrics.
+The current benchmark focuses on spatially observable driver-monitoring cues associated with drowsiness and distraction. Temporal aggregation of detections across video sequences and temporal driver-state inference are outside the scope of the present study.
 
 ## Evaluation Results
 
@@ -361,6 +349,15 @@ These cues are evaluated as spatial detection targets using bounding-box annotat
 </p>
 
 </div>
+
+## Future Work
+
+Future extensions of DMS-Eval may investigate:
+
+* **Temporal driver-state modeling:** Aggregate frame-level detections across video sequences to capture cue persistence, duration, frequency, and temporal evolution.
+* **Benchmark expansion:** Extend the dataset with additional subjects, driving environments, camera viewpoints, and challenging low-illumination conditions.
+* **Cross-dataset evaluation:** Assess model generalization across independently collected driver-monitoring datasets.
+* **Edge deployment:** Evaluate optimized models on resource-constrained embedded hardware using deployment-oriented inference backends and numerical precision settings.
 
 ## Project Structure
 ```text
