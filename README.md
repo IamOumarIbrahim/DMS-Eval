@@ -1,7 +1,7 @@
 # DMS-Eval
 
 
-**DMS-Eval** is a benchmark for comparing lightweight object detection architectures for real-time driver drowsiness and distraction monitoring. It evaluates detection performance, inference efficiency, and deployment characteristics under normal, distracted, drowsy, and low-illumination driving conditions.
+**DMS-Eval** is a benchmark for evaluating lightweight object detection architectures for real-time driver drowsiness and distraction monitoring across diverse cabin operating conditions.
 
 ![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) ![Input: 640×640](https://img.shields.io/badge/Input-640%C3%97640-555?style=flat) ![Detectors: YOLO | DETR](https://img.shields.io/badge/Detectors-YOLO%20%7C%20DETR-4c1?style=flat)
 
@@ -34,9 +34,7 @@
 
 > ### Paper Scope
 
-DMS-Eval benchmarks lightweight object detection architectures for frame-level driver drowsiness and distraction detection under a controlled evaluation protocol.
-
-The study focuses on the trade-off between detection performance, inference latency, and deployment efficiency, with evaluation spanning normal, distracted, drowsy, and low-illumination driving conditions.
+This study conducts a controlled empirical comparison of lightweight 2D object detectors, assessing the multi-dimensional trade-offs between **detection accuracy, inference speed, and deployment footprint** under diverse cabin environments.
 
 > ### Research Question
 
@@ -238,7 +236,7 @@ The benchmark evaluates each model across both **detection quality** and **deplo
   </tr>
   <tr>
     <td><strong>Runtime</strong></td>
-    <td>FPS, Latency (ms)</td>
+    <td>End-to-End FPS, Model-Only Latency (ms)</td>
   </tr>
   <tr>
     <td><strong>Complexity</strong></td>
@@ -246,7 +244,7 @@ The benchmark evaluates each model across both **detection quality** and **deplo
   </tr>
   <tr>
     <td><strong>Deployment</strong></td>
-    <td>Model footprint (MB), Peak Memory (MB)</td>
+    <td>Model footprint (MB), Peak Inference Memory (MB)</td>
   </tr>
 </table>
 
@@ -274,8 +272,8 @@ All models use the same confidence and IoU thresholds.
 
 All models are evaluated using the same hardware, batch size, numerical precision, input resolution, backend, warm-up procedure, and timing methodology.
 
-* **FPS:** Processing throughput of the complete inference pipeline.
-* **Latency (ms):** Raw model inference time excluding preprocessing and post-processing.
+* **End-to-End FPS:** Processing throughput of the complete inference pipeline.
+* **Model-Only Latency (ms):** Raw model inference time excluding preprocessing and post-processing.
 
 > **Deployment Characteristics**
 
@@ -286,7 +284,7 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 > **Optional Metrics**
 
 * **AP<sub>50</sub>:** Detection performance at an IoU threshold of 0.50.
-* **Peak Inference Memory:** Maximum memory consumption observed during inference.
+* **Peak Inference Memory (MB):** Maximum memory consumption observed during inference.
 
 ## Evaluation Dataset
 
@@ -305,9 +303,9 @@ The final benchmark composition, annotation schema, and train/validation/test pr
 ## Evaluation Scope
 
 > [!IMPORTANT]
-> DMS-Eval evaluates lightweight 2D object detection architectures at the **frame level** to provide a controlled comparison of detection performance and deployment efficiency.
+> DMS-Eval evaluates lightweight 2D object detection architectures at the **frame level** under a controlled single-frame detection protocol.
 
-The current benchmark focuses on spatially observable driver-monitoring cues associated with drowsiness and distraction. Temporal aggregation of detections across video sequences and temporal driver-state inference are outside the scope of the present study.
+The current benchmark focuses strictly on spatially observable driver-monitoring cues associated with drowsiness and distraction. Temporal aggregation across video sequences, cue duration modeling, and temporal driver-state inference are outside the scope of the present study.
 
 ## Evaluation Results
 
@@ -367,8 +365,8 @@ The current benchmark focuses on spatially observable driver-monitoring cues ass
 <table>
   <tr>
     <th align="center">Model</th>
-    <th align="center">Latency (ms) ↓</th>
-    <th align="center">FPS ↑</th>
+    <th align="center">Model-Only Latency (ms) ↓</th>
+    <th align="center">End-to-End FPS ↑</th>
     <th align="center">Params (M) ↓</th>
     <th align="center">GFLOPs ↓</th>
     <th align="center">Model Footprint (MB) ↓</th>

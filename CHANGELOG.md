@@ -117,3 +117,8 @@
 - Add official COCO performance and latency benchmarks
 - Clarify model architecture and evaluation metric documentation
 - Add YOLO11 and YOLOv12 bibliography references
+
+## [2026-08-16 13:59:55] - Clarify benchmark scope and runtime metrics
+- Refine study scope and evaluation tradeoffs
+- Distinguish end-to-end FPS from model-only latency
+- Clarify memory measurement and temporal exclusions
