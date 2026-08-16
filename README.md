@@ -38,7 +38,7 @@ The study focuses on the trade-off between detection performance, inference late
 
 > ### Research Question
 
-**RQ:** How do lightweight object detection architectures compare in terms of Multi-Source Dataset Compositiondetection performance, inference efficiency, and deployment footprintMulti-Source Dataset Composition for frame-level driver drowsiness and distraction detection under diverse driving conditions?
+**RQ**: How do lightweight object detection architectures compare in terms of detection performance, inference efficiency, and deployment footprint for frame-level driver drowsiness and distraction detection under diverse driving conditions?
 
 ## Evaluation Setup
 
@@ -52,7 +52,6 @@ The study focuses on the trade-off between detection performance, inference late
 
 <sub><strong>Figure 1.</strong> Standardized 640×640 input resolution.</sub>
 
-<br>
 
 <table>
   <tr>
@@ -97,50 +96,75 @@ The study focuses on the trade-off between detection performance, inference late
 <table>
   <tr>
     <th align="center">Model</th>
+    <th align="center">Family</th>
     <th align="center">Architectural Focus</th>
     <th align="center">Post-processing</th>
-    <th align="center">Official Source</th>
+    <th align="center">Input</th>
+    <th align="center">Params (M)</th>
+    <th align="center">GFLOPs</th>
+    <th align="center">Implementation</th>
+    <th align="center">Pretrained Weights</th>
   </tr>
 
   <tr>
     <td align="center">YOLO11n</td>
+    <td align="center">YOLO</td>
     <td align="center">Convolutional baseline (C3k2 / CSP-style)</td>
     <td align="center">NMS-based</td>
+    <td align="center">640×640</td>
+    <td align="center">2.6</td>
+    <td align="center">6.5</td>
     <td align="center">
       <a href="https://docs.ultralytics.com/models/yolo11/"><strong>Ultralytics</strong></a>
     </td>
+    <td align="center">COCO</td>
   </tr>
 
   <tr>
-    <td align="center">YOLOv12n</td>
+    <td align="center">YOLOv12n (Turbo)</td>
+    <td align="center">YOLO</td>
     <td align="center">Area Attention / R-ELAN</td>
     <td align="center">NMS-based</td>
+    <td align="center">640×640</td>
+    <td align="center">2.5</td>
+    <td align="center">6.0</td>
     <td align="center">
       <a href="https://github.com/sunsmarterjie/yolov12"><strong>Official Repo</strong></a>
     </td>
+    <td align="center">COCO</td>
   </tr>
 
   <tr>
     <td align="center">D-FINE-N</td>
-    <td align="center">DETR-style fine-grained distribution refinement</td>
+    <td align="center">DETR</td>
+    <td align="center">Fine-grained distribution refinement</td>
     <td align="center">End-to-end / NMS-free</td>
+    <td align="center">640×640</td>
+    <td align="center">4.0</td>
+    <td align="center">7.0</td>
     <td align="center">
       <a href="https://github.com/Peterande/D-FINE"><strong>Official Repo</strong></a>
     </td>
+    <td align="center">COCO</td>
   </tr>
 
   <tr>
     <td align="center">YOLO26n</td>
+    <td align="center">YOLO</td>
     <td align="center">DFL-free native end-to-end inference</td>
     <td align="center">Native NMS-free</td>
+    <td align="center">640×640</td>
+    <td align="center">2.4</td>
+    <td align="center">5.4</td>
     <td align="center">
       <a href="https://docs.ultralytics.com/models/yolo26/"><strong>Ultralytics</strong></a>
     </td>
+    <td align="center">COCO</td>
   </tr>
 </table>
 
 <p>
-  <sub><strong>Table 2.</strong> Architectural characteristics of the evaluated lightweight object detectors.</sub>
+  <sub><strong>Table 2.</strong> Architectural and computational characteristics of the evaluated lightweight object detectors.</sub>
 </p>
 
 </div>
@@ -319,11 +343,11 @@ The current benchmark focuses on spatially observable driver-monitoring cues ass
     <td align="center">—</td>
   </tr>
   <tr>
-    <td align="center"><strong>YOLOv12n</strong></td>
+    <td align="center"><strong>YOLOv12n (Turbo)</strong></td>
     <td align="center">—</td>
     <td align="center">—</td>
-    <td align="center">2.6</td>
-    <td align="center">6.5</td>
+    <td align="center">2.5</td>
+    <td align="center">6.0</td>
     <td align="center">—</td>
   </tr>
   <tr>

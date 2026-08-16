@@ -107,3 +107,8 @@
 - Clarify frame level drowsiness and distraction benchmark scope
 - Document candidate datasets and pending curation protocol
 - Add research question badges and future work roadmap
+
+## [2026-08-16 12:25:47] - Expand model architecture and efficiency documentation
+- Fix malformed research question text
+- Add model families inputs parameters and GFLOPs
+- Rename YOLOv12n Turbo and correct specifications
