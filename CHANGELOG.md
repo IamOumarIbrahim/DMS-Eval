@@ -152,3 +152,8 @@
 - Refocus evaluation on three lightweight detectors under controlled conditions
 - Expand results tracking with robustness and latency percentile metrics
 - Consolidate planning documents into a comprehensive project schedule
+
+## [2026-08-16 20:04:32] - Expand benchmark documentation and execution protocol
+- Add detailed benchmark scope setup models and limitations
+- Define controlled evaluation metrics dataset splits and fairness
+- Introduce phased execution timeline and structured results tables
