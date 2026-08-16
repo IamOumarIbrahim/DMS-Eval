@@ -132,3 +132,8 @@
 - Removed the top level ORCID badge from the project status line
 - Replaced plain author ORCID text with badge links for both contributors
 - Standardized the contact lines in the acknowledgments section
+
+## [2026-08-16 17:12:48] - clarify benchmark as planned and add dataset guide
+- Reframes README and manuscript language from completed benchmark to planned in development
+- Adds a detailed DMD drowsiness dataset guide covering structure annotations and licensing
+- Updates docs and project structure to reflect manuscript scope budget and planned evaluation artifacts

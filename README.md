@@ -1,7 +1,7 @@
 # DMS-Eval
 
 
-**DMS-Eval** is a benchmark for evaluating lightweight object detection architectures for real-time driver drowsiness and distraction monitoring across diverse cabin operating conditions.
+**DMS-Eval** is a planned benchmark framework currently in development for evaluating lightweight object detection architectures for real-time driver drowsiness and distraction monitoring across diverse cabin operating conditions.
 
 ![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) ![Input: 640×640](https://img.shields.io/badge/Input-640%C3%97640-555?style=flat) ![Detectors: YOLO | DETR](https://img.shields.io/badge/Detectors-YOLO%20%7C%20DETR-4c1?style=flat)
 
@@ -34,7 +34,7 @@
 
 > ### Paper Scope
 
-This study conducts a controlled empirical comparison of lightweight 2D object detectors, assessing the multi-dimensional trade-offs between **detection accuracy, inference speed, and deployment footprint** under diverse cabin environments.
+This study will conduct a controlled empirical comparison of lightweight 2D object detectors, assessing the multi-dimensional trade-offs between **detection accuracy, inference speed, and deployment footprint** under diverse cabin environments.
 
 > ### Research Question
 
@@ -43,7 +43,7 @@ This study conducts a controlled empirical comparison of lightweight 2D object d
 ## Evaluation Setup
 
 > [!TIP]
-> All models operate within **2.4–4.0 M parameters**, **5.4–7.0 GFLOPs**, use **640×640 inputs**, and are initialized from **COCO-pretrained weights**, keeping the comparison compute-constrained while preserving architectural diversity.
+> All target models operate within **2.4–4.0 M parameters**, **5.4–7.0 GFLOPs**, will use **640×640 inputs**, and are initialized from **COCO-pretrained weights**, keeping the comparison compute-constrained while preserving architectural diversity.
 
 
 <div align="center">
@@ -86,7 +86,7 @@ This study conducts a controlled empirical comparison of lightweight 2D object d
 </table>
 
 
-<sub><strong>Table 1.</strong> Controlled evaluation configuration.</sub>
+<sub><strong>Table 1.</strong> Planned evaluation configuration.</sub>
 
 </div>
 
@@ -145,7 +145,7 @@ This study conducts a controlled empirical comparison of lightweight 2D object d
 </table>
 
 <p>
-  <sub><strong>Table 2.</strong> Architectural characteristics of the evaluated lightweight object detectors.</sub>
+  <sub><strong>Table 2.</strong> Architectural characteristics of lightweight object detectors selected for evaluation.</sub>
 </p>
 
 </div>
@@ -213,7 +213,7 @@ This study conducts a controlled empirical comparison of lightweight 2D object d
 </table>
 
 <p>
-  <sub><strong>Table 3.</strong> Official COCO reference performance reported for the evaluated lightweight detector variants. YOLO26n reports 40.1 AP<sub>50:95</sub> for its native end-to-end inference path (40.9 AP<sub>50:95</sub> for the conventional detection path).</sub>
+  <sub><strong>Table 3.</strong> Official COCO reference performance reported for candidate lightweight detector variants. YOLO26n reports 40.1 AP<sub>50:95</sub> for its native end-to-end inference path (40.9 AP<sub>50:95</sub> for the conventional detection path).</sub>
 </p>
 
 </div>
@@ -221,7 +221,7 @@ This study conducts a controlled empirical comparison of lightweight 2D object d
 ## Evaluation Metrics
 
 
-The benchmark evaluates each model across both **detection quality** and **deployment efficiency** under a controlled evaluation protocol.
+The planned benchmark will evaluate each model across both **detection quality** and **deployment efficiency** under a controlled evaluation protocol.
 
 <div align="center">
 
@@ -249,7 +249,7 @@ The benchmark evaluates each model across both **detection quality** and **deplo
 </table>
 
 <p>
-  <sub><strong>Table 4.</strong> Evaluation metrics used to assess detection quality, runtime performance, model complexity, and deployment characteristics.</sub>
+  <sub><strong>Table 4.</strong> Planned evaluation metrics to assess detection quality, runtime performance, model complexity, and deployment characteristics.</sub>
 </p>
 
 
@@ -262,7 +262,7 @@ The benchmark evaluates each model across both **detection quality** and **deplo
 
 > **Threshold-Controlled Metrics**
 
-All models use the same confidence and IoU thresholds.
+All models will use standardized confidence and IoU thresholds.
 
 * **Precision:** Proportion of predicted detections that are correct.
 * **Recall:** Proportion of ground-truth objects successfully detected.
@@ -270,7 +270,7 @@ All models use the same confidence and IoU thresholds.
 
 > **Runtime Performance**
 
-All models are evaluated using the same hardware, batch size, numerical precision, input resolution, backend, warm-up procedure, and timing methodology.
+All models will be evaluated using standardized hardware, batch size, numerical precision, input resolution, backend, warm-up procedure, and timing methodology.
 
 * **End-to-End FPS:** Processing throughput of the complete inference pipeline.
 * **Model-Only Latency (ms):** Raw model inference time excluding preprocessing and post-processing.
@@ -303,9 +303,9 @@ The final benchmark composition, annotation schema, and train/validation/test pr
 ## Evaluation Scope
 
 > [!IMPORTANT]
-> DMS-Eval evaluates lightweight 2D object detection architectures at the **frame level** under a controlled single-frame detection protocol.
+> DMS-Eval will evaluate lightweight 2D object detection architectures at the **frame level** under a controlled single-frame detection protocol.
 
-The current benchmark focuses strictly on spatially observable driver-monitoring cues associated with drowsiness and distraction. Temporal aggregation across video sequences, cue duration modeling, and temporal driver-state inference are outside the scope of the present study.
+The planned benchmark focuses strictly on spatially observable driver-monitoring cues associated with drowsiness and distraction. Temporal aggregation across video sequences, cue duration modeling, and temporal driver-state inference are outside the scope of the planned study.
 
 ## Evaluation Results
 
@@ -355,7 +355,7 @@ The current benchmark focuses strictly on spatially observable driver-monitoring
 </table>
 
 <p>
-  <sub><strong>Table 5.</strong> Detection performance of the evaluated lightweight object detectors.</sub>
+  <sub><strong>Table 5.</strong> Planned detection performance evaluation table (to be populated upon benchmark execution).</sub>
 </p>
 
 </div>
@@ -406,7 +406,7 @@ The current benchmark focuses strictly on spatially observable driver-monitoring
 </table>
 
 <p>
-  <sub><strong>Table 6.</strong> Runtime performance and deployment characteristics of the evaluated lightweight object detectors.</sub>
+  <sub><strong>Table 6.</strong> Planned runtime performance and deployment characteristics table (to be populated upon benchmark execution).</sub>
 </p>
 
 </div>
@@ -421,42 +421,50 @@ Future extensions of DMS-Eval may investigate:
 * **Edge deployment:** Evaluate optimized models on resource-constrained embedded hardware using deployment-oriented inference backends and numerical precision settings.
 
 ## Project Structure
+
 ```text
 .
-├── assets/
-│   ├── 640X640.png                                               // Figure 1
-│   └── socialpreview.png                                         // Social preview banner
-├── core/
-├── docs/
-├── manuscript/
-│   ├── archive/
+├── assets/                       # Visual assets and documentation diagrams
+│   ├── 640X640.png               # Standardized input resolution diagram
+│   └── socialpreview.png         # Repository preview banner
+├── core/                         # [Planned] Benchmark evaluation harness and dataset pipelines
+├── docs/                         # Specifications, protocols, and planning documentation
+│   ├── benchmark-protocol.md     # Primary research question & evaluation protocol
+│   ├── dataset-fallback-plan.md  # Dataset risk mitigation & contingency strategy
+│   ├── manuscript-outline.md     # 6-page manuscript section budget & outline
+│   ├── resource-budget.md        # Compute, storage, and schedule feasibility budget
+│   └── scope-note.md             # In-scope vs. out-of-scope boundaries
+├── manuscript/                   # IEEE conference manuscript source files
 │   ├── bib/
-│   │   └── references.bib
-│   ├── figures/
-│   ├── style/
-│   └── main.tex          // manuscript LaTeX file
-├── .gitignore            // Ignored files
-├── CHANGELOG.md          // Version history
-├── LICENSE               // Usage license
-├── requirements.txt      // software requirements
-└── README.md             // Project documentation
+│   │   └── references.bib        # BibTeX bibliography references
+│   ├── figures/                  # Manuscript figure assets
+│   ├── style/                    # IEEEtran LaTeX style and formatting classes
+│   │   ├── IEEEtran.bst
+│   │   └── IEEEtran.cls
+│   └── main.tex                  # Primary LaTeX manuscript file
+├── .gitignore                    # Git ignore rules and build artifact exclusions
+├── CHANGELOG.md                  # Project version history and milestone tracking
+├── DMD-README.md                 # DMD source dataset documentation & guide
+├── LICENSE                       # Apache 2.0 open-source license
+├── requirements.txt              # Python environment dependencies
+└── README.md                     # Project overview and benchmark specification
 ```
 
 ## Authors & Credits
 
 > ### Authors
 
-* **Dr. Mohamad Khairi bin Ishak** (Associate Professor)  
-  Department of Computer Engineering, University of Sharjah  
-
-  [![ORCID: Dr. Mohamad](https://img.shields.io/badge/ORCID-0000--0002--3554--0061-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-3554-0061)  
-  📧 | [mishak@sharjah.ac.ae](mailto:mishak@sharjah.ac.ae)
-
 * **Oumar Mamoun Ibrahim** (Senior Undergraduate Researcher)  
   Department of Computer Engineering, University of Sharjah  
 
   [![ORCID: Oumar](https://img.shields.io/badge/ORCID-0009--0008--0312--1605-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0008-0312-1605)  
   📧 | [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae)
+
+* **Dr. Mohamad Khairi bin Ishak** (Associate Professor)  
+  Department of Computer Engineering, University of Sharjah  
+
+  [![ORCID: Dr. Mohamad](https://img.shields.io/badge/ORCID-0000--0002--3554--0061-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-3554-0061)  
+  📧 | [mishak@sharjah.ac.ae](mailto:mishak@sharjah.ac.ae)
 
 > ### Acknowledgments
 
