@@ -12,4 +12,9 @@
 # Ignore design drafts and unused candidate images
 assets/candidates/
 
-docs/terminology.md
+# Docs for personal reference
+docs/guide/
+
+# TeX templates
+
+manuscript/archive

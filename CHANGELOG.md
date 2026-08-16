@@ -122,3 +122,8 @@
 - Refine study scope and evaluation tradeoffs
 - Distinguish end-to-end FPS from model-only latency
 - Clarify memory measurement and temporal exclusions
+
+## [2026-08-16 15:33:56] - add ieee manuscript scaffold and reference materials
+- Add IEEE LaTeX class bst and abbreviation files to support manuscript formatting
+- Create benchmark protocol and 6 page manuscript outline for the paper
+- Update README author metadata and ignore local manuscript archive files
