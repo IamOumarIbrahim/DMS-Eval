@@ -97,3 +97,8 @@
 - Add 640X640 image to asset tree
 - Relabel parameters image as Figure 2a
 - Relabel GFLOPs image as Figure 2b
+
+## [2026-08-16 11:42:21] - Expand benchmark documentation and dataset scope
+- Document evaluation datasets visual cues and limitations
+- Clarify benchmark metrics terminology and optimization directions
+- Add social preview image and ignore terminology notes

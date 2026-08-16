@@ -11,3 +11,5 @@
 
 # Ignore design drafts and unused candidate images
 assets/candidates/
+
+docs/terminology.md

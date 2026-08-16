@@ -1,9 +1,13 @@
 # DMS-Eval
 
-**DMS-Eval** is a benchmark for evaluating lightweight object detection architectures for real-time driver monitoring systems. It compares detection accuracy, inference performance, and deployment efficiency across a custom multi-condition dataset covering normal driving, distraction, fatigue, and low-visibility nighttime scenarios.
+
+**DMS-Eval** is a benchmark for evaluating lightweight object detection architectures for real-time driver monitoring systems. It compares detection accuracy, inference performance, and deployment efficiency across a custom multi-condition dataset covering normal driving, distraction, fatigue, and low-illumination scenarios.
 
 ![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat)[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
+<p align="center">
+  <img src="assets/socialpreview.png" width="640" alt="DMS-Eval">
+</p>
 
 ## Table of Contents
 
@@ -12,6 +16,8 @@
 * [Evaluation Setup](#evaluation-setup)
 * [Evaluated Models](#evaluated-models)
 * [Evaluation Metrics](#evaluation-metrics)
+* [Evaluation Dataset](#evaluation-dataset)
+* [Evaluation Limitations](#evaluation-limitations)
 * [Evaluation Results](#evaluation-results)
 * [Project Structure](#project-structure)
 * [Authors & Credits](#authors--credits)
@@ -20,13 +26,14 @@
 * [License](#license)
 
 
+
 ## Overview
 
 > ### Paper Scope
 
 DMS-Eval benchmarks lightweight object detection architectures for **driver state monitoring**, with a focus on detecting drowsiness and distraction under realistic operating conditions.
 
-The study evaluates models on a custom multi-condition dataset covering **normal driving, distraction, fatigue, and low-visibility nighttime scenarios**, with emphasis on the trade-off between **detection accuracy, inference speed, and deployment efficiency**.
+The study evaluates models on a custom multi-condition dataset covering **normal driving, distraction, fatigue, and low-visibility nighttime scenarios**, with emphasis on the trade-off between **detection accuracy, inference latency, and deployment efficiency**.
 
 
 ## Evaluation Setup
@@ -170,7 +177,7 @@ The benchmark evaluates each model across both **detection quality** and **deplo
   </tr>
   <tr>
     <td><strong>Deployment</strong></td>
-    <td>Model Size (MB), Peak Memory (MB)</td>
+    <td>Model footprint (MB), Peak Memory (MB)</td>
   </tr>
 </table>
 <p>
@@ -207,12 +214,49 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 
 * **Params (M):** Total number of model parameters.
 * **GFLOPs:** Approximate computational cost per 640×640 input.
-* **Model Size (MB):** Stored model footprint for deployment.
+* **Model Footprint (MB):** Stored model footprint for deployment.
 
 > **Optional Metrics**
 
 * **AP<sub>50</sub>:** Detection performance at an IoU threshold of 0.50.
 * **Peak Inference Memory:** Maximum memory consumption observed during inference.
+
+## Evaluation Dataset
+
+> **Dataset Composition**
+
+* **DMD:** Driver Monitoring Dataset (Vicomtech): [Official Dataset Page](https://dmd.vicomtech.org/)
+  * Provides in-cabin recordings spanning distraction- and
+  drowsiness-related behaviors, gaze variation, and hand activity
+  under naturalistic driving conditions.
+* **NTHU-DDD:** NTHU Driver Drowsiness Detection Dataset: [Official Dataset Page](http://cv.cs.nthu.edu.tw/php/callforpaper/datasets/DDD/)
+  * Provides drowsiness-focused sequences captured under
+  daytime and nighttime illumination conditions, including eye closure,
+  yawning, and sleep-related behaviors.
+
+## Evaluation Limitations
+
+> [!IMPORTANT]
+> DMS-Eval evaluates **frame-level visual DMS cue detection** using 2D object detection architectures. Accordingly, the benchmark focuses on spatially observable cues associated with driver distraction and drowsiness rather than **temporal driver-state inference** from video sequences.
+
+The evaluated cues are grouped according to the driver states they may indicate:
+
+```text
+Visual DMS cues
+│
+├── Distraction-related cues
+│   ├── Mobile-phone use
+│   ├── Drinking
+│   ├── Hands off wheel
+│   └── Off-road gaze
+│
+└── Drowsiness-related cues
+    ├── Eye closure
+    ├── Yawning
+    └── Head nodding
+```
+
+These cues are evaluated as spatial detection targets using bounding-box annotations and AP-based metrics.
 
 ## Evaluation Results
 
@@ -221,11 +265,11 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 <table>
   <tr>
     <th align="center">Model</th>
-    <th align="center">AP</th>
-    <th align="center">AP<sub>50</sub></th>
-    <th align="center">Precision</th>
-    <th align="center">Recall</th>
-    <th align="center">F1</th>
+    <th align="center">AP ↑</th>
+    <th align="center">AP<sub>50</sub> ↑</th>
+    <th align="center">Precision ↑</th>
+    <th align="center">Recall ↑</th>
+    <th align="center">F1 ↑</th>
   </tr>
   <tr>
     <td align="center"><strong>YOLO11n</strong></td>
@@ -272,11 +316,11 @@ All models are evaluated using the same hardware, batch size, numerical precisio
 <table>
   <tr>
     <th align="center">Model</th>
-    <th align="center">Latency (ms)</th>
-    <th align="center">FPS</th>
-    <th align="center">Params (M)</th>
-    <th align="center">GFLOPs</th>
-    <th align="center">Model Size (MB)</th>
+    <th align="center">Latency (ms) ↓</th>
+    <th align="center">FPS ↑</th>
+    <th align="center">Params (M) ↓</th>
+    <th align="center">GFLOPs ↓</th>
+    <th align="center">Model Footprint (MB) ↓</th>
   </tr>
   <tr>
     <td align="center"><strong>YOLO11n</strong></td>
