@@ -1,7 +1,7 @@
 # Benchmark Results & Official Reference Performance
 
 **Project:** DMS-Eval — Controlled Lightweight Object Detection Benchmark for Driver Monitoring Systems  
-**Evaluation Protocol:** Controlled Compute-Constrained Benchmark Protocol (`docs/benchmark-protocol.md`)  
+**Evaluation Protocol:** Controlled Compute-Constrained Benchmark Protocol (`docs/benchmark/benchmark-protocol.md`)  
 **Hardware Baseline:** NVIDIA GeForce RTX 4060 (8 GB VRAM)  
 **Input Resolution:** $640\times640$ (RGB)  
 **Status:** Evaluation Harness & Tables Locked (Awaiting Phase 3 Benchmark Execution)

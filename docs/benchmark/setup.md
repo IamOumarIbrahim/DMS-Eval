@@ -1,7 +1,7 @@
 # Experimental Setup & Configuration Guide
 
 **Project:** DMS-Eval — Controlled Lightweight Object Detection Benchmark for Driver Monitoring Systems  
-**Protocol Version:** Protocol 2.0.0-fairness-lock (`docs/benchmark-protocol.md`)  
+**Protocol Version:** Protocol 2.0.0-fairness-lock (`docs/benchmark/benchmark-protocol.md`)  
 **Hardware Platform:** NVIDIA GeForce RTX 4060 (8 GB GDDR6 VRAM)  
 **Input Resolution:** $640\times640$ RGB
 

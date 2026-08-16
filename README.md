@@ -363,17 +363,21 @@ Future extensions of DMS-Eval may investigate:
 │   └── socialpreview.png         # Repository preview banner
 ├── core/                         # [Planned] Benchmark evaluation harness and dataset pipelines
 ├── docs/                         # Specifications, protocols, and planning documentation
-│   ├── related-works/            # Literature review and domain bibliography
-│   │   ├── related-works.bib     # Literature BibTeX references
-│   │   └── related-works.md      # Related work analysis and taxonomy
-│   ├── benchmark-protocol.md     # Primary research question & evaluation protocol
-│   ├── contribution.md           # Scientific contributions & future research horizons
-│   ├── execution-timeline.md     # 8-phase execution timeline and delivery plan
-│   ├── limitations.md            # Empirical constraints and sensor/scope limitations
-│   ├── models.md                 # Evaluated model families and architectural scope
-│   ├── results.md                # Benchmark results and official reference performance
-│   ├── scope.md                  # Scope boundaries and terminology protocol
-│   └── setup.md                  # Hardware setup, dataset splits, and profiling protocol
+│   ├── README.md                 # Documentation index / navigation
+│   ├── benchmark/
+│   │   ├── benchmark-protocol.md # Master experimental contract
+│   │   ├── models.md             # YOLO11n / YOLO26n / D-FINE-N
+│   │   ├── scope.md              # In-scope / out-of-scope
+│   │   └── setup.md              # Hardware, software, environment
+│   ├── methodology/
+│   │   ├── contribution.md       # Claimed contributions
+│   │   └── limitations.md        # Known methodological limitations
+│   ├── experiments/
+│   │   ├── execution-timeline.md # Schedule / freeze dates
+│   │   └── results.md            # Experimental outputs
+│   ├── literature/
+│   │   └── related-works.md      # Related-work notes / comparison matrix
+│   └── quick-start.md            # How to reproduce/run DMS-Eval
 ├── manuscript/                   # IEEE conference manuscript source files
 │   ├── bib/
 │   │   └── references.bib        # BibTeX bibliography references
@@ -384,8 +388,6 @@ Future extensions of DMS-Eval may investigate:
 │   │   └── IEEEtran.cls
 │   └── main.tex                  # Primary LaTeX manuscript file
 ├── third-party/                  # External dataset specs and third-party references
-│   └── docs/
-│       └── DMD/                  # Driver Monitoring Dataset reference documentation
 ├── .gitignore                    # Git ignore rules and build artifact exclusions
 ├── CHANGELOG.md                  # Project version history and milestone tracking
 ├── LICENSE                       # Apache 2.0 open-source license

@@ -42,10 +42,10 @@
   - [x] Define subject-disjoint split specification: 14 total DMD subjects (8 Train / 3 Val / 3 Test).
   - [x] Map the 4 target operating conditions: normal daylight, distracted, fatigued/drowsy, and low-light/nighttime.
 - [x] **Phase 1 Deliverables & Sign-Off:**
-  - [x] Lock protocol specification in [`docs/benchmark-protocol.md`](benchmark-protocol.md).
-  - [x] Document evaluated model catalog in [`docs/models.md`](models.md).
-  - [x] Establish execution timeline and milestones in [`docs/execution-timeline.md`](execution-timeline.md).
-  - [x] Synchronize repository [`README.md`](../README.md) specification and LaTeX [`manuscript/main.tex`](../manuscript/main.tex) headers.
+  - [x] Lock protocol specification in [`docs/benchmark/benchmark-protocol.md`](../benchmark/benchmark-protocol.md).
+  - [x] Document evaluated model catalog in [`docs/benchmark/models.md`](../benchmark/models.md).
+  - [x] Establish execution timeline and milestones in [`docs/experiments/execution-timeline.md`](execution-timeline.md).
+  - [x] Synchronize repository [`README.md`](../../README.md) specification and LaTeX [`manuscript/main.tex`](../../manuscript/main.tex) headers.
 
 ---
 
