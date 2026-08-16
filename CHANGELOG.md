@@ -182,3 +182,8 @@
 - Replaced benchmark documentation with a concise ontology
 - Defined bounding boxes for six driver behavior cues
 - Corrected bibliography reference metadata
+
+## [2026-08-17 00:44:53] - Document frozen benchmark scope and annotation rules
+- Define frozen dataset models resolution and frame sampling policy
+- Refine six target cues with precise bounding box guidance
+- Add annotation rules cue categories ordering and future work
