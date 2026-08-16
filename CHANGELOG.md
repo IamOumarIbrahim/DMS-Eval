@@ -162,3 +162,8 @@
 - Add centralized documentation index and navigation
 - Organize documentation into focused topic directories
 - Expand model specifications and bibliography references
+
+## [2026-08-16 21:36:48] - Expand benchmark references and documentation
+- Add citations for detection models DMD and COCO
+- Document the August 20 benchmark design freeze
+- Expand literature ignore rules and update project structure

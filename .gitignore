@@ -31,3 +31,10 @@ manuscript/archive
 
 # Third party documentation and assets
 third-party/
+
+# Literature personal references and PDF repository
+docs/literature/PDFs/
+docs/literature/links.md
+docs/literature/literature.bib
+PDFs/
+

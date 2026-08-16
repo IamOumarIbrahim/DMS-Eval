@@ -344,6 +344,9 @@ The planned benchmark focuses strictly on spatially observable driver-monitoring
   <sub><strong>Table 7.</strong> Project execution schedule and milestones leading to final paper submission.</sub>
 </p>
 
+> [!IMPORTANT]
+> **After August 20, no new dataset, model, metric, ontology, or benchmark design change unless an existing choice is scientifically invalid.**
+
 ## Future Work
 
 Future extensions of DMS-Eval may investigate:
@@ -369,14 +372,14 @@ Future extensions of DMS-Eval may investigate:
 │   │   ├── models.md             # YOLO11n / YOLO26n / D-FINE-N
 │   │   ├── scope.md              # In-scope / out-of-scope
 │   │   └── setup.md              # Hardware, software, environment
-│   ├── methodology/
-│   │   ├── contribution.md       # Claimed contributions
-│   │   └── limitations.md        # Known methodological limitations
 │   ├── experiments/
 │   │   ├── execution-timeline.md # Schedule / freeze dates
 │   │   └── results.md            # Experimental outputs
 │   ├── literature/
 │   │   └── related-works.md      # Related-work notes / comparison matrix
+│   ├── methodology/
+│   │   ├── contribution.md       # Claimed contributions
+│   │   └── limitations.md        # Known methodological limitations
 │   └── quick-start.md            # How to reproduce/run DMS-Eval
 ├── manuscript/                   # IEEE conference manuscript source files
 │   ├── bib/
@@ -388,6 +391,9 @@ Future extensions of DMS-Eval may investigate:
 │   │   └── IEEEtran.cls
 │   └── main.tex                  # Primary LaTeX manuscript file
 ├── third-party/                  # External dataset specs and third-party references
+│   └── docs/
+│       └── DMD/
+│           └── DMD-README.md     # Upstream DMD dataset documentation & notes
 ├── .gitignore                    # Git ignore rules and build artifact exclusions
 ├── CHANGELOG.md                  # Project version history and milestone tracking
 ├── LICENSE                       # Apache 2.0 open-source license
