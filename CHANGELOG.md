@@ -177,3 +177,8 @@
 - Clarify sub 5M detector scope metrics and thresholds
 - Separate overall robustness and deployment result tables
 - Add computer vision taxonomy figure and citation
+
+## [2026-08-16 23:37:43] - Streamline README around driver cue ontology
+- Replaced benchmark documentation with a concise ontology
+- Defined bounding boxes for six driver behavior cues
+- Corrected bibliography reference metadata
