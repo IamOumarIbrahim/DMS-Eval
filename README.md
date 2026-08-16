@@ -4,6 +4,33 @@
 
 ![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) ![Input: 640×640](https://img.shields.io/badge/Input-640%C3%97640-555?style=flat) ![Detectors: YOLO | DETR](https://img.shields.io/badge/Detectors-YOLO%20%7C%20DETR-4c1?style=flat)
 
+## Table of Contents
+
+* [Frozen Benchmark Scope](#frozen-benchmark-scope)
+* [Frame Extraction & Preprocessing](#frame-extraction--preprocessing)
+* [Dataset Splits](#dataset-splits)
+* [Annotation Format](#annotation-format)
+* [Frame Naming](#frame-naming)
+* [Target Warning Cues](#target-warning-cues)
+* [Annotation Rules](#annotation-rules)
+  * [General](#general)
+  * [`eyes_closed`](#eyes_closed)
+  * [`yawning`](#yawning)
+  * [`head_down`](#head_down)
+  * [`hand_over_mouth`](#hand_over_mouth)
+  * [`phone_use`](#phone_use)
+  * [`head_turned_away`](#head_turned_away)
+* [Cue Categories](#cue-categories)
+* [Cue Strength Ordering](#cue-strength-ordering)
+* [Removed Classes](#removed)
+* [Annotation / Data Quality](#annotation--data-quality)
+* [Evaluation Protocol](#evaluation-protocol)
+* [Resolve Later](#resolve-later)
+* [Skipped / Unresolved Cue](#skipped--unresolved-cue)
+* [Future Work](#future-work)
+* [Authors & Credits](#authors--credits)
+* [License](#license)
+
 ## Frozen Benchmark Scope
 
 | Setting | Frozen value |
@@ -20,7 +47,7 @@
 | Master annotation format | COCO JSON |
 | Master annotation files | One COCO JSON for the full dataset |
 | Split file format | JSON |
-| Train / validation / test ratio | 60% / 20% / 20% |
+| Train / validation / test split | 8 / 3 / 3 subjects |
 | Split unit | Individual/subject |
 | Split policy | Fully subject-disjoint |
 | Split timing | Finalized before any model training |
@@ -80,15 +107,17 @@ The following preprocessing details are not yet frozen:
 
 ### Frozen
 
+The dataset contains **14 unique subjects**.
+
 The dataset will be divided into:
 
-| Split | Subjects |
-| :--- | ---: |
-| Training | 60% |
-| Validation | 20% |
-| Test | 20% |
+| Split | Subjects | Approx. proportion |
+| :--- | ---: | ---: |
+| Training | 8 | 57.1% |
+| Validation | 3 | 21.4% |
+| Test | 3 | 21.4% |
 
-The percentages apply to **individuals/subjects**, not individual frames or individual videos.
+The split unit is the **individual/subject**, not individual frames or individual videos.
 
 The splits must be **fully subject-disjoint**:
 
@@ -129,9 +158,8 @@ A random seed is **not required** because the saved split file itself permanentl
 
 #### Resolve Later
 
-* Exact number of unique individuals in the dataset.
-* Exact whole-subject counts for the 60/20/20 split.
 * Which specific subject IDs belong to each split.
+* How the 14 subjects are assigned to the frozen 8/3/3 split, including whether assignment is random or considers cue representation.
 * Whether the six target cues should be kept approximately balanced across train, validation, and test.
 
 ## Annotation Format
@@ -442,15 +470,97 @@ filename
 exclusion_reason
 ```
 
+## Evaluation Protocol
+
+### Frozen Metrics
+
+#### Detection quality
+
+* **mAP@0.5:0.95** — primary detection metric.
+* **mAP@0.5** — secondary detection metric.
+* **Precision**
+* **Recall**
+* **F1-score**
+
+DMS-Eval uses **mAP as the benchmark's detection-accuracy measure**. A separate generic `Accuracy` metric is not included.
+
+#### Runtime performance
+
+* **Inference latency (ms/image)**
+* **FPS**
+
+The exact runtime timing procedure remains unresolved.
+
+#### Model / deployment characteristics
+
+* **Parameters (M)**
+* **Model file size (MB)**
+* **FLOPs (G)**
+
+### Reporting Structure
+
+* **Overall test-set reporting:** mAP@0.5:0.95, mAP@0.5, Precision, Recall, F1-score, inference latency, FPS, Parameters, model file size, and FLOPs.
+* **Per-class reporting:** mAP@0.5:0.95 and mAP@0.5 only.
+* Per-class Precision, Recall, and F1-score are not currently included.
+
+### Shared Evaluation Harness
+
+All benchmark models are evaluated using **one shared evaluation harness** rather than relying on each model repository's evaluator for the final reported metrics.
+
+The evaluation flow is:
+
+```text
+master COCO ground truth
+        +
+model predictions converted to a common COCO-style detection format
+        ↓
+shared DMS-Eval evaluator
+        ↓
+reported benchmark metrics
+```
+
+* The **master COCO annotations** are used directly as ground truth.
+* Each model's predictions are converted into a **common COCO-style detection format** before evaluation.
+* The shared evaluator is used for mAP, Precision, Recall, and F1-score.
+
+### Validation / Test Usage
+
+* The **validation split** is used for model selection, checkpoint selection, and confidence-threshold selection.
+* The **test split only** is used for final reported benchmark results.
+* The test split must remain untouched until all training and model-selection decisions are complete.
+* No training decision, checkpoint choice, confidence-threshold choice, or other tuning decision may be based on test-set performance.
+
+### Confidence-Threshold Selection
+
+Each model may use its **own confidence threshold**.
+
+For each model:
+
+1. Evaluate candidate confidence thresholds on the **validation split only**.
+2. Select the threshold that gives the **highest overall F1-score** on the validation split using the shared evaluator.
+3. Freeze that model-specific threshold.
+4. Apply it unchanged to the test split for final Precision, Recall, and F1-score reporting.
+
+### Checkpoint Selection
+
+For each model, select the final checkpoint using the **highest validation mAP@0.5:0.95**, measured using the shared DMS-Eval evaluator.
+
+The selected checkpoint is then used for final test evaluation.
+
+### Removed from Current Benchmark
+
+**Condition-wise evaluation** is removed from the current benchmark.
+
+The current dataset does not contain the required low-light/nighttime content, so low-light/nighttime evaluation is not part of the current paper.
+
 ## Resolve Later
 
 The following benchmark decisions are intentionally **not frozen yet**.
 
 ### Dataset
 
-* Number of unique individuals.
 * Exact train/validation/test subject IDs.
-* Exact whole-subject counts resulting from the 60/20/20 split.
+* How the 14 subjects are assigned to the frozen 8/3/3 split.
 * Whether cue distributions should be kept approximately similar across splits.
 * Exact fixed driver-facing crop coordinates.
 * Coordinate representation used inside `preprocessing.json`.
@@ -471,21 +581,26 @@ The following benchmark decisions are intentionally **not frozen yet**.
 * Weight decay.
 * Initialization / pretrained weights policy.
 * Early stopping.
-* Checkpoint selection.
 * Data augmentation.
 * Other training settings.
 
+Checkpoint selection is no longer unresolved: it is frozen under **Evaluation Protocol**.
+
 ### Evaluation
 
+* Exact IoU threshold(s) used for threshold-controlled Precision / Recall / F1 matching.
+* Exact object-detection matching rules.
+* Exact runtime measurement procedure.
+* Exact FPS measurement procedure.
+* Exact latency measurement procedure.
+
+The following are no longer unresolved and are frozen under **Evaluation Protocol**:
+
 * Final evaluation metrics.
-* Confidence thresholds.
-* IoU thresholds.
-* Matching rules.
+* Confidence-threshold selection procedure.
 * Evaluation harness.
-* Condition-wise evaluation.
-* Runtime measurement procedure.
-* FPS measurement procedure.
-* Latency measurement procedure.
+
+Condition-wise evaluation is **removed from the current benchmark**, not unresolved.
 
 ### Compute / Runtime
 
@@ -513,9 +628,40 @@ It should remain unresolved unless explicitly reconsidered.
 
 ## Future Work
 
+* **Low-light/nighttime evaluation** — out of scope for the current benchmark because the current dataset does not contain the required content.
+
 > Future work may extend the ontology with cues deliberately outside the current benchmark scope.
 
 * `reach_behind`
 * `hair_makeup`
 * `reach_side`
 * `head_nodding` — temporal cue requiring multiple frames
+
+## Authors & Credits
+
+> ### Authors
+
+* **Oumar Mamoun Ibrahim** (Senior Undergraduate Researcher)  
+  Department of Computer Engineering, University of Sharjah  
+
+  [![ORCID: Oumar](https://img.shields.io/badge/ORCID-0009--0008--0312--1605-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0008-0312-1605)  
+  📧 | [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae)
+
+* **Dr. Mohamad Khairi bin Ishak** (Associate Professor)  
+  Department of Computer Engineering, University of Sharjah  
+
+  [![ORCID: Dr. Mohamad](https://img.shields.io/badge/ORCID-0000--0002--3554--0061-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-3554-0061)  
+  📧 | [mishak@sharjah.ac.ae](mailto:mishak@sharjah.ac.ae)
+
+> ### Acknowledgments
+
+This benchmark builds upon the excellent work of the teams behind [YOLO11](https://docs.ultralytics.com/models/yolo11/), [D-FINE](https://github.com/Peterande/D-FINE), and [YOLO26](https://docs.ultralytics.com/models/yolo26/).
+
+We sincerely thank their authors, contributors, and maintainers for making these architectures and their implementations available to the research community. Their work makes comparative studies such as **DMS-Eval** possible.
+
+> [!NOTE]
+> This research and codebase are prepared for submission to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026), held November 25–27, 2026.
+
+## License
+
+This project is licensed under the **Apache License 2.0** — see the [LICENSE](LICENSE) file for details.

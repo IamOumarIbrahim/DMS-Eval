@@ -197,3 +197,8 @@
 - Reorganize sections into a consistent heading hierarchy
 - Standardize benchmark and cue definition tables
 - Add review rules for ambiguous annotations and data quality
+
+## [2026-08-17 02:03:17] - Document evaluation protocol and fixed dataset splits
+- Add frozen metrics evaluation harness and selection procedures
+- Fix dataset split at 8 3 3 subjects
+- Add credits license and annotation reference
