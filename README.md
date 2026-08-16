@@ -42,8 +42,7 @@ This study will conduct a controlled empirical comparison of lightweight 2D obje
 
 ## Evaluation Setup
 
-> [!TIP]
-> All target models operate within **2.4–4.0 M parameters**, **5.4–7.0 GFLOPs**, will use **640×640 inputs**, and are initialized from **COCO-pretrained weights**, keeping the comparison compute-constrained while preserving architectural diversity.
+> [!TIP] All target models represent diverse lightweight pretrained detector systems spanning conventional YOLO, attention-centric YOLO, DETR, and native end-to-end architectures. All models use standardized **640×640 inputs** and are initialized from official **COCO-pretrained weights** under a strictly controlled evaluation protocol.
 
 
 <div align="center">
@@ -61,27 +60,27 @@ This study will conduct a controlled empirical comparison of lightweight 2D obje
   </tr>
   <tr>
     <td align="center"><strong>Dataset Split</strong></td>
-    <td align="center">—</td>
+    <td align="center">Subject-disjoint (8 Train / 3 Val / 3 Test)</td>
   </tr>
   <tr>
     <td align="center"><strong>Hardware</strong></td>
-    <td align="center">—</td>
+    <td align="center">NVIDIA GeForce RTX 4060 (8 GB VRAM)</td>
   </tr>
   <tr>
     <td align="center"><strong>Batch Size</strong></td>
-    <td align="center">—</td>
+    <td align="center">16 (Effective) / 1 (Inference)</td>
   </tr>
   <tr>
     <td align="center"><strong>Numerical Precision</strong></td>
-    <td align="center">—</td>
+    <td align="center">FP32 / AMP (Equivalence Gate)</td>
   </tr>
   <tr>
     <td align="center"><strong>Input Resolution</strong></td>
-    <td align="center">640×640</td>
+    <td align="center">640×640 (RGB)</td>
   </tr>
   <tr>
     <td align="center"><strong>Evaluation Protocol</strong></td>
-    <td align="center">—</td>
+    <td align="center">Protocol 2.0.0-fairness-lock</td>
   </tr>
 </table>
 
@@ -232,7 +231,11 @@ The planned benchmark will evaluate each model across both **detection quality**
   </tr>
   <tr>
     <td><strong>Detection</strong></td>
-    <td>AP<sub>50:95</sub>, AP<sub>50</sub>, Precision, Recall, F1</td>
+    <td>AP<sub>50:95</sub>, AP<sub>50</sub>, Precision, Recall, F1, Balanced Accuracy</td>
+  </tr>
+  <tr>
+    <td><strong>Safety Diagnostics</strong></td>
+    <td>False Positives per Normal Image (FP/image)</td>
   </tr>
   <tr>
     <td><strong>Runtime</strong></td>
@@ -266,7 +269,12 @@ All models will use standardized confidence and IoU thresholds.
 
 * **Precision:** Proportion of predicted detections that are correct.
 * **Recall:** Proportion of ground-truth objects successfully detected.
-* **F1:** Harmonic mean of precision and recall.
+* **F1:** Macro arithmetic mean of per-class F1 scores at the frozen operating point.
+* **Balanced Accuracy:** Macro balanced frame-level cue presence/absence accuracy across evaluable classes.
+
+> **Safety Diagnostic**
+
+* **False Positives per Normal Image:** Total predicted warning cues on normal frames divided by the number of normal frames.
 
 > **Runtime Performance**
 
@@ -289,16 +297,12 @@ All models will be evaluated using standardized hardware, batch size, numerical 
 ## Evaluation Dataset
 
 > [!NOTE]
-> DMS-Eval targets a curated multi-condition benchmark derived from established driver-monitoring datasets. Dataset access, licensing, and redistribution remain subject to the terms specified by the original dataset providers.
+> DMS-Eval evaluates the public RGB real-car subset of the **Driver Monitoring Dataset (DMD)** across 14 authorized subjects under a strict subject-disjoint protocol. Dataset access, licensing, and redistribution remain subject to the terms specified by Vicomtech (CC BY-NC-ND 4.0).
 
-> **Candidate Source Datasets**
+> **Source Dataset**
 
-* **DMD:** Driver Monitoring Dataset (Vicomtech): [Official Dataset Page](https://dmd.vicomtech.org/)
-  * Provides in-cabin recordings spanning distraction- and drowsiness-related behaviors, gaze variation, and hand activity under naturalistic driving conditions.
-* **NTHU-DDD:** NTHU Driver Drowsiness Detection Dataset: [Official Dataset Page](http://cv.cs.nthu.edu.tw/php/callforpaper/datasets/DDD/)
-  * Provides drowsiness-focused sequences captured under daytime and nighttime illumination conditions, including eye closure, yawning, and sleep-related behaviors.
-
-The final benchmark composition, annotation schema, and train/validation/test protocol will be defined after dataset curation and harmonization.
+* **DMD (Driver Monitoring Dataset):** [Official Dataset Page](https://dmd.vicomtech.org/) | [Official Repository](https://github.com/Vicomtech/DMD-Driver-Monitoring-Dataset)
+  * Provides in-cabin real-car RGB video recordings across Face and Body camera streams capturing drowsiness-related cues (`eyes_open`, `eyes_closed`, `yawning`) and distraction-related objects (`cellphone`, `bottle`, `hair_comb`).
 
 ## Evaluation Scope
 
@@ -430,7 +434,6 @@ Future extensions of DMS-Eval may investigate:
 ├── core/                         # [Planned] Benchmark evaluation harness and dataset pipelines
 ├── docs/                         # Specifications, protocols, and planning documentation
 │   ├── benchmark-protocol.md     # Primary research question & evaluation protocol
-│   ├── dataset-fallback-plan.md  # Dataset risk mitigation & contingency strategy
 │   ├── manuscript-outline.md     # 6-page manuscript section budget & outline
 │   ├── resource-budget.md        # Compute, storage, and schedule feasibility budget
 │   └── scope-note.md             # In-scope vs. out-of-scope boundaries
@@ -444,7 +447,6 @@ Future extensions of DMS-Eval may investigate:
 │   └── main.tex                  # Primary LaTeX manuscript file
 ├── .gitignore                    # Git ignore rules and build artifact exclusions
 ├── CHANGELOG.md                  # Project version history and milestone tracking
-├── DMD-README.md                 # DMD source dataset documentation & guide
 ├── LICENSE                       # Apache 2.0 open-source license
 ├── requirements.txt              # Python environment dependencies
 └── README.md                     # Project overview and benchmark specification
