@@ -202,3 +202,8 @@
 - Add frozen metrics evaluation harness and selection procedures
 - Fix dataset split at 8 3 3 subjects
 - Add credits license and annotation reference
+
+## [2026-08-17 02:07:10] - Refine benchmark documentation and annotation guidelines
+- Clarify benchmark mission sampling and preprocessing constraints
+- Strengthen subject disjoint splits and annotation sources
+- Streamline cue definitions and bounding box rules

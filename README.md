@@ -4,6 +4,8 @@
 
 ![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat) [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE) ![Input: 640×640](https://img.shields.io/badge/Input-640%C3%97640-555?style=flat) ![Detectors: YOLO | DETR](https://img.shields.io/badge/Detectors-YOLO%20%7C%20DETR-4c1?style=flat)
 
+> **Benchmark Mission:** DMS-Eval establishes a standardized evaluation framework comparing real-time nano-scale object detectors (YOLO vs. DETR families) for in-cabin driver state monitoring under single-frame operational constraints.
+
 ## Table of Contents
 
 * [Frozen Benchmark Scope](#frozen-benchmark-scope)
@@ -52,17 +54,15 @@
 | Split policy | Fully subject-disjoint |
 | Split timing | Finalized before any model training |
 
-Longer videos are allowed to contribute more sampled frames than shorter videos.
-
-Frames are sampled systematically across the **full videos**, rather than selecting only frames containing target cues.
-
-Frames containing none of the target warning cues remain valid **background / negative frames**.
+> [!NOTE]
+> * **Proportional Frame Yield:** Longer videos naturally contribute more sampled frames than shorter videos due to the uniform 1 FPS temporal sampling across full video durations.
+> * **Background / Negative Frames:** Frames containing none of the target warning cues remain valid negative samples to ensure robust false-positive evaluation.
 
 ## Frame Extraction & Preprocessing
 
 ### Frozen
 
-The source videos are processed using the following rules:
+> Standardized spatial cropping and temporal sampling procedure:
 
 * Source videos run at **29.76 FPS**.
 * Source video lengths range from approximately **55.28 s to 519.39 s**.
@@ -71,17 +71,18 @@ The source videos are processed using the following rules:
 * Longer videos are allowed to produce more sampled frames than shorter videos.
 * Extracted frames are saved as **JPG**.
 * Frames are stored at **640×640** from the start.
-* **No padding / letterboxing** is used.
-* **No stretching** is used.
-* The source frame is instead **cropped**.
-* The crop targets the **driver-facing side of the image**.
+* The source frame is **cropped** to target the driver-facing side of the image.
 * The **same fixed crop area** is used for every video and every sampled frame.
-* The crop is selected once using a representative driver-facing frame.
-* The resulting crop coordinates are reused across the entire dataset.
+* The crop is selected once using a representative driver-facing frame, and the resulting coordinates are reused across the entire dataset.
+
+> [!IMPORTANT]
+> **Spatial Preprocessing Constraints:**
+> * **No Letterboxing / Padding:** Zero gray/black padding borders are introduced.
+> * **No Aspect-Ratio Stretching:** Image proportions are strictly preserved via direct spatial cropping.
 
 ### Preprocessing Configuration
 
-The fixed crop configuration will be stored in:
+> Fixed cabin crop bounding coordinates saved to:
 
 ```text
 preprocessing.json
@@ -107,9 +108,7 @@ The following preprocessing details are not yet frozen:
 
 ### Frozen
 
-The dataset contains **14 unique subjects**.
-
-The dataset will be divided into:
+> Subject-disjoint partition across **14 unique subjects**:
 
 | Split | Subjects | Approx. proportion |
 | :--- | ---: | ---: |
@@ -117,26 +116,15 @@ The dataset will be divided into:
 | Validation | 3 | 21.4% |
 | Test | 3 | 21.4% |
 
-The split unit is the **individual/subject**, not individual frames or individual videos.
-
-The splits must be **fully subject-disjoint**:
-
-* A person may appear in **only one** split.
-* The same individual cannot appear in both training and validation.
-* The same individual cannot appear in both training and testing.
-* The same individual cannot appear in both validation and testing.
-* All videos belonging to one person must remain in the same split.
-* All sampled frames from that person must therefore remain in the same split.
-
-This prevents identity leakage between training, validation, and testing.
-
-The subject split must be **finalized before any model training begins**.
-
-The split must not later be changed because of model performance or benchmark results.
+> [!WARNING]
+> **Strict Subject-Disjoint Protocol:**
+> * The split unit is the **individual/subject**, not individual frames or videos.
+> * A participant may appear in **only one** split across all their videos and sampled frames to prevent identity leakage.
+> * Subject assignments must be **finalized in `splits.json` before any model training begins** and must never be altered based on validation or benchmark performance.
 
 ### Split Manifest
 
-The exact split assignments will be saved in:
+> The exact split partition is frozen in:
 
 ```text
 splits.json
@@ -152,9 +140,7 @@ The file will list subject IDs under:
 }
 ```
 
-The saved `splits.json` file is the **source of truth** for subject assignments.
-
-A random seed is **not required** because the saved split file itself permanently records the selected subjects.
+> **Source of Truth:** The saved `splits.json` file permanently defines the benchmark splits without reliance on runtime random seeds.
 
 #### Resolve Later
 
@@ -166,17 +152,13 @@ A random seed is **not required** because the saved split file itself permanentl
 
 ### Frozen
 
-The benchmark will use **one master annotation format**.
+> Master annotation structure and data layout:
 
-The dataset is annotated once, and model-specific formats are generated from that master annotation rather than maintaining separate manually created annotations for different models.
+The benchmark uses **one master annotation format**. The dataset is annotated once, and model-specific formats are generated from that master annotation rather than maintaining separate manually created annotations for different models.
 
-The master format is:
+**Master Format:** `COCO JSON`
 
-**COCO JSON**
-
-One COCO JSON file will contain the annotations for the **entire dataset**.
-
-Conceptually:
+One COCO JSON file contains the annotations for the **entire dataset**.
 
 ```text
 dataset/
@@ -188,38 +170,38 @@ dataset/
 
 The master COCO annotation file stores:
 
-* sampled image information
-* the six target categories
-* bounding boxes
-* category IDs
-* annotation IDs
-* image IDs
+* Sampled image information
+* Six target categories
+* Bounding boxes
+* Category IDs
+* Annotation IDs
+* Image IDs
 
-The separate `splits.json` determines which subjects belong to training, validation, and testing.
-
-Model-specific annotation files may later be generated from the master COCO annotations when required.
+> [!TIP]
+> **Single Source of Truth:**
+> Maintain only `annotations.json` as the ground-truth annotation artifact. Model-specific format converters (e.g., YOLO TXT or DETR formats) derive their inputs directly from this master file and `splits.json`.
 
 ## Frame Naming
 
 ### Frozen
 
+> Traceable, audit-ready naming schema encoding subject identity, source video, and absolute frame index:
+
 Frame filenames must contain:
 
-* subject ID
-* video ID
-* original source frame number
-
-Example:
+* Subject ID
+* Video ID
+* Original source frame number
 
 ```text
 subject_07_video_03_frame_002980.jpg
 ```
 
-This preserves the origin of every sampled frame and makes the dataset easier to trace and audit.
+> This preserves the origin of every sampled frame and makes the dataset fully auditable and traceable.
 
 ## Target Warning Cues
 
-There are currently **6 frozen target warning cues**.
+> The DMS-Eval benchmark targets **6 frozen visual warning cues** with specified bounding-box extents:
 
 | Frozen cue | Meaning | Bounding box |
 | :--- | :--- | :--- |
@@ -234,108 +216,59 @@ There are currently **6 frozen target warning cues**.
 
 ### General
 
-All target warning cues are judged using the **individual sampled frame only**.
-
-Surrounding video frames are **not** used to determine the ground-truth class.
-
-A frame may contain **multiple target warning cues simultaneously**.
-
-When two or more cues are clearly visible:
-
-* annotate all applicable cues
-* overlapping bounding boxes are allowed
+> [!IMPORTANT]
+> **Static Frame Context & Co-occurrence:**
+> * All target warning cues are judged using the **individual sampled frame only**. Surrounding video frames are not referenced.
+> * A frame may contain **multiple target warning cues simultaneously** (e.g., `eyes_closed` alongside `hand_over_mouth`). In such cases, annotate all applicable cues; overlapping bounding boxes are fully permitted.
 
 ### `eyes_closed`
 
-Annotate when the driver's eyes are visibly:
+> Annotate when the driver's eyes are visibly fully closed, partially closed, or heavy-lidded.
 
-* fully closed
-* visibly partially closed
-* heavy-lidded
-
-Each eye receives its **own separate bounding box**.
-
-Do not use:
-
-* one box around both eyes
-* a full-face box
-
-The label is decided from the **single frame only**.
-
-No temporal blink-filtering rule is used because the benchmark model receives individual frames rather than video sequences.
+* Each eye receives its **own separate bounding box**.
+* **Prohibited:** A single bounding box spanning both eyes or a full-face box.
+* The label is decided from the **single frame only** with no temporal blink filtering applied.
 
 ### `yawning`
 
-Annotate only when the sampled frame **visibly shows a yawn**.
+> Annotate only when the sampled frame visibly depicts an active yawn.
 
-An ordinary open mouth is not automatically considered `yawning`.
-
-Bounding box:
-
-**Mouth region only**
-
-`mouth_open` is **not** a separate class.
+* An ordinary open mouth is not automatically considered `yawning`.
+* **Bounding Box Extent:** Mouth region only.
+* `mouth_open` is **not** an independent class.
 
 ### `head_down`
 
-Annotate when the driver's head is **clearly and substantially lowered/forward** relative to normal forward-facing driving posture.
+> Annotate when the driver's head is clearly and substantially lowered/forward relative to a normal forward-facing driving posture.
 
-Bounding box:
-
-**Full head/face**
-
-Do not annotate:
-
-* minor downward movement
-* small downward glances
-
-`head_down` is used instead of `head_nodding` because `head_nodding` requires temporal information across multiple frames.
+* **Bounding Box Extent:** Full head/face.
+* **Exclusions:** Minor downward movements or brief glances at the instrument cluster.
+* `head_down` is used instead of `head_nodding` because `head_nodding` is an inherently multi-frame temporal event.
 
 ### `hand_over_mouth`
 
-Annotate when the driver's hand visibly covers or occludes the mouth.
+> Annotate when the driver's hand visibly covers or occludes the mouth.
 
-Bounding box:
-
-**Full head/face**
-
-If another cue such as `eyes_closed` is also clearly visible in the same frame, annotate **both cues**.
+* **Bounding Box Extent:** Full head/face.
+* If another cue (e.g., `eyes_closed`) is also visible in the same frame, annotate **both cues**.
 
 ### `phone_use`
 
-Annotate when the driver is visibly:
+> Annotate when the driver is visibly texting or actively interacting with a handheld phone.
 
-* texting
-* actively interacting with a phone held in the hand
-
-Bounding box:
-
-**Hand + phone together**
-
-Do not annotate:
-
-* a phone resting on the seat
-* a phone on the center console
-* a phone on the dashboard
-* a phone near the gear area
-* other non-interacted-with phones
-* phone calls
-
-The current class is specifically focused on **active handheld interaction / texting**.
+* **Bounding Box Extent:** Hand + phone together.
+* **Exclusions:** Phones resting on seats, consoles, or dashboards, and hands-free phone calls.
+* Focus is strictly on **active handheld interaction / texting**.
 
 ### `head_turned_away`
 
-Annotate when the driver's head is substantially turned:
+> Annotate when the driver's head is substantially turned left, right, or away from the road forward.
 
-* left
-* right
-* away from the forward driving direction
-
-Bounding box:
-
-**Full head/face**
+* **Bounding Box Extent:** Full head/face.
 
 ## Cue Categories
+
+> Ontological breakdown of frozen cues by primary behavioral domain:
 
 ### Drowsiness-related
 
@@ -355,9 +288,7 @@ head_turned_away
 
 ## Cue Strength Ordering
 
-This ordering represents the **strongest/directest visual warning cue to the weakest/more ambiguous cue from a single frame**.
-
-It does **not** represent expected model accuracy.
+> **Visual Salience Hierarchy:** Ranked from the most direct/unambiguous single-frame visual indicator to weaker/more ambiguous postural cues. *(Does not imply expected model detection accuracy).*
 
 ### Drowsiness-related
 
@@ -373,7 +304,7 @@ It does **not** represent expected model accuracy.
 
 ## Removed
 
-The following classes are deliberately excluded from the current ontology and should not be reintroduced unless explicitly reconsidered:
+> The following classes are deliberately excluded from the current ontology to prevent ambiguity and maintain benchmark focus:
 
 ```text
 gaze_away
@@ -392,19 +323,15 @@ face_occluded
 hand_on_face
 ```
 
-Additional decisions:
-
-* Only **meaningful warning cues** are target classes.
-* Normal-state classes are not included.
-* `eyes_open` remains background rather than a warning class.
-* `talk_passenger` was removed because it substantially overlaps with `head_turned_away`.
-* `mouth_open` is handled under `yawning`, not as a separate class.
-* `eyes_partially_closed` is handled under `eyes_closed`, not as a separate class.
-* `hand_on_face` was rejected in favor of the more specific `hand_over_mouth`.
-* `face_occluded` is treated as an annotation/visibility issue rather than a target warning cue.
-* The previous temporal ±5-frame blink-check rule for `eyes_closed` has been removed.
-* The previous full-face/head annotation rule for `yawning` has been replaced by a **mouth-only box**.
-* The previous hand + mouth annotation rule for `hand_over_mouth` has been replaced by a **full head/face box**.
+> **Ontology Decisions & Merged Concepts:**
+> * Only **meaningful warning cues** are target classes; normal driving states (`eyes_open`, `drive_safe`) are treated as background.
+> * `talk_passenger` was removed due to substantial visual overlap with `head_turned_away`.
+> * `mouth_open` is subsumed under `yawning` rather than isolated as a distinct class.
+> * `eyes_partially_closed` is subsumed under `eyes_closed`.
+> * `hand_on_face` was narrowed to `hand_over_mouth`.
+> * `face_occluded` is treated as a data-quality flag rather than an object class.
+> * `yawning` bounding box was restricted from full-face to **mouth region only**.
+> * `hand_over_mouth` bounding box was expanded to **full head/face**.
 
 ## Annotation / Data Quality
 
@@ -412,63 +339,59 @@ Additional decisions:
 
 #### Ambiguous / uncertain cues
 
-* If the presence of a cue is uncertain or ambiguous, do **not** make a final annotation immediately.
-* Flag the uncertain cue for **later review**.
-* The frame itself remains in the dataset.
-* The uncertain cue stays **out of the master COCO annotations** until it is reviewed.
-* After review, the cue is either accepted and annotated or rejected and left unannotated.
-* All flagged uncertain cues must be resolved before the affected image is used for training.
+* If cue presence is ambiguous, do **not** annotate immediately.
+* Flag the uncertain cue for **secondary review**.
+* The frame remains in the dataset, but the unverified cue stays **out of the master COCO annotations** until resolved.
+* All flagged cues must be settled before model training.
 
 #### Partial occlusion and truncation
 
-* A partially occluded cue may still be annotated when it is visibly identifiable.
+* Partially occluded cues remain annotatable if visibly identifiable.
 * Bounding boxes must cover **only the visible portion** of the defined target region.
-* **Never estimate, extrapolate, or invent hidden portions** of the target.
-* If a target is cut off by the 640×640 image/crop boundary but the cue remains visibly identifiable, annotate the **visible portion only**.
-* Bounding boxes should be drawn **as tightly as practical** around the visible target region with minimal extra background.
+* **Never estimate, extrapolate, or invent hidden anatomical regions.**
+* Targets truncated by the 640×640 boundary are annotated for their **visible area only**.
+* Draw bounding boxes as tightly as practical around the visible target.
 
 #### Small targets
 
-* Very small targets should still be annotated if the cue is visibly identifiable in the 640×640 image.
-* No minimum pixel-size threshold is currently required.
+* Small targets remain valid annotations as long as the cue is visually discernable at 640×640.
+* No arbitrary minimum pixel cutoff is enforced.
 
 #### Annotation consistency
 
-* Perform a **second review pass over the full dataset** after annotation is complete.
-* During this pass, review labels and bounding boxes for consistency and correct mistakes before finalizing the master COCO annotations.
-* A separate mandatory missed-cue audit of every image is **not** required.
-* Keep the six class definitions visible as a **reference sheet** while annotating.
-* Keep an **annotation decision log** for unusual examples, borderline cases, and rule clarifications.
-* Use that log during annotation and the second review pass to maintain consistent decisions.
+* Perform a **second-pass review over the entire dataset** after initial annotation.
+* Annotators must keep the class definition sheet accessible during labeling.
+* Log unusual cases and edge-rule clarifications in an **annotation decision log** to ensure consistent multi-annotator decisions.
 
 #### Class-choice behavior
 
-* If a cue is clearly present but there is uncertainty about **which class** it belongs to, choose the class **immediately** rather than flagging class choice for later review.
-* This is different from uncertain **cue presence**, which remains flagged for later review.
+* When cue presence is definite but the exact class is borderline, choose the category **immediately** rather than deferring to review.
 
 #### Instance annotation rules
 
-* One visible instance of a cue receives **one annotation box for that class**.
-* Do not create duplicate boxes for the same instance.
-* If multiple separate instances of the same class are visible, **each instance receives its own bounding box**.
-* This includes the existing `eyes_closed` rule: each visible closed eye is a separate instance.
+* Each distinct physical instance of a cue receives **one annotation box**.
+* If multiple separate instances occur (e.g., both eyes closed), **each instance receives its own box**.
 
 #### Unusable sampled frames
 
-* Genuinely unusable sampled frames are **removed from the dataset**.
-* Examples include corrupted frames, completely black frames, and frames so severely blurred that reliable annotation is impossible.
-* Every removed unusable frame must be logged in:
+* Genuinely corrupt, blacked-out, or severely motion-blurred frames are **removed from the dataset**.
+* Excluded frames must be logged in:
 
 ```text
 excluded_frames.csv
 ```
 
-The CSV must contain at least:
+The CSV contains:
 
 ```text
 filename
 exclusion_reason
 ```
+
+> [!CAUTION]
+> **Data Integrity Controls:**
+> * **No Extrapolation:** Annotators must never draw boxes around occluded or out-of-frame anatomy.
+> * **Strict Logging:** Any excluded frame must be logged with a concrete reason in `excluded_frames.csv` to ensure auditable dataset curation.
 
 ## Evaluation Protocol
 
@@ -482,7 +405,8 @@ exclusion_reason
 * **Recall**
 * **F1-score**
 
-DMS-Eval uses **mAP as the benchmark's detection-accuracy measure**. A separate generic `Accuracy` metric is not included.
+> [!NOTE]
+> DMS-Eval uses **mAP as the benchmark's detection-accuracy measure**. A separate generic classification `Accuracy` metric is not included.
 
 #### Runtime performance
 
@@ -499,11 +423,15 @@ The exact runtime timing procedure remains unresolved.
 
 ### Reporting Structure
 
+> Comprehensive multi-metric reporting schema on the test partition:
+
 * **Overall test-set reporting:** mAP@0.5:0.95, mAP@0.5, Precision, Recall, F1-score, inference latency, FPS, Parameters, model file size, and FLOPs.
 * **Per-class reporting:** mAP@0.5:0.95 and mAP@0.5 only.
 * Per-class Precision, Recall, and F1-score are not currently included.
 
 ### Shared Evaluation Harness
+
+> Architectural fairness guarantee via a unified ground-truth evaluation pipeline:
 
 All benchmark models are evaluated using **one shared evaluation harness** rather than relying on each model repository's evaluator for the final reported metrics.
 
@@ -530,7 +458,13 @@ reported benchmark metrics
 * The test split must remain untouched until all training and model-selection decisions are complete.
 * No training decision, checkpoint choice, confidence-threshold choice, or other tuning decision may be based on test-set performance.
 
+> [!IMPORTANT]
+> **Strict Validation/Test Isolation:**
+> Never inspect or compute test-set metrics to guide hyperparameter selection, checkpoint filtering, or threshold sweeps. The test set is evaluated strictly once upon protocol freeze.
+
 ### Confidence-Threshold Selection
+
+> Per-model validation-optimal F1 thresholding protocol:
 
 Each model may use its **own confidence threshold**.
 
@@ -543,19 +477,15 @@ For each model:
 
 ### Checkpoint Selection
 
-For each model, select the final checkpoint using the **highest validation mAP@0.5:0.95**, measured using the shared DMS-Eval evaluator.
-
-The selected checkpoint is then used for final test evaluation.
+> Checkpoints are selected via highest validation `mAP@0.5:0.95` measured with the shared DMS-Eval evaluator prior to test evaluation.
 
 ### Removed from Current Benchmark
 
-**Condition-wise evaluation** is removed from the current benchmark.
-
-The current dataset does not contain the required low-light/nighttime content, so low-light/nighttime evaluation is not part of the current paper.
+> **Condition-wise evaluation** is removed from the current benchmark because the working dataset does not contain the required low-light/nighttime cabin footage.
 
 ## Resolve Later
 
-The following benchmark decisions are intentionally **not frozen yet**.
+> Unfrozen implementation parameters scheduled for finalization prior to benchmark execution:
 
 ### Dataset
 
@@ -584,7 +514,8 @@ The following benchmark decisions are intentionally **not frozen yet**.
 * Data augmentation.
 * Other training settings.
 
-Checkpoint selection is no longer unresolved: it is frozen under **Evaluation Protocol**.
+> [!NOTE]
+> Checkpoint selection is no longer unresolved: it is frozen under [Evaluation Protocol](#evaluation-protocol).
 
 ### Evaluation
 
@@ -594,13 +525,8 @@ Checkpoint selection is no longer unresolved: it is frozen under **Evaluation Pr
 * Exact FPS measurement procedure.
 * Exact latency measurement procedure.
 
-The following are no longer unresolved and are frozen under **Evaluation Protocol**:
-
-* Final evaluation metrics.
-* Confidence-threshold selection procedure.
-* Evaluation harness.
-
-Condition-wise evaluation is **removed from the current benchmark**, not unresolved.
+> [!NOTE]
+> Final evaluation metrics, confidence-threshold selection procedure, and evaluation harness are frozen under [Evaluation Protocol](#evaluation-protocol). Condition-wise evaluation is **removed from the current benchmark**, not unresolved.
 
 ### Compute / Runtime
 
@@ -618,19 +544,19 @@ Condition-wise evaluation is **removed from the current benchmark**, not unresol
 
 ## Skipped / Unresolved Cue
 
-The following cue was **skipped**, not removed and not frozen:
+> Open cue candidate held in reserve:
 
 ```text
 hands_off_wheel / hands_free
 ```
 
-It should remain unresolved unless explicitly reconsidered.
+It remains unresolved unless explicitly reconsidered.
 
 ## Future Work
 
 * **Low-light/nighttime evaluation** — out of scope for the current benchmark because the current dataset does not contain the required content.
 
-> Future work may extend the ontology with cues deliberately outside the current benchmark scope.
+> Future work may extend the ontology with cues deliberately outside the current benchmark scope:
 
 * `reach_behind`
 * `hair_makeup`
@@ -639,7 +565,7 @@ It should remain unresolved unless explicitly reconsidered.
 
 ## Authors & Credits
 
-> ### Authors
+### Authors
 
 * **Oumar Mamoun Ibrahim** (Senior Undergraduate Researcher)  
   Department of Computer Engineering, University of Sharjah  
@@ -653,7 +579,7 @@ It should remain unresolved unless explicitly reconsidered.
   [![ORCID: Dr. Mohamad](https://img.shields.io/badge/ORCID-0000--0002--3554--0061-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-3554-0061)  
   📧 | [mishak@sharjah.ac.ae](mailto:mishak@sharjah.ac.ae)
 
-> ### Acknowledgments
+### Acknowledgments
 
 This benchmark builds upon the excellent work of the teams behind [YOLO11](https://docs.ultralytics.com/models/yolo11/), [D-FINE](https://github.com/Peterande/D-FINE), and [YOLO26](https://docs.ultralytics.com/models/yolo26/).
 
