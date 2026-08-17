@@ -108,6 +108,11 @@ dataset/images/
   <sub><b>Figure 2.</b> Examples of our manual annotations in Label Studio: <code>head_turned_away</code> (left, cyan box enclosing full head/face profile) and <code>hand_over_mouth</code> (right, purple box enclosing full head/face and occluding hand).</sub>
 </p>
 
+> [!NOTE]
+> **Ontological Design Decisions:**
+> - **`eyes_closed` Removal:** Single-frame 2D object detectors suffer from substantial false positives on momentary physiological blinks and downward road glances; robust eye-state tracking requires temporal models (e.g. multi-frame EAR).
+> - **`head_down` Merge:** Head-down posture is redundant as a standalone static class and represents an inherently temporal "falling asleep" / microsleep event; it is merged into `head_turned_away` as a unified inattention class (*driver not focused on the road forward*).
+
 > [!TIP]
 > Cue definitions, bounding-box extents, exclusions, co-occurrence rules, and annotation-quality controls are maintained in the [annotation protocol](./docs/annotation-protocol.md).
 

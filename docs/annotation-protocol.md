@@ -171,8 +171,8 @@ This state must not be stored in the COCO class ontology.
 | Excluded / Merged Candidate | Category Disposition | Rationale / Benchmark Decision |
 | :--- | :--- | :--- |
 | `eyes_open`, `drive_safe` | Background / Negative | Normal driving baselines; evaluated as true negatives rather than positive targets |
-| `eyes_closed` | Removed | Excluded entirely from the single-frame benchmark ontology |
-| `head_down` | Merged | Subsumed directly under `head_turned_away` (not focused on the road forward) |
+| `eyes_closed` | Removed | Frame-based 2D object detectors evaluated on single static frames suffer from high false-positive rates due to normal physiological blinks and downward road/mirror glances; reliable eyelid closure tracking requires temporal sequence modeling |
+| `head_down` | Merged | Redundant in static single-frame detection and inherently represents a multi-frame temporal event ("falling asleep" / microsleep nodding); merged directly into `head_turned_away` as a general inattention/distraction class (driver not focused on road forward) |
 | `talk_passenger` | Removed | Substantial visual ambiguity and overlap with `head_turned_away` |
 | `mouth_open` | Merged | Subsumed directly under `yawning` |
 | `eyes_partially_closed` | Removed | Subsumed with `eyes_closed` removal |
