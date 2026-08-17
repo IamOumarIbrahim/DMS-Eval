@@ -13,7 +13,7 @@
 - [x] Maximum epochs, shared seed, AMP training policy, and worker count are frozen.
 
 ---
-
+ 
 ### 🧊 Frozen
 
 > Shared training controls are frozen where architectural fairness requires a common rule. Architecture-specific optimization behavior remains model-specific where forcing one recipe across fundamentally different model families could unfairly disadvantage a model.

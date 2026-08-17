@@ -242,3 +242,8 @@
 - Standardize local THOP GFLOPs calculation across all models
 - Measure final validation selected checkpoint sizes consistently
 - Track THOP versions and unsupported operator handling as unresolved
+
+## [2026-08-17 15:26:27] - Adjust training protocol whitespace
+- Adds whitespace to a blank separator line
+- Leaves documented training controls unchanged
+- Preserves all protocol content and structure
