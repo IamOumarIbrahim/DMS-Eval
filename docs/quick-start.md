@@ -12,8 +12,10 @@
 
 - [x] Dataset, model set, input resolution, sampling policy, annotation format, and 8/3/3 subject allocation are frozen.
 - [x] The split unit is strictly subject-disjoint.
+- [x] All six target cues must occur in every split with roughly similar proportional representation based on per-subject frame counts.
 - [x] The dataset-wide 640×640 crop is frozen at `x = 272`, `y = 71`, `width = 640`, `height = 640`.
 - [ ] Exact train, validation, and test subject IDs remain unresolved.
+- [ ] The exact method used to choose the best 8/3/3 assignment remains unresolved.
 
 </details>
 
@@ -137,15 +139,22 @@ Bottom-right: (912, 711)
 > * A participant may appear in **only one** split across all their videos and sampled frames to prevent identity leakage.
 > * Subject assignments must be **finalized in `splits.json` before any model training begins** and must never be altered based on validation or benchmark performance.
 
+> [!IMPORTANT]
+> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All six target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
+
 <details>
 <summary><strong>Show subject-assignment policy and split manifest</strong></summary>
 
 ### Subject Assignment Policy
 
 * The 14 subjects are **not assigned purely at random**.
-* Subject assignment to the frozen 8/3/3 partition will consider **target-cue representation**.
-* The six frozen target cues should be kept **approximately balanced across training, validation, and test at the subject level**, while preserving strict subject disjointness.
-* Exact subject IDs remain unresolved because the dataset has not yet been annotated, so subject-level target-cue distributions are not yet known.
+* Use the **annotated sampled frames** to determine each subject's target-cue distribution.
+* Measure cue distribution using **frame counts per cue**, not bounding-box counts.
+* If one sampled frame contains multiple target cues, count that frame **once toward each cue present**.
+* Keep the six target cues **roughly proportionally similar across training, validation, and test**.
+* **All six target cues must appear in all three splits:** training, validation, and test.
+* Do **not** additionally balance the total number of sampled frames between splits.
+* Select and freeze the exact subject IDs only after annotation is complete and per-subject cue counts are available.
 
 ### Split Manifest
 
@@ -169,7 +178,11 @@ The file will list subject IDs under:
 
 #### ⚠️ Resolve Later
 
-* Which specific subject IDs belong to each split.
+* The exact train, validation, and test subject IDs.
+* The exact algorithm/method used to choose the best 8/3/3 subject assignment from the annotated cue distributions.
+
+> [!CAUTION]
+> No optimization function, exhaustive-search procedure, tolerance, distance metric, weighting rule, random-search method, or numerical balancing threshold is currently frozen.
 
 </details>
 

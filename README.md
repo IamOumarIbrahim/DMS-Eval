@@ -86,6 +86,9 @@
 > [!NOTE]
 > Longer videos naturally contribute more sampled frames under the uniform 1 FPS policy. Frames containing none of the target warning cues remain valid negative samples.
 
+> [!IMPORTANT]
+> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All six target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
+
 ---
 
 ## Documentation
@@ -174,7 +177,8 @@
 <details>
 <summary><strong>Show the resolve-later checklist</strong></summary>
 
-- [ ] Exact subject IDs in `splits.json`
+- [ ] Exact train, validation, and test subject IDs in `splits.json`
+- [ ] Exact algorithm/method used to choose the best 8/3/3 subject assignment from annotated per-subject cue distributions
 - [ ] Exact numerical validation-selected confidence threshold for each model
 - [ ] CUDA, PyTorch, model-framework, NVIDIA GPU-driver, and THOP versions from the actual environment
 - [ ] Handling of unsupported/custom operators if THOP does not count them correctly
