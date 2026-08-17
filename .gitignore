@@ -31,7 +31,7 @@ manuscript/archive
 
 # Third party documentation and assets
 dataset/docs
-
+/docs/dev-ref
 # Literature personal references and PDF repository
 docs/literature/
 

@@ -252,3 +252,8 @@
 - Add parallel video frame extraction and standardized face cropping
 - Verify cropped frames for corruption black pixels and sharpness
 - Document preprocessing usage outputs and ignored generated images
+
+## [2026-08-17 16:16:37] - Ignore developer reference documentation
+- Adds docs dev-ref to ignored paths
+- Keeps third party documentation untracked
+- Removes an unnecessary blank line
