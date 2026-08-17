@@ -39,6 +39,7 @@ dataset/DMD
 dataset/images
 dataset/project-*.json
 dataset/*.zip
+dataset/1-*/
 archive/
 
 # Tools & Label Studio
