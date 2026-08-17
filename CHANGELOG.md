@@ -277,3 +277,8 @@
 - Add seven-module benchmark execution checklist and submission roadmap
 - Define CVAT review states and external annotation progress tracking
 - Simplify README tables and link protocol documentation consistently
+
+## [2026-08-17 19:21:18] - Add Label Studio annotation and preannotation workflow
+- Replace CVAT documentation with Label Studio review procedures
+- Add project setup import export and launcher utilities
+- Add agent predictions with progress and decision tracking

@@ -13,8 +13,8 @@ The checklist is structured into **7 core operational modules**, each formatted 
 ```mermaid
 flowchart TD
     subgraph M1["Module 1: Data & Annotation Pipeline"]
-        A1[1.1 Verify 640x640 Extraction] --> A2[1.2 CVAT Project & Task Setup]
-        A2 --> A3[1.3 AI Pre-Annotation Assistance]
+        A1[1.1 Verify 640x640 Extraction] --> A2[1.2 Label Studio Project & Task Setup]
+        A2 --> A3[1.3 AI Pre-Annotation as Predictions]
         A3 --> A4[1.4 Mandatory Human Review & Validation]
         A4 --> A5[1.5 Secondary Review & Decision Log]
         A5 --> A6[1.6 Export Master COCO annotations.json]
@@ -23,7 +23,7 @@ flowchart TD
     subgraph M2["Module 2: Splitting & Conversion"]
         B1[2.1 Compute Per-Subject Cue Counts] --> B2[2.2 Formalize 8/3/3 Assignment Algorithm]
         B2 --> B3[2.3 Generate & Freeze splits.json]
-        B3 --> B4[2.4 Generate YOLO & DETR Dataset Formats]
+        B2 --> B4[2.4 Generate YOLO & DETR Dataset Formats]
     end
 
     subgraph M3["Module 3: Environment & Controlled Training"]
@@ -79,23 +79,23 @@ All open items previously marked **⚠️ Resolve Later** are mapped directly to
 | **Software Stack & Library Versions / Commits** | 🟠 Runtime Reproducibility | [Step M3.1](#module-3-environment-locking-core-scaffolding--controlled-training) | Pinned `requirements.txt` & environment manifest |
 | **Validation Confidence Thresholds ($\tau$)** | 🟢 Precision/Recall Evaluation | [Step M4.3](#module-4-shared-evaluation-harness--validation-model-selection) | Frozen threshold array $(\tau_{\text{YOLO11n}}, \tau_{\text{D-FINE-N}}, \tau_{\text{YOLO26n}})$ |
 | **Unsupported Operators in THOP Profiling** | 🟠 Workload Comparability | [Step M5.2](#module-5-computational--deployment-footprint-profiling) | Unified custom THOP operator rule / handler |
-| **Non-Integer FPS Sampling Rule (~29.76 FPS)** | 🟢 Preprocessing Documentation | [Step M1.1](#module-1-dataset-curation-cvat-annotation-workflow--ground-truth) | Exact timestamp vs. index mapping documented in manifest |
+| **Non-Integer FPS Sampling Rule (~29.76 FPS)** | 🟢 Preprocessing Documentation | [Step M1.1](#module-1-dataset-curation-label-studio-annotation-workflow--ground-truth) | Exact timestamp vs. index mapping documented in manifest |
 
 ---
 
-## Module 1: Dataset Curation, CVAT Annotation Workflow & Ground Truth
+## Module 1: Dataset Curation, Label Studio Annotation Workflow & Ground Truth
 
 > **Mission:** Transform raw extracted 640×640 single-frame driver cabin crops into human-reviewed, audited master ground truth stored in [`dataset/annotations.json`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/annotations.json).
 
 | Step ID | Task / Operation | Detailed Execution Instructions | Input / Dependencies | Output / Artifacts | Status | Quality Control & Verification Criteria |
 | :--- | :--- | :--- | :--- | :--- | :---: | :--- |
 | **M1.1** | **Extraction & Crop Audit** | Re-run or audit `scripts/extract_and_crop_dmd.py` with `--verify-only`. Confirm all 81 videos across 14 subjects are extracted at 1 FPS and cropped to frozen coordinates (`x=272, y=71, w=640, h=640`). Document exact frame-index mapping. | Source DMD videos; [`scripts/extract_and_crop_dmd.py`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/scripts/extract_and_crop_dmd.py) | Verified frames in `dataset/images/`; [`dataset/manifest.json`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/manifest.json) | 🧊 Frozen | Zero black frames (`max_pixel > 0`), zero corrupted headers; Laplacian sharpness logged. Frame names conform to `subject_<ID>_video_<ID>_frame_<NUM:04d>.jpg`. |
-| **M1.2** | **CVAT Setup & Task Initialization** | Initialize one CVAT Project ("DMS-Eval"). Create exactly 14 Tasks (one per subject). Upload corresponding cropped frames to each task. Configure the 6 frozen target classes. | Cropped frames in `dataset/images/` | 14 CVAT Tasks with frozen label schema | 🧊 Frozen | All 14 tasks share identical 6-class labels: `eyes_closed`, `yawning`, `head_down`, `hand_over_mouth`, `phone_use`, `head_turned_away`. |
-| **M1.3** | **AI-Assisted Pre-Annotation** | Run vision pre-annotation pipeline to propose bounding boxes directly into CVAT tasks with native `Source = AUTO`. Pre-annotations are strictly provisional. | CVAT API; Pre-annotation model | Provisional CVAT annotations (`Source = AUTO`) | 🧊 Frozen | No workflow-state classes added to ontology. AI boxes never marked as `final` or `human_reviewed`. |
-| **M1.4** | **Mandatory Human Review (100% Frames)** | Annotator reviews every single sampled frame (including zero-cue frames). Adjust bounding boxes, fix class labels, add missed cues, and delete false positives. Enforce bounding box extents: `eyes_closed` (separate per eye), `yawning` (mouth only), `head_down` (full head), `hand_over_mouth` (full head), `phone_use` (hand+phone), `head_turned_away` (full head). | CVAT UI; [`docs/annotation-protocol.md`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/docs/annotation-protocol.md) | Reviewed annotations in CVAT | 🧊 Frozen | 100% of frames inspected. No extrapolation of hidden anatomy. Overlapping boxes allowed for co-occurring cues. |
-| **M1.5** | **Ambiguity Settling & Exclusions Logging** | For ambiguous frames, open CVAT Issues for secondary review. Settle all open issues before finalizing. Identify and log genuinely unusable/corrupted frames into `dataset/excluded_frames.csv` (`filename, exclusion_reason`). Maintain external machine-readable ledger. | CVAT Issue tracker | Settled CVAT tasks; [`dataset/excluded_frames.csv`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/excluded_frames.csv); Annotation Ledger | 🧊 Frozen | Zero open CVAT issues remaining. All excluded frames documented with concrete rationale. |
-| **M1.6** | **Dataset Consistency Review (Pass 2)** | Conduct a comprehensive second-pass review across the entire dataset to ensure inter-subject labeling consistency. Maintain an annotation decision log for edge cases. | Completed CVAT tasks | Audited annotations; Annotation decision log | 🧊 Frozen | Second-pass audit completes across all 14 subjects. Decisions conform to ontology guidelines. |
-| **M1.7** | **Export & Assemble Master COCO JSON** | Export reviewed annotations from all 14 CVAT tasks. Merge and format into single authoritative COCO format ground truth saved at `dataset/annotations.json`. Verify image paths, IDs, categories (1–6), and bounding box coordinates $[x, y, w, h]$. | 14 CVAT Tasks exported | [`dataset/annotations.json`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/annotations.json) | 🧊 Frozen | Valid COCO JSON schema. Bounding boxes strictly within $640 \times 640$ image dimensions. Exactly 6 category definitions. |
+| **M1.2** | **Label Studio Setup & Task Initialization** | Initialize one Label Studio Project ("DMS-Eval"). Create tasks with metadata (subject, video, sampled frame index). Configure the 6 frozen target classes and image-level review choices. | Cropped frames in `dataset/images/` | One Label Studio Project with frozen label schema | 🧊 Frozen | Label schema shares identical 6-class labels: `eyes_closed`, `yawning`, `head_down`, `hand_over_mouth`, `phone_use`, `head_turned_away`. |
+| **M1.3** | **AI-Assisted Pre-Annotation** | Run vision pre-annotation pipeline to propose bounding boxes directly into Label Studio as provisional `predictions`. Pre-annotations are strictly provisional. | Label Studio API; Pre-annotation model | Provisional Label Studio predictions | 🧊 Frozen | No workflow-state classes added to ontology. AI boxes never marked as `final` or `human_reviewed`. |
+| **M1.4** | **Mandatory Human Review (100% Frames)** | Annotator reviews every single sampled frame (including zero-cue frames). Adjust bounding boxes, fix class labels, add missed cues, and delete false positives. Enforce bounding box extents: `eyes_closed` (separate per eye), `yawning` (mouth only), `head_down` (full head), `hand_over_mouth` (full head), `phone_use` (hand+phone), `head_turned_away` (full head). | Label Studio UI; [`docs/annotation-protocol.md`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/docs/annotation-protocol.md) | Reviewed annotations in Label Studio | 🧊 Frozen | 100% of frames inspected. No extrapolation of hidden anatomy. Overlapping boxes allowed for co-occurring cues. |
+| **M1.5** | **Ambiguity Settling & Exclusions Logging** | For ambiguous frames, flag `needs_secondary_review` in task metadata/ledger. Settle all open issues before finalizing. Identify and log genuinely unusable/corrupted frames into `dataset/excluded_frames.csv` (`filename, exclusion_reason`). Maintain external machine-readable ledger. | Label Studio review flags | Settled Label Studio tasks; [`dataset/excluded_frames.csv`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/excluded_frames.csv); Annotation Ledger | 🧊 Frozen | Zero open secondary review flags remaining. All excluded frames documented with concrete rationale. |
+| **M1.6** | **Dataset Consistency Review (Pass 2)** | Conduct a comprehensive second-pass review across the entire dataset to ensure inter-subject labeling consistency. Maintain an annotation decision log for edge cases. | Completed Label Studio tasks | Audited annotations; Annotation decision log | 🧊 Frozen | Second-pass audit completes across all 14 subjects. Decisions conform to ontology guidelines. |
+| **M1.7** | **Export & Assemble Master COCO JSON** | Export human-reviewed annotations from Label Studio. Merge and format into single authoritative COCO format ground truth saved at `dataset/annotations.json`. Verify image paths, IDs, categories (1–6), and bounding box coordinates $[x, y, w, h]$. | Label Studio Export | [`dataset/annotations.json`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/annotations.json) | 🧊 Frozen | Valid COCO JSON schema. Bounding boxes strictly within $640 \times 640$ image dimensions. Exactly 6 category definitions. |
 
 ---
 

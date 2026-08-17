@@ -1,0 +1,55 @@
+{
+  "subject_01_video_01_frame_0019.jpg": {
+    "subject": "subject_01",
+    "video": "video_01",
+    "cues_detected": [
+      "head_turned_away"
+    ],
+    "secondary_review": false,
+    "rationale": "Detected profile face view -> head_turned_away",
+    "timestamp": "2026-08-17T14:56:03.991064Z"
+  },
+  "subject_01_video_01_frame_0023.jpg": {
+    "subject": "subject_01",
+    "video": "video_01",
+    "cues_detected": [
+      "head_turned_away"
+    ],
+    "secondary_review": false,
+    "rationale": "Detected profile face view -> head_turned_away",
+    "timestamp": "2026-08-17T14:56:23.939124Z"
+  },
+  "subject_01_video_01_frame_0025.jpg": {
+    "subject": "subject_01",
+    "video": "video_01",
+    "cues_detected": [
+      "eyes_closed",
+      "eyes_closed"
+    ],
+    "secondary_review": false,
+    "rationale": "Low open-eye response + horizontal eyelid texture -> eyes_closed (2 separate boxes)",
+    "timestamp": "2026-08-17T14:56:24.016954Z"
+  },
+  "subject_01_video_01_frame_0027.jpg": {
+    "subject": "subject_01",
+    "video": "video_01",
+    "cues_detected": [
+      "eyes_closed",
+      "eyes_closed"
+    ],
+    "secondary_review": false,
+    "rationale": "Low open-eye response + horizontal eyelid texture -> eyes_closed (2 separate boxes)",
+    "timestamp": "2026-08-17T14:56:24.093635Z"
+  },
+  "subject_01_video_01_frame_0029.jpg": {
+    "subject": "subject_01",
+    "video": "video_01",
+    "cues_detected": [
+      "eyes_closed",
+      "eyes_closed"
+    ],
+    "secondary_review": false,
+    "rationale": "Low open-eye response + horizontal eyelid texture -> eyes_closed (2 separate boxes)",
+    "timestamp": "2026-08-17T14:56:24.173958Z"
+  }
+}

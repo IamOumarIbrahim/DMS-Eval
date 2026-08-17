@@ -26,7 +26,6 @@ assets/candidates/
 docs/guide/
 
 # TeX templates
-
 manuscript/archive
 
 # Third party documentation and assets
@@ -39,3 +38,11 @@ docs/literature/
 dataset/DMD
 dataset/images
 archive/
+
+# Tools & Label Studio
+tools/label-studio/.venv/
+tools/label-studio/data/
+tools/label-studio/media/
+tools/label-studio/export/
+tools/label-studio/.env
+tools/label-studio/*.sqlite3*

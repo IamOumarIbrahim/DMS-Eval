@@ -11,7 +11,7 @@
 - [x] Bounding-box extents and single-frame rules are frozen.
 - [x] Removed and merged classes are documented.
 - [x] Annotation-quality controls are frozen.
-- [x] CVAT is frozen as the annotation tool, using one project and one task per subject.
+- [x] Label Studio (Community Edition) is frozen as the annotation tool, using one project (DMS-Eval) and one task per image with metadata filtering.
 - [x] AI-assisted pre-annotation is frozen as provisional assistance with mandatory human review of every frame.
 
 ---
@@ -94,20 +94,20 @@
 
 ## Annotation Workflow
 
-### 🧊 Frozen CVAT Organization
+### 🧊 Frozen Label Studio Organization
 
-* **Annotation tool:** CVAT
-* **Project structure:** One CVAT project
-* **Task structure:** 14 CVAT tasks, with one task per subject
-* Each subject task contains all sampled frames from all videos belonging to that subject.
-* Every task uses the same six frozen target-cue labels.
+* **Annotation tool:** Label Studio (Community Edition, local pip installation)
+* **Project structure:** One Label Studio project (`DMS-Eval`)
+* **Task structure:** One Label Studio task per image (15,723 tasks total)
+* **Task metadata:** Subject, video, filename, and sampled-frame index are retained as task metadata to allow filtering and processing by subject.
+* Every task uses the same six frozen target-cue rectangle labels.
 
 ### 🧊 Frozen AI-Assisted Pre-Annotation
 
 The AI/vision agent provides **pre-annotation assistance only**. It reduces manual drawing work but does not replace human ground-truth validation.
 
 1. The agent may attempt to pre-annotate all six target cues.
-2. The agent writes proposed annotations directly into CVAT; an intermediate COCO file is not the normal pre-annotation workflow.
+2. The agent writes proposed bounding boxes directly into Label Studio as **predictions**; an intermediate COCO file is not the normal pre-annotation workflow.
 3. All agent annotations are provisional proposals, never final ground truth.
 4. A human must review every proposed annotation.
 5. A human must review every sampled frame, including frames where the agent proposes zero annotations.
@@ -120,41 +120,63 @@ The AI/vision agent provides **pre-annotation assistance only**. It reduces manu
 > [!NOTE]
 > The AI-assisted workflow follows the existing ambiguity rules below. It does not create a separate AI-specific rule for ambiguous cue presence or borderline class choice.
 
-### 🧊 Frozen CVAT Review-State Representation
+### 🧊 Frozen Label Studio Review-State Representation
 
 Workflow state remains separate from the six-class detection ontology.
 
-#### AI proposed
+#### Agent proposed
 
-AI-generated annotation objects use CVAT's native:
+All boxes created by this agent are stored as Label Studio:
 
 ```text
-Source = AUTO
+predictions
 ```
 
-AI-created annotations are provisional only.
+They must not be submitted as human annotations. Predictions are provisional and remain distinguishable from human-created or human-confirmed annotations.
 
 #### Needs secondary review
 
-When cue presence itself is ambiguous, do not create a speculative ground-truth box. Create an open CVAT Issue associated with the relevant frame/object area stating that secondary review is required. The issue remains unresolved until a human settles it.
+When cue presence itself is genuinely uncertain:
+
+* Do not create a speculative detection box.
+* Record `needs_secondary_review` in the external progress ledger with the suspected cue and rationale.
+* Make the flag visible to the eventual human reviewer through task metadata or a dedicated image-level review field.
+* Keep the uncertain cue out of the master COCO ground truth until a human settles it.
 
 #### Human reviewed
 
-Human checking uses the CVAT job workflow:
+Only a real human may mark an image:
 
 ```text
-Annotation
-    ↓
-Validation
-    ↓
-Acceptance
+human_reviewed
 ```
 
-A job is finalized only after the required human review is complete and unresolved issues have been settled. The AI agent must never mark its own annotation work as human-reviewed, accepted, or final.
+The agent must never describe its own work as human-reviewed, accepted, finalized, or ground truth.
 
-#### No fake workflow classes
+#### Finalized
 
-Do not add `reviewed`, `needs_review`, `ai_generated`, `ambiguous`, or any other workflow-state label to the six-class detection ontology.
+An image may be finalized only after:
+
+```text
+human review
+→ all secondary-review flags resolved
+→ required second-pass review
+→ final acceptance
+```
+
+#### No fake detection classes
+
+Do not add workflow labels such as:
+
+```text
+reviewed
+needs_review
+agent_generated
+ambiguous
+finalized
+```
+
+to the six-class object-detection ontology. Workflow state must remain separate from detection classes.
 
 #### External progress ledger
 
@@ -162,10 +184,12 @@ Maintain a machine-readable annotation progress ledger keyed by the real image f
 
 ```text
 not_processed
-ai_processed
+agent_processed
+zero_proposals
 secondary_review_required
 human_reviewed
 finalized
+failed
 ```
 
 This state must not be stored in the COCO class ontology.

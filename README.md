@@ -35,7 +35,7 @@
 | **Dataset** | DMD-derived real-cabin RGB video | **Models** | YOLO11n, D-FINE-N, YOLO26n |
 | **Input** | 640×640 individual frames | **Sampling** | 1 frame every 1 second |
 | **Split** | 8 / 3 / 3 subjects | **Split unit** | Strictly subject-disjoint |
-| **Annotations** | CVAT → human-reviewed master COCO JSON | **Hardware** | NVIDIA RTX 4060, 8 GB VRAM |
+| **Annotations** | Label Studio → human-reviewed master COCO JSON | **Hardware** | NVIDIA RTX 4060, 8 GB VRAM |
 | **Training batch** | 1, no gradient accumulation | **Runtime batch** | 1 |
 | **Primary metric** | mAP@0.5:0.95 | **Input unit** | Single static frame |
 
@@ -70,7 +70,7 @@ dataset/images/
 > The frozen preprocessing rules and the unresolved non-integer-FPS sampling detail are maintained in [Benchmark scope, data & splits](./docs/quick-start.md).
 
 > [!IMPORTANT]
-> Annotation uses **CVAT** with one project and one task per subject. AI-assisted pre-annotations are provisional only: every sampled frame and every proposed annotation requires human review before inclusion in the master COCO ground truth. See the [annotation protocol](./docs/annotation-protocol.md).
+> Annotation uses **Label Studio** (Community Edition) with one project (**DMS-Eval**) and one task per image. Subject, video, filename, and sampled-frame index are retained as task metadata. AI-assisted pre-annotations are provisional predictions only: every sampled frame and every proposed prediction requires human review before inclusion in the master COCO ground truth. See the [annotation protocol](./docs/annotation-protocol.md).
 
 ---
 
