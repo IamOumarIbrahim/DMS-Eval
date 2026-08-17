@@ -237,3 +237,8 @@
 - Fix dataset-wide crop geometry at 640x640
 - Define FP16 CUDA runtime timing and throughput procedures
 - Reduce unresolved items to splits thresholds environment and deployment sources
+
+## [2026-08-17 15:07:45] - Freeze deployment profiling measurement protocols
+- Standardize local THOP GFLOPs calculation across all models
+- Measure final validation selected checkpoint sizes consistently
+- Track THOP versions and unsupported operator handling as unresolved

@@ -12,7 +12,9 @@
 - [x] Shared runtime hardware, batch size, test coverage, and median-latency reporting are frozen.
 - [x] Confidence-threshold candidate generation, selection objective, matching rules, and tie-breaking procedure are frozen.
 - [x] Native PyTorch + CUDA, FP16 inference, 10 warm-ups, model-only timing, and CUDA-event latency and throughput procedures are frozen.
-- [ ] Exact CUDA, PyTorch, model-framework, and NVIDIA GPU-driver versions remain unresolved.
+- [x] THOP-based local GFLOPs counting and final-checkpoint MB measurement procedures are frozen.
+- [ ] Exact CUDA, PyTorch, model-framework, NVIDIA GPU-driver, and THOP versions remain unresolved.
+- [ ] Handling of unsupported/custom operators in THOP remains unresolved.
 
 ---
 
@@ -34,8 +36,8 @@
 | **Runtime Efficiency** | Inference Latency (ms/image) | Full Test Set | Median model-inference latency; batch size 1; PyTorch CUDA events |
 | | FPS / Throughput | Full Test Set | Report latency-derived FPS and separately measured continuous-test-set throughput |
 | **Deployment Profile** | Parameters (M) | Architectural | Use official published model parameter counts |
-| | Model File Size (MB) | Architectural | Use published/official information; exact comparable artifact/source ⚠️ Resolve Later |
-| | Computational Workload (GFLOPs) | Architectural | Use published/official information at 640×640; exact comparable source/value ⚠️ Resolve Later |
+| | Model File Size (MB) | Final Validation-Selected Checkpoint | Locally measure the actual checkpoint artifact using one common procedure |
+| | Computational Workload (GFLOPs) | Architectural | Locally calculate with THOP at `1 × 3 × 640 × 640` using `1 MAC = 2 FLOPs` |
 
 > [!NOTE]
 > DMS-Eval uses **mAP as the benchmark's detection-accuracy measure**. A separate generic classification `Accuracy` metric is not included.
@@ -210,14 +212,68 @@ latency-derived FPS
 ```
 
 <details>
-<summary><strong>Show deployment-profile sources and removed condition-wise evaluation</strong></summary>
+<summary><strong>Show deployment-profile protocols and removed condition-wise evaluation</strong></summary>
 
-### Deployment Profile Sources
+### Deployment Profile Protocol
 
 * **Parameter counts:** use official published model information rather than independently recounting parameters.
-* **Model file size:** use official/published information, but the exact comparable artifact/source for each model must be frozen before reporting.
-* **FLOPs:** use official/published information rather than calculating FLOPs locally, but the exact comparable source/value for each model must be frozen before reporting.
-* Published values must refer to **comparable model variants and measurement conditions** before they are placed side by side in the final benchmark table.
+
+#### Official Published / Reference Values
+
+* Include official published FLOPs information and references for YOLO11n, D-FINE-N, and YOLO26n where available.
+* Present official FLOPs information clearly as **official/reference values**.
+* Do not use differently produced official FLOPs numbers as the primary directly comparable DMS-Eval measurement.
+* Keep official/reference values clearly separate from DMS-Eval locally measured values.
+* Official/published model file-size information may also be included as cited reference/context where useful, but it must remain separate from the locally measured benchmark value.
+
+#### DMS-Eval Locally Calculated FLOPs — 🧊 Frozen
+
+The primary directly comparable DMS-Eval computational-workload value is calculated locally with one common procedure:
+
+* **FLOPs-counting tool:** THOP for YOLO11n, D-FINE-N, and YOLO26n.
+* Use the **same THOP version** for all three models and record the exact version actually used in the final reproducibility environment.
+* **Input tensor shape:** `1 × 3 × 640 × 640`.
+* **Batch size:** `1`.
+* **Counting scope:** model forward/inference computation only.
+* Exclude:
+  * Image/file loading
+  * Preprocessing
+  * NMS or other external post-processing
+  * Evaluator logic
+  * Metric computation
+  * Other non-model operations
+* Report the resulting computational workload in **GFLOPs**.
+* Convert THOP's MAC count using the frozen convention:
+
+```text
+1 MAC = 2 FLOPs
+```
+
+Therefore:
+
+```text
+GFLOPs = (2 × THOP MACs) / 10^9
+```
+
+The exact same tool, input, scope, and conversion convention are applied to all three architectures. Numerical locally calculated GFLOPs values will be populated after measurement; they are future results rather than unresolved protocol decisions.
+
+##### ⚠️ Resolve Later — Unsupported / Custom Operators
+
+> If THOP fails to count or correctly handle an unsupported/custom operator in one or more architectures, determine later how that case must be handled before accepting the corresponding FLOPs value.
+
+No policy is currently frozen for adding custom THOP handlers, using another profiler, estimating missing computation, or invalidating the result.
+
+#### DMS-Eval Locally Measured Model File Size — 🧊 Frozen
+
+* Measure the actual **final validation-selected checkpoint artifact** for each model.
+* Apply the **same file-size measurement procedure** to YOLO11n, D-FINE-N, and YOLO26n.
+* Report model file size in **MB**.
+* The locally measured checkpoint size is the directly comparable DMS-Eval benchmark value.
+* Keep any official/published file-size information clearly separate as cited reference/context.
+* Do not introduce a MiB column.
+* No additional serialization, compression, checkpoint-cleaning, or file-format rule is frozen here.
+
+Exact locally measured checkpoint sizes will be populated after training and validation-based model selection; they are future results rather than unresolved protocol decisions.
 
 ### Removed from Current Benchmark
 
@@ -282,10 +338,9 @@ The selected threshold is then frozen for that model and applied unchanged durin
 | Color | Still unresolved | What must be finalized | Claim affected |
 | ----- | ---------------- | ---------------------- | -------------- |
 | 🔴 | **Exact subject IDs / `splits.json`** | Freeze the exact 8 train / 3 validation / 3 test subjects after annotation makes subject-level target-cue distributions available; keep every subject strictly within one split. | **same training/test data**, **subject-disjoint test split** |
-| 🟠 | **CUDA / PyTorch / model-framework / NVIDIA GPU-driver versions** | Record the exact software environment actually used for training and evaluation. | Supports reproducibility and the **same inference timing protocol** |
+| 🟠 | **CUDA / PyTorch / model-framework / NVIDIA GPU-driver / THOP versions** | Record the exact software environment actually used for training, evaluation, and local FLOPs calculation. | Supports reproducibility, the **same inference timing protocol**, and the common FLOPs procedure |
 | 🟢 | **Exact validation-selected confidence thresholds** | Record the numerical threshold selected for YOLO11n, D-FINE-N, and YOLO26n using the frozen validation-only procedure. | Evaluation reporting; the shared selection procedure is already frozen |
-| 🟢 | **Comparable FLOPs source/value** | Select comparable official/published 640×640 values for all three exact variants. | Deployment reporting; **not required for the fairness paragraph** |
-| 🟢 | **Comparable model file-size source/artifact** | Define the comparable artifact/source used for all three models. | Deployment reporting; **not required for the fairness paragraph** |
+| 🟠 | **Unsupported/custom operators in THOP** | If THOP does not count an operator correctly, determine how that case must be handled before accepting the corresponding FLOPs value. | Local computational-workload comparability |
 
 **🔴 = must get right for the paragraph to remain literally true**
 **🟠 = important protocol definition**

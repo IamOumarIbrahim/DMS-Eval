@@ -176,9 +176,8 @@
 
 - [ ] Exact subject IDs in `splits.json`
 - [ ] Exact numerical validation-selected confidence threshold for each model
-- [ ] CUDA, PyTorch, model-framework, and NVIDIA GPU-driver versions
-- [ ] Comparable FLOPs source/value
-- [ ] Comparable model file-size source/artifact
+- [ ] CUDA, PyTorch, model-framework, NVIDIA GPU-driver, and THOP versions from the actual environment
+- [ ] Handling of unsupported/custom operators if THOP does not count them correctly
 
 See [Benchmark scope, data & splits](./docs/quick-start.md) and the [evaluation protocol](./docs/evaluation-protocol.md) for the existing descriptions of these unresolved values.
 
