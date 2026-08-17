@@ -98,7 +98,7 @@ dataset/images/
 
 | Drowsiness Cue | Distraction Cue |
 | :--- | :--- |
-| `eyes_closed` | `phone_use` |
+| `eyes_closed` | `drinking` |
 | `yawning` | `head_turned_away` |
 | `head_down` | — |
 | `hand_over_mouth` | — |

@@ -9,7 +9,7 @@
     <Label value="yawning" background="#FA8C16"/>
     <Label value="head_down" background="#FAAD14"/>
     <Label value="hand_over_mouth" background="#722ED1"/>
-    <Label value="phone_use" background="#1890FF"/>
+    <Label value="drinking" background="#1890FF"/>
     <Label value="head_turned_away" background="#13C2C2"/>
   </RectangleLabels>
 </View>

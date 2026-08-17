@@ -42,6 +42,12 @@ dataset/*.zip
 dataset/1-*/
 archive/
 
+# Python cache & temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+*_tmp.pdf
+
 # Tools & Label Studio
 tools/label-studio/.venv/
 tools/label-studio/data/

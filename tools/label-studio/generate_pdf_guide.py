@@ -163,8 +163,8 @@ def build_pdf(target_path: str):
         ],
         [
             Paragraph("<font color='#3182CE'><b>5</b></font>", body_bold),
-            Paragraph("<code>phone_use</code>", body_code),
-            Paragraph("<b>Hand + phone together</b>", body_bold),
+            Paragraph("<code>drinking</code>", body_code),
+            Paragraph("<b>Face + bottle together</b>", body_bold),
             Paragraph("<b>Ctrl + Z</b>", body_bold),
             Paragraph("Undo Last Edit", body_text)
         ],
@@ -224,10 +224,10 @@ def build_pdf(target_path: str):
             Paragraph("• Hand resting on chin without covering mouth aperture is NOT hand over mouth.<br/>• Hand on steering wheel is NOT hand over mouth.", body_text)
         ],
         [
-            Paragraph("<font color='#2B6CB0'><b>[5] phone_use</b></font>", body_bold),
-            Paragraph("Active handheld smartphone holding, texting, or interacting.", body_text),
-            Paragraph("<b>Hand + Phone together</b>.<br/>Enclose phone and interacting hand.", body_bold),
-            Paragraph("• Phones resting passively on console/mount are NOT phone use.<br/>• Hands-free voice calls are NOT phone use.", body_text)
+            Paragraph("<font color='#2B6CB0'><b>[5] drinking</b></font>", body_bold),
+            Paragraph("Active drinking with bottle, cup, or can at mouth/face.", body_text),
+            Paragraph("<b>Face + bottle together</b>.<br/>Enclose face and beverage container.", body_bold),
+            Paragraph("• Bottles/cups resting passively in holders are NOT drinking.<br/>• Must depict active consumption posture.", body_text)
         ],
         [
             Paragraph("<font color='#285E61'><b>[6] head_turned_away</b></font>", body_bold),
@@ -269,9 +269,9 @@ def build_pdf(target_path: str):
             Paragraph("Annotate <code>hand_over_mouth</code> (Full Head) AND <code>yawning</code> (Mouth). Overlapping boxes are expected.", body_text)
         ],
         [
-            Paragraph("Driver holding phone near ear with hand visible", body_bold),
-            Paragraph("<font color='#2B6CB0'><b>phone_use</b></font>", body_bold),
-            Paragraph("Annotate <code>phone_use</code> around hand + phone together (active handheld phone manipulation).", body_text)
+            Paragraph("Driver holding bottle/can to mouth/lips", body_bold),
+            Paragraph("<font color='#2B6CB0'><b>drinking</b></font>", body_bold),
+            Paragraph("Annotate <code>drinking</code> around face + bottle together (active beverage consumption).", body_text)
         ],
         [
             Paragraph("Extreme glare / shadow / inconclusive cue visibility", body_bold),
