@@ -217,3 +217,8 @@
 - Add empty annotations metadata file
 - Add excluded frames CSV placeholder
 - Add preprocessing and split configuration placeholders
+
+## [2026-08-17 12:32:15] - Document standardized model training protocol
+- Define pretrained full-model fine-tuning and model-specific recipes
+- Freeze shared training controls across all three architectures
+- Record unresolved training and evaluation configuration values

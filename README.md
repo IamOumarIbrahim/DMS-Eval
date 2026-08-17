@@ -15,16 +15,17 @@
 * [Frame Naming](#frame-naming)
 * [Target Warning Cues](#target-warning-cues)
 * [Annotation Rules](#annotation-rules)
-  * [General](#general)
-  * [`eyes_closed`](#eyes_closed)
-  * [`yawning`](#yawning)
-  * [`head_down`](#head_down)
-  * [`hand_over_mouth`](#hand_over_mouth)
-  * [`phone_use`](#phone_use)
-  * [`head_turned_away`](#head_turned_away)
+  * [General](#general)
+  * [`eyes_closed`](#eyes_closed)
+  * [`yawning`](#yawning)
+  * [`head_down`](#head_down)
+  * [`hand_over_mouth`](#hand_over_mouth)
+  * [`phone_use`](#phone_use)
+  * [`head_turned_away`](#head_turned_away)
 * [Cue Categories & Visual Salience](#cue-categories--visual-salience)
 * [Removed Classes](#removed-classes)
 * [Annotation / Data Quality](#annotation--data-quality)
+* [Training Protocol](#training-protocol)
 * [Evaluation Protocol](#evaluation-protocol)
 * [⚠️ Resolve Later](#-resolve-later)
 * [Skipped / ⚠️ Unresolved Cue](#skipped---unresolved-cue)
@@ -131,9 +132,9 @@ The file will list subject IDs under:
 
 ```json
 {
-  "train": [],
-  "validation": [],
-  "test": []
+  "train": [],
+  "validation": [],
+  "test": []
 }
 ```
 
@@ -352,6 +353,58 @@ exclusion_reason
 > * **No Extrapolation:** Annotators must never draw boxes around occluded or out-of-frame anatomy.
 > * **Strict Logging:** Any excluded frame must be logged with a concrete reason in `excluded_frames.csv` to ensure auditable dataset curation.
 
+## Training Protocol
+
+### 🧊 Frozen
+
+> Shared training controls are frozen where architectural fairness requires a common rule. Architecture-specific optimization behavior remains model-specific where forcing one recipe across fundamentally different model families could unfairly disadvantage a model.
+
+#### Initialization & Fine-Tuning
+
+* **YOLO11n, D-FINE-N, and YOLO26n start from their official pretrained weights.**
+* The models are **not trained from scratch**.
+* All three models use **full-model fine-tuning** on the DMS-Eval training split.
+* **No pretrained layers are intentionally frozen.**
+* The pretrained starting points are **not assumed to be identical across architectures**. Their original pretraining datasets/setups may differ and must be documented transparently as part of the benchmark's reproducibility record and limitations.
+
+#### Model-Specific Training Recipe
+
+* Each model uses its **official/model-specific recommended training recipe**, except where DMS-Eval explicitly freezes a shared training control below.
+* DMS-Eval does **not** force one common optimizer, learning rate, learning-rate schedule, weight decay, or augmentation policy across all architectures.
+* **Data augmentation remains part of each model's official/model-specific training recipe.**
+* The actual training settings used for each model must be **recorded and reported for reproducibility**.
+
+#### Shared Training Controls
+
+| Training Parameter | 🧊 Frozen Rule |
+| :--- | :--- |
+| **Maximum training epochs** | Same maximum epoch limit for all three models; exact value ⚠️ Resolve Later |
+| **Early stopping** | Disabled for all three models |
+| **Batch size** | `1` for all three models |
+| **Gradient accumulation** | Disabled; one image produces one weight update before moving to the next image |
+| **Training runs** | One training run per model; no multi-seed averaging |
+| **Random seed** | Same seed for all three models; exact seed value ⚠️ Resolve Later |
+| **Training hardware** | NVIDIA RTX 4060 with 8 GB VRAM for all three models |
+| **Training precision** | Same precision mode for all three models; exact mode ⚠️ Resolve Later |
+| **Data-loader workers** | Same worker count for all three models; exact count ⚠️ Resolve Later |
+
+> [!IMPORTANT]
+> The already-frozen checkpoint-selection rule remains unchanged: for each model, the final checkpoint is the checkpoint with the highest validation `mAP@0.5:0.95` measured using the shared DMS-Eval evaluator.
+
+### Removed
+
+* **Mandatory framework-level deterministic training mode** is not required.
+* The shared random seed remains frozen, but strict bitwise-identical reruns are not required.
+
+### ⚠️ Resolve Later
+
+The following training values remain intentionally unfrozen:
+
+* Exact shared maximum number of training epochs.
+* Exact shared random seed value.
+* Exact shared training precision mode.
+* Exact shared data-loader worker count.
+
 ## Evaluation Protocol
 
 ### 🧊 Frozen Metrics
@@ -390,11 +443,11 @@ The evaluation flow is:
 
 ```text
 master COCO ground truth
-        +
+        +
 model predictions converted to a common COCO-style detection format
-        ↓
+        ↓
 shared DMS-Eval evaluator
-        ↓
+        ↓
 reported benchmark metrics
 ```
 
@@ -442,8 +495,10 @@ For each model:
 | :--- | :--- | :--- |
 | **Dataset Partitioning** | Split Subject IDs | Assign specific subject IDs to 8 train / 3 val / 3 test in `splits.json` |
 | **Spatial Preprocessing** | Fixed Crop Geometry | Extract representative cabin frame and freeze `(x, y, width, height)` in `preprocessing.json` |
-| **Annotation Criteria** | Small Target Cutoff | Audit minimum bounding-box pixel thresholds during secondary annotation pass |
-| **Model Training** | Optimization Recipe | Freeze epochs, batch size, optimizer, learning-rate schedule, weight decay, and augmentations |
+| **Model Training** | Maximum Epoch Count | Same maximum limit for all three models; exact count remains unfrozen |
+| **Model Training** | Shared Random Seed | Same seed for all three models; exact value remains unfrozen |
+| **Model Training** | Training Precision Mode | Same precision mode for all three models; exact mode remains unfrozen |
+| **Model Training** | Data-Loader Worker Count | Same worker count for all three models; exact count remains unfrozen |
 | **Evaluation Harness** | IoU Matching Rules | Formalize matching IoU thresholds for threshold-controlled Precision/Recall/F1 |
 | **Runtime Profiling** | Execution Environment | Freeze hardware platform, CUDA/framework versions, precision, backend, and warmup iterations |
 
@@ -472,17 +527,17 @@ It remains ⚠️ unresolved unless explicitly reconsidered.
 
 ### Authors
 
-* **Oumar Mamoun Ibrahim** (Senior Undergraduate Researcher)  
-  Department of Computer Engineering, University of Sharjah  
+* **Oumar Mamoun Ibrahim** (Senior Undergraduate Researcher)  
+  Department of Computer Engineering, University of Sharjah  
 
-  [![ORCID: Oumar](https://img.shields.io/badge/ORCID-0009--0008--0312--1605-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0008-0312-1605)  
-  📧 | [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae)
+  [![ORCID: Oumar](https://img.shields.io/badge/ORCID-0009--0008--0312--1605-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0009-0008-0312-1605)  
+  📧 | [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae)
 
-* **Dr. Mohamad Khairi bin Ishak** (Associate Professor)  
-  Department of Computer Engineering, University of Sharjah  
+* **Dr. Mohamad Khairi bin Ishak** (Associate Professor)  
+  Department of Computer Engineering, University of Sharjah  
 
-  [![ORCID: Dr. Mohamad](https://img.shields.io/badge/ORCID-0000--0002--3554--0061-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-3554-0061)  
-  📧 | [mishak@sharjah.ac.ae](mailto:mishak@sharjah.ac.ae)
+  [![ORCID: Dr. Mohamad](https://img.shields.io/badge/ORCID-0000--0002--3554--0061-A6CE39?logo=orcid&logoColor=white)](https://orcid.org/0000-0002-3554-0061)  
+  📧 | [mishak@sharjah.ac.ae](mailto:mishak@sharjah.ac.ae)
 
 ### Acknowledgments
 
