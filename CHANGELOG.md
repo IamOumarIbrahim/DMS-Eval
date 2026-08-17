@@ -222,3 +222,8 @@
 - Define pretrained full-model fine-tuning and model-specific recipes
 - Freeze shared training controls across all three architectures
 - Record unresolved training and evaluation configuration values
+
+## [2026-08-17 13:05:56] - Refine benchmark evaluation and preprocessing protocols
+- Clarify fixed cropping and cue balanced subject splits
+- Define matching threshold and checkpoint tie breaking rules
+- Specify runtime profiling and deployment metric sources
