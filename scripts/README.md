@@ -1,6 +1,8 @@
 # DMS-Eval Dataset Processing & Extraction Scripts
 
-This folder contains the complete, reproducible preprocessing pipelines used to prepare the Driver Monitoring Dataset (DMD) for model evaluation and benchmarking.
+This folder contains the implemented preprocessing pipeline used to prepare the Driver Monitoring Dataset (DMD) for model evaluation and benchmarking.
+
+> **Status:** The frame-extraction pipeline is implemented under `scripts/`. Generated images under `dataset/images/` are local dataset artifacts and are not intended to be committed to Git.
 
 ---
 
@@ -11,7 +13,8 @@ An end-to-end multi-processed Python CLI pipeline that extracts, crops, and veri
 ### Pipeline Stages:
 1. **1 FPS Frame Sampling**:
    - Discovers all 1280x720 `rgb_face` videos across `distraction`, `gaze`, and `di21-dmd-dataset-drowsiness`.
-   - Samples 1 frame every 1 second (1 fps) sequentially with zero-drop decoding.
+   - Applies the frozen intent of sampling 1 frame every 1 second.
+   - The exact implementation mapping to source frames at approximately 29.76 FPS remains unresolved; no timestamp, rounding, accumulated-time, floor/ceiling, or other mapping rule is frozen.
    - Outputs full-resolution (1280x720) frames to `dataset/DMD/Images/` using standardized naming:
      ```
      <category>_<group>_<subject>_<session>_<framenumber:04d>.jpg
@@ -20,7 +23,12 @@ An end-to-end multi-processed Python CLI pipeline that extracts, crops, and veri
    - Crops each frame to the standardized driver-face bounding box:
      - `x = 272`, `y = 71`, `width = 640`, `height = 640`
      - Corners: `(272, 71)` to `(912, 711)`
-   - Saves cropped frames to `dataset/images/`.
+   - Uses no resizing, padding, letterboxing, or stretching.
+   - Saves cropped frames under `dataset/images/subject_<ID>/video_<ID>/`.
+   - Final cropped filenames must preserve the original absolute source-frame index:
+     ```
+     subject_<ID>_video_<ID>_frame_<ABSOLUTE_SOURCE_FRAME_INDEX>.jpg
+     ```
 3. **Automated Quality Verification**:
    - Detects any pure black or corrupt frames (`max_pixel == 0`).
    - Measures Laplacian Variance ($\sigma^2(\nabla^2 I)$) sharpness across all frames.
@@ -57,19 +65,16 @@ python scripts/extract_and_crop_dmd.py --verify-only
 
 ```
 dataset/
-├── images/                                  # 640x640 Cropped Dataset
-│   ├── distraction/
-│   │   └── gA/1/s1/
-│   │       ├── distraction_gA_1_s1_0001.jpg
-│   │       └── ...
-│   ├── gaze/
-│   │   └── gA/1/s6/
-│   │       ├── gaze_gA_1_s6_0001.jpg
-│   │       └── ...
-│   └── di21-dmd-dataset-drowsiness/
-│       └── gA/1/s5/
-│           ├── drowsiness_gA_1_s5_0001.jpg
-│           └── ...
+├── images/                                  # 640x640 cropped dataset; not committed to Git
+│   ├── subject_01/
+│   │   ├── video_01/
+│   │   │   ├── subject_01_video_01_frame_<ABSOLUTE_SOURCE_FRAME_INDEX>.jpg
+│   │   │   └── ...
+│   │   ├── video_02/
+│   │   └── ...
+│   ├── subject_02/
+│   │   └── ...
+│   └── ...
 └── DMD/
     ├── Images/                              # 1280x720 Raw Extracted Frames
     ├── distraction/                         # Original Videos & Annotations

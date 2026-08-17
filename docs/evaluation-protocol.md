@@ -13,7 +13,7 @@
 - [x] Confidence-threshold candidate generation, selection objective, matching rules, and tie-breaking procedure are frozen.
 - [x] Native PyTorch + CUDA, FP16 inference, 10 warm-ups, model-only timing, and CUDA-event latency and throughput procedures are frozen.
 - [x] THOP-based local GFLOPs counting and final-checkpoint MB measurement procedures are frozen.
-- [ ] Exact CUDA, PyTorch, model-framework, NVIDIA GPU-driver, and THOP versions remain unresolved.
+- [ ] Exact CUDA, PyTorch, model-framework versions/commits, NVIDIA GPU-driver, and THOP versions remain unresolved.
 - [ ] Handling of unsupported/custom operators in THOP remains unresolved.
 
 ---
@@ -339,7 +339,7 @@ The selected threshold is then frozen for that model and applied unchanged durin
 | ----- | ---------------- | ---------------------- | -------------- |
 | 🔴 | **Exact subject IDs / `splits.json`** | Freeze the exact 8 train / 3 validation / 3 test subjects only after annotation provides per-subject frame counts for all six target cues; keep every subject strictly within one split. | **same training/test data**, **subject-disjoint test split** |
 | 🟠 | **Exact 8/3/3 subject-assignment algorithm/method** | Determine later how to choose the best assignment from annotated per-subject cue distributions without assuming an optimization function, search procedure, tolerance, distance metric, weighting rule, or numerical threshold. | Split reproducibility |
-| 🟠 | **CUDA / PyTorch / model-framework / NVIDIA GPU-driver / THOP versions** | Record the exact software environment actually used for training, evaluation, and local FLOPs calculation. | Supports reproducibility, the **same inference timing protocol**, and the common FLOPs procedure |
+| 🟠 | **CUDA / PyTorch / model-framework versions or commits / NVIDIA GPU-driver / THOP versions** | Record the exact software environment actually used for training, evaluation, and local FLOPs calculation. | Supports reproducibility, the **same inference timing protocol**, and the common FLOPs procedure |
 | 🟢 | **Exact validation-selected confidence thresholds** | Record the numerical threshold selected for YOLO11n, D-FINE-N, and YOLO26n using the frozen validation-only procedure. | Evaluation reporting; the shared selection procedure is already frozen |
 | 🟠 | **Unsupported/custom operators in THOP** | If THOP does not count an operator correctly, determine how that case must be handled before accepting the corresponding FLOPs value. | Local computational-workload comparability |
 

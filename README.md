@@ -58,7 +58,7 @@
 </tr>
 <tr>
 <td><strong>Annotations</strong></td>
-<td>One master COCO JSON</td>
+<td>CVAT → human-reviewed master COCO JSON</td>
 <td><strong>Hardware</strong></td>
 <td>NVIDIA RTX 4060, 8 GB VRAM</td>
 </tr>
@@ -93,15 +93,23 @@
 
 ## Dataset Preprocessing & Frame Extraction
 
-The dataset extraction and 640×640 face cropping pipeline is automated via [`scripts/extract_and_crop_dmd.py`](./scripts/extract_and_crop_dmd.py):
+The implemented frame-extraction and 640×640 cropping pipeline is maintained under [`scripts/`](./scripts/). Extracted images are generated locally under `dataset/images/` and are not intended to be committed to Git.
 
-```bash
-# Run full pipeline (extraction + cropping + verification)
-python scripts/extract_and_crop_dmd.py
-
-# Custom parameters example
-python scripts/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped dataset/images --sample-fps 1.0 --crop-box 272 71 640 640 --workers 6
+```text
+dataset/images/
+├── subject_01/
+│   ├── video_01/
+│   └── ...
+├── subject_02/
+│   └── ...
+└── ...
 ```
+
+> [!NOTE]
+> The frozen preprocessing rules and the unresolved non-integer-FPS sampling detail are maintained in [Benchmark scope, data & splits](./docs/quick-start.md).
+
+> [!IMPORTANT]
+> Annotation uses **CVAT** with one project and one task per subject. AI-assisted pre-annotations are provisional only: every sampled frame and every proposed annotation requires human review before inclusion in the master COCO ground truth. See the [annotation protocol](./docs/annotation-protocol.md).
 
 ---
 
@@ -194,8 +202,9 @@ python scripts/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped datas
 - [ ] Exact train, validation, and test subject IDs in `splits.json`
 - [ ] Exact algorithm/method used to choose the best 8/3/3 subject assignment from annotated per-subject cue distributions
 - [ ] Exact numerical validation-selected confidence threshold for each model
-- [ ] CUDA, PyTorch, model-framework, NVIDIA GPU-driver, and THOP versions from the actual environment
+- [ ] CUDA, PyTorch, model-framework versions/commits, NVIDIA GPU-driver, and THOP versions from the actual environment
 - [ ] Handling of unsupported/custom operators if THOP does not count them correctly
+- [ ] Exact implementation mapping “1 frame every 1 second” to source frames at non-integer source FPS
 
 See [Benchmark scope, data & splits](./docs/quick-start.md) and the [evaluation protocol](./docs/evaluation-protocol.md) for the existing descriptions of these unresolved values.
 

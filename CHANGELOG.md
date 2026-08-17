@@ -257,3 +257,8 @@
 - Adds docs dev-ref to ignored paths
 - Keeps third party documentation untracked
 - Removes an unnecessary blank line
+
+## [2026-08-17 16:38:26] - Add dataset manifest and refine preprocessing workflow
+- Add subject and video mappings with frame counts
+- Improve extraction cropping and dataset organization tooling
+- Clarify CVAT review requirements and sampling documentation

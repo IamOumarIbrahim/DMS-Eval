@@ -5,12 +5,14 @@
 > [!NOTE]
 > This document contains protocol information extracted from the DMS-Eval README. Frozen decisions and unresolved values retain their original status.
 
-> **Jump to:** [Target cues](#target-warning-cues) · [Cue hierarchy](#cue-categories--visual-salience) · [Detailed rules](#annotation-rules) · [Data quality](#annotation--data-quality)
+> **Jump to:** [Target cues](#target-warning-cues) · [Annotation workflow](#annotation-workflow) · [Cue hierarchy](#cue-categories--visual-salience) · [Detailed rules](#annotation-rules) · [Data quality](#annotation--data-quality)
 
 - [x] Six target warning cues are frozen.
 - [x] Bounding-box extents and single-frame rules are frozen.
 - [x] Removed and merged classes are documented.
 - [x] Annotation-quality controls are frozen.
+- [x] CVAT is frozen as the annotation tool, using one project and one task per subject.
+- [x] AI-assisted pre-annotation is frozen as provisional assistance with mandatory human review of every frame.
 
 ---
 
@@ -87,6 +89,36 @@
 * **Bounding Box Extent:** Full head/face.
 
 </details>
+
+---
+
+## Annotation Workflow
+
+### 🧊 Frozen CVAT Organization
+
+* **Annotation tool:** CVAT
+* **Project structure:** One CVAT project
+* **Task structure:** 14 CVAT tasks, with one task per subject
+* Each subject task contains all sampled frames from all videos belonging to that subject.
+* Every task uses the same six frozen target-cue labels.
+
+### 🧊 Frozen AI-Assisted Pre-Annotation
+
+The AI/vision agent provides **pre-annotation assistance only**. It reduces manual drawing work but does not replace human ground-truth validation.
+
+1. The agent may attempt to pre-annotate all six target cues.
+2. The agent writes proposed annotations directly into CVAT; an intermediate COCO file is not the normal pre-annotation workflow.
+3. All agent annotations are provisional proposals, never final ground truth.
+4. A human must review every proposed annotation.
+5. A human must review every sampled frame, including frames where the agent proposes zero annotations.
+6. During review, the human may accept a proposal, move or resize a box, change its class, delete a false positive, or manually add missed annotations.
+7. Only human-reviewed annotations may enter the final master COCO ground truth.
+
+> [!IMPORTANT]
+> **Human authority:** The human annotator/reviewer has final authority. The AI agent must never overwrite annotations that the human has already reviewed or finalized, and rerunning the agent must preserve all reviewed/finalized human annotations.
+
+> [!NOTE]
+> The AI-assisted workflow follows the existing ambiguity rules below. It does not create a separate AI-specific rule for ambiguous cue presence or borderline class choice.
 
 ---
 

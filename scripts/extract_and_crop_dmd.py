@@ -4,27 +4,43 @@ DMD (Driver Monitoring Dataset) Frame Extraction & Cropping Pipeline
 
 This script provides a reproducible, end-to-end pipeline to:
 1. Extract 1 frame per second (1 fps) from all 1280x720 `rgb_face` video streams.
-2. Mirror the DMD dataset hierarchy (category -> group -> subject -> session).
+2. Mirror the DMD dataset hierarchy (category -> group -> subject -> session) in raw frames.
 3. Apply the standardized 640x640 face region cropping box:
    - Box: x=272, y=71, width=640, height=640 (Coordinates: (272, 71) to (912, 711))
-4. Verify extraction integrity, checking for black/corrupt frames and sharpness.
+4. Organize cropped images into the canonical benchmark structure:
+   dataset/images/subject_XX/video_YY/subject_XX_video_YY_frame_ZZZZ.jpg
+5. Verify extraction integrity, checking for black/corrupt frames and sharpness.
 
 Usage:
 ------
 # Full pipeline (extraction + cropping + verification)
 python scripts/extract_and_crop_dmd.py
 
-# Custom paths or parameters:
-python scripts/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped dataset/images --workers 6
+# Custom parameters example
+python scripts/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped dataset/images --sample-fps 1.0 --crop-box 272 71 640 640 --workers 6
 """
 
 import os
 import sys
 import time
+import json
 import argparse
+from collections import OrderedDict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import cv2
 import numpy as np
+
+# 14 unique subjects in DMD dataset sorted numerically
+ORIGINAL_SUBJECTS = [1, 5, 6, 7, 9, 10, 13, 14, 23, 28, 29, 33, 36, 37]
+SUBJECT_MAP = {orig_id: f"subject_{idx:02d}" for idx, orig_id in enumerate(ORIGINAL_SUBJECTS, start=1)}
+
+SESSION_MAP = {
+    ("distraction", "s1"): "video_01",
+    ("distraction", "s2"): "video_02",
+    ("distraction", "s3"): "video_03",
+    ("di21-dmd-dataset-drowsiness", "s5"): "video_04",
+    ("gaze", "s6"): "video_05",
+}
 
 
 def parse_args():
@@ -118,7 +134,7 @@ def discover_rgb_face_videos(dmd_dir, raw_out_base):
                     parts = rel.split(os.sep)
                     if len(parts) < 5:
                         continue
-                    
+
                     cat_name = parts[0]
                     cat_prefix = "drowsiness" if "drowsiness" in cat_name.lower() else cat_name
                     group = parts[1]
@@ -146,8 +162,6 @@ def extract_video_worker(task, sample_fps, jpeg_quality):
     if not cap.isOpened():
         return task, 0, 0, f"Cannot open video {task['video_path']}"
 
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
     if fps <= 0:
         fps = 30.0
@@ -212,26 +226,53 @@ def run_extraction(tasks, workers, sample_fps, jpeg_quality):
 
 def collect_crop_tasks(raw_base, crop_base):
     dir_tasks = []
+    manifest_entries = []
+
     for root, _, files in os.walk(raw_base):
-        jpgs = [f for f in files if f.endswith(".jpg")]
+        jpgs = sorted([f for f in files if f.endswith(".jpg")])
         if jpgs:
-            rel_dir = os.path.relpath(root, raw_base)
-            out_dir = os.path.join(crop_base, rel_dir)
-            dir_tasks.append((root, out_dir, jpgs))
-    return dir_tasks
+            rel = os.path.relpath(root, raw_base)
+            parts = rel.split(os.sep)
+            # parts: [cat, group, sub_id, session]
+            if len(parts) >= 4:
+                cat, group, sub_id_str, session = parts[0], parts[1], parts[2], parts[3]
+                sub_id = int(sub_id_str)
+                sub_folder = SUBJECT_MAP.get(sub_id, f"subject_{sub_id:02d}")
+                vid_folder = SESSION_MAP.get((cat, session), f"video_{session}")
+                out_dir = os.path.join(crop_base, sub_folder, vid_folder)
+            else:
+                out_dir = os.path.join(crop_base, rel)
+                sub_folder, vid_folder = "unknown", "unknown"
+                sub_id, cat, session, group = 0, "unknown", "unknown", "unknown"
+
+            dir_tasks.append((root, out_dir, jpgs, sub_folder, vid_folder))
+            manifest_entries.append({
+                "subject_folder": sub_folder,
+                "original_subject_id": sub_id,
+                "group": group,
+                "video_folder": vid_folder,
+                "original_category": cat,
+                "original_session": session,
+                "frame_count": len(jpgs),
+                "source_dir": rel,
+                "target_dir": f"{sub_folder}/{vid_folder}"
+            })
+
+    return dir_tasks, manifest_entries
 
 
 def crop_dir_worker(task, crop_box, jpeg_quality):
-    in_dir, out_dir, files = task
+    in_dir, out_dir, files, sub_folder, vid_folder = task
     os.makedirs(out_dir, exist_ok=True)
     x, y, w, h = crop_box
     x2, y2 = x + w, y + h
     count = 0
     t0 = time.time()
 
-    for f in files:
+    for idx, f in enumerate(files, start=1):
         in_path = os.path.join(in_dir, f)
-        out_path = os.path.join(out_dir, f)
+        new_filename = f"{sub_folder}_{vid_folder}_frame_{idx:04d}.jpg"
+        out_path = os.path.join(out_dir, new_filename)
         img = cv2.imread(in_path)
         if img is None:
             continue
@@ -243,7 +284,7 @@ def crop_dir_worker(task, crop_box, jpeg_quality):
     return in_dir, out_dir, count, dur
 
 
-def run_cropping(tasks, workers, crop_box, jpeg_quality):
+def run_cropping(tasks, manifest_entries, crop_base, workers, crop_box, jpeg_quality):
     x, y, w, h = crop_box
     total_imgs = sum(len(t[2]) for t in tasks)
     print(f"\n[Step 2/3] Cropping {total_imgs} frames to {w}x{h} (Box: x={x}, y={y}, w={w}, h={h})...")
@@ -259,6 +300,15 @@ def run_cropping(tasks, workers, crop_box, jpeg_quality):
             total_cropped += count
             pct = round((completed_dirs / len(tasks)) * 100, 1)
             print(f"  [{pct}%] ({completed_dirs}/{len(tasks)}) Cropped {count} frames ({dur}s) -> {out_d}")
+
+    # Save manifest.json
+    manifest_path = os.path.join(os.path.dirname(crop_base), "manifest.json")
+    try:
+        with open(manifest_path, "w", encoding="utf-8") as mf:
+            json.dump(manifest_entries, mf, indent=2)
+        print(f"-> Saved dataset manifest to: {manifest_path}")
+    except Exception as e:
+        print(f"-> Warning: Could not save manifest: {e}")
 
     elapsed = round(time.time() - t_start, 1)
     print(f"-> Cropping complete: {total_cropped} images across {completed_dirs} directories in {elapsed}s.\n")
@@ -355,11 +405,11 @@ def main():
 
     # 2. Cropping
     if not args.skip_crop:
-        crop_tasks = collect_crop_tasks(args.out_raw_images, args.out_cropped)
+        crop_tasks, manifest_entries = collect_crop_tasks(args.out_raw_images, args.out_cropped)
         if not crop_tasks:
             print(f"Warning: No raw extracted images found in {args.out_raw_images} to crop.")
         else:
-            run_cropping(crop_tasks, args.workers, args.crop_box, args.jpeg_quality)
+            run_cropping(crop_tasks, manifest_entries, args.out_cropped, args.workers, args.crop_box, args.jpeg_quality)
 
     # 3. Verification
     if os.path.exists(args.out_cropped):

@@ -14,8 +14,10 @@
 - [x] The split unit is strictly subject-disjoint.
 - [x] All six target cues must occur in every split with roughly similar proportional representation based on per-subject frame counts.
 - [x] The dataset-wide 640×640 crop is frozen at `x = 272`, `y = 71`, `width = 640`, `height = 640`.
+- [x] The frame-extraction pipeline is implemented under `scripts/`; generated images are not committed to Git.
 - [ ] Exact train, validation, and test subject IDs remain unresolved.
 - [ ] The exact method used to choose the best 8/3/3 assignment remains unresolved.
+- [ ] The exact mapping from “1 frame every 1 second” to source frames at non-integer source FPS remains unresolved.
 
 </details>
 
@@ -73,6 +75,7 @@
 | **Spatial Cropping Target** | Driver-facing cabin region | Fixed consistently across the dataset |
 | **Fixed Crop Geometry** | `x = 272`, `y = 71`, `width = 640`, `height = 640` | The exact same crop is reused for every video and subject |
 | **Crop Coordinate Representation** | Source-image pixels | Stored as `(x, y, width, height)` |
+| **Resizing** | None | The 640×640 output is produced directly by the frozen crop |
 | **Aspect Ratio Handling** | Direct spatial crop | Zero padding / letterboxing borders; zero non-uniform stretching |
 
 > [!IMPORTANT]
@@ -81,17 +84,27 @@
 > * **No Aspect-Ratio Stretching:** Image proportions are strictly preserved via direct spatial cropping.
 > * **Dataset-wide fixed crop:** The frozen crop is applied unchanged to every source video and subject.
 
-### Extraction & Cropping Script
+### Frame-Extraction Pipeline — Implemented
 
-The extraction and cropping pipeline is automated via [`scripts/extract_and_crop_dmd.py`](../scripts/extract_and_crop_dmd.py):
+The implemented extraction, cropping, and verification pipeline is maintained under [`scripts/`](../scripts/). Extracted images are generated locally and are **not intended to be committed to Git**.
 
-```bash
-# Run full pipeline (extraction + cropping + verification)
-python scripts/extract_and_crop_dmd.py
-
-# Custom parameters example
-python scripts/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped dataset/images --sample-fps 1.0 --crop-box 272 71 640 640 --workers 6
+```text
+dataset/
+└── images/
+    ├── subject_01/
+    │   ├── video_01/
+    │   ├── video_02/
+    │   └── ...
+    ├── subject_02/
+    │   └── ...
+    └── ...
 ```
+
+#### ⚠️ Resolve Later — Non-Integer-FPS Sampling
+
+The exact implementation rule mapping **“1 frame every 1 second”** to source frames when the source FPS is approximately `29.76` remains unresolved.
+
+No timestamp-sampling rule, rounded-frame-index rule, accumulated-time rule, floor/ceiling rule, or other mapping method is currently frozen.
 
 <details>
 <summary><strong>Show frozen preprocessing configuration and crop geometry</strong></summary>
@@ -215,6 +228,10 @@ One COCO JSON file contains the annotations for the **entire dataset**.
 ```text
 dataset/
 ├── images/
+│   ├── subject_01/
+│   │   ├── video_01/
+│   │   └── ...
+│   └── ...
 ├── annotations.json
 ├── splits.json
 └── preprocessing.json
@@ -231,7 +248,7 @@ The master COCO annotation file stores:
 
 > [!TIP]
 > **Single Source of Truth:**
-> Maintain only `annotations.json` as the ground-truth annotation artifact. Model-specific format converters (e.g., YOLO TXT or DETR formats) derive their inputs directly from this master file and `splits.json`.
+> Only human-reviewed annotations exported from the frozen CVAT workflow may enter `annotations.json`. Model-specific format converters (e.g., YOLO TXT or DETR formats) derive their inputs directly from this master file and `splits.json`. See the [annotation protocol](./annotation-protocol.md) for the complete workflow.
 
 <details>
 <summary><strong>Show frame-naming convention</strong></summary>
@@ -246,10 +263,10 @@ Frame filenames must contain:
 
 * Subject ID
 * Video ID
-* Original source frame number
+* Original absolute source-frame index
 
 ```text
-subject_07_video_03_frame_002980.jpg
+subject_<ID>_video_<ID>_frame_<ABSOLUTE_SOURCE_FRAME_INDEX>.jpg
 ```
 
 > This preserves the origin of every sampled frame and makes the dataset fully auditable and traceable.
