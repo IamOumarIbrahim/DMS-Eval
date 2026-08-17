@@ -1,0 +1,233 @@
+# Benchmark Scope, Data & Splits
+
+[← Back to the DMS-Eval landing page](../README.md)
+
+> [!NOTE]
+> This document contains protocol information extracted from the DMS-Eval README. Frozen decisions and unresolved values retain their original status.
+
+> **Jump to:** [Frozen scope](#frozen-benchmark-scope) · [Preprocessing](#frame-extraction--preprocessing) · [Dataset splits](#dataset-splits) · [Annotation format](#annotation-format)
+
+<details>
+<summary><strong>Show protocol-status checklist</strong></summary>
+
+- [x] Dataset, model set, input resolution, sampling policy, annotation format, and 8/3/3 subject allocation are frozen.
+- [x] The split unit is strictly subject-disjoint.
+- [ ] Exact fixed crop coordinates remain unresolved.
+- [ ] Exact train, validation, and test subject IDs remain unresolved.
+
+</details>
+
+---
+
+<a id="frozen-benchmark-scope"></a>
+
+## 🧊 Frozen Benchmark Scope
+
+<p align="center"><sub><b>Table 1.</b> Frozen benchmark scope.</sub></p>
+
+| Setting | 🧊 Frozen value | Specification Notes |
+| :--- | :--- | :--- |
+| **Dataset** | DMD-derived dataset | Real-cabin RGB video sequences |
+| **Models** | YOLO11n, D-FINE-N, YOLO26n | Nano-scale real-time detectors (YOLO vs. DETR) |
+| **Input resolution** | 640×640 | Direct spatial crop |
+| **Model input unit** | Individual image frames | Single static frame evaluation |
+| **Source video frame rate** | 29.76 FPS | Normalized video capture rate |
+| **Source video duration range** | 55.28–519.39 s | Variable naturalistic duration |
+| **Frame sampling** | 1 frame every 1 second | Systematic 1 FPS temporal rate |
+| **Sampling policy** | Fixed uniform sampling | Same sampling rule for every video |
+| **Saved frame format** | JPG | Standard lossy compression |
+| **Master annotation format** | COCO JSON | Single source of truth |
+| **Master annotation files** | One COCO JSON for full dataset | `annotations.json` |
+| **Split file format** | JSON | `splits.json` |
+| **Train / val / test split** | 8 / 3 / 3 subjects | 57.1% / 21.4% / 21.4% whole-subject partition |
+| **Split unit** | Individual / subject | Strictly subject-disjoint |
+| **Split timing** | Finalized prior to training | Permanent partition freeze |
+
+> [!NOTE]
+> * **Proportional Frame Yield:** Longer videos naturally contribute more sampled frames than shorter videos due to the uniform 1 FPS temporal sampling across full video durations.
+> * **Background / Negative Frames:** Frames containing none of the target warning cues remain valid negative samples to ensure robust false-positive evaluation.
+
+---
+
+## Frame Extraction & Preprocessing
+
+### 🧊 Frozen
+
+> Standardized spatial cropping and temporal sampling procedure:
+
+<p align="center"><sub><b>Table 2.</b> Frozen frame extraction and preprocessing controls.</sub></p>
+
+| Preprocessing Parameter | 🧊 Frozen Value | Implementation Specification |
+| :--- | :--- | :--- |
+| **Source Video Frame Rate** | 29.76 FPS | Native temporal rate across synchronized streams |
+| **Video Duration Range** | 55.28–519.39 s | Natural session lengths across 14 volunteer participants |
+| **Temporal Sampling** | 1 frame / 1 second | Fixed uniform interval across all videos |
+| **Saved Image Format** | JPG | Compressed standard image container |
+| **Stored Image Resolution** | 640×640 | Direct benchmark model input dimension |
+| **Spatial Cropping Target** | Driver-facing cabin region | Selected once on a reference frame; the exact same crop coordinates are reused for every video and subject |
+| **Crop coordinate representation** | Source-image pixels | Stored directly as `(x, y, width, height)` |
+| **Aspect Ratio Handling** | Direct spatial crop | Zero padding / letterboxing borders; zero non-uniform stretching |
+
+> [!IMPORTANT]
+> **Spatial Preprocessing Constraints:**
+> * **No Letterboxing / Padding:** Zero gray/black padding borders are introduced.
+> * **No Aspect-Ratio Stretching:** Image proportions are strictly preserved via direct spatial cropping.
+> * **Dataset-wide fixed crop:** Once the crop geometry is finalized, it is applied unchanged to every source video and subject.
+
+<details>
+<summary><strong>Show preprocessing configuration and unresolved crop value</strong></summary>
+
+### Preprocessing Configuration
+
+> Fixed cabin crop bounding coordinates are saved to:
+
+```text
+preprocessing.json
+```
+
+The configuration will contain source-image pixel values:
+
+```text
+x
+y
+width
+height
+```
+
+#### ⚠️ Resolve Later
+
+* Exact crop coordinates `(x, y, width, height)`.
+
+</details>
+
+---
+
+## Dataset Splits
+
+### 🧊 Frozen
+
+> Subject-disjoint partition across **14 unique subjects**:
+
+<p align="center"><sub><b>Table 3.</b> Subject-disjoint train, validation, and test allocation.</sub></p>
+
+| Split | Subjects | Approx. proportion |
+| :--- | ---: | ---: |
+| Training | 8 | 57.1% |
+| Validation | 3 | 21.4% |
+| Test | 3 | 21.4% |
+
+> [!WARNING]
+> **Strict Subject-Disjoint Protocol:**
+> * The split unit is the **individual/subject**, not individual frames or videos.
+> * A participant may appear in **only one** split across all their videos and sampled frames to prevent identity leakage.
+> * Subject assignments must be **finalized in `splits.json` before any model training begins** and must never be altered based on validation or benchmark performance.
+
+<details>
+<summary><strong>Show subject-assignment policy and split manifest</strong></summary>
+
+### Subject Assignment Policy
+
+* The 14 subjects are **not assigned purely at random**.
+* Subject assignment to the frozen 8/3/3 partition will consider **target-cue representation**.
+* The six frozen target cues should be kept **approximately balanced across training, validation, and test at the subject level**, while preserving strict subject disjointness.
+* Exact subject IDs remain unresolved until the subject-level cue distribution is inspected.
+
+### Split Manifest
+
+> The final exact split partition will be frozen in:
+
+```text
+splits.json
+```
+
+The file will list subject IDs under:
+
+```json
+{
+  "train": [],
+  "validation": [],
+  "test": []
+}
+```
+
+> **Source of Truth:** Once finalized, the saved `splits.json` file permanently defines the benchmark splits without reliance on runtime random seeds.
+
+#### ⚠️ Resolve Later
+
+* Which specific subject IDs belong to each split.
+
+</details>
+
+---
+
+## Annotation Format
+
+### 🧊 Frozen
+
+> Master annotation structure and data layout:
+
+The benchmark uses **one master annotation format**. The dataset is annotated once, and model-specific formats are generated from that master annotation rather than maintaining separate manually created annotations for different models.
+
+**Master Format:** `COCO JSON`
+
+One COCO JSON file contains the annotations for the **entire dataset**.
+
+```text
+dataset/
+├── images/
+├── annotations.json
+├── splits.json
+└── preprocessing.json
+```
+
+The master COCO annotation file stores:
+
+* Sampled image information
+* Six target categories
+* Bounding boxes
+* Category IDs
+* Annotation IDs
+* Image IDs
+
+> [!TIP]
+> **Single Source of Truth:**
+> Maintain only `annotations.json` as the ground-truth annotation artifact. Model-specific format converters (e.g., YOLO TXT or DETR formats) derive their inputs directly from this master file and `splits.json`.
+
+<details>
+<summary><strong>Show frame-naming convention</strong></summary>
+
+## Frame Naming
+
+### 🧊 Frozen
+
+> Traceable, audit-ready naming schema encoding subject identity, source video, and absolute frame index:
+
+Frame filenames must contain:
+
+* Subject ID
+* Video ID
+* Original source frame number
+
+```text
+subject_07_video_03_frame_002980.jpg
+```
+
+> This preserves the origin of every sampled frame and makes the dataset fully auditable and traceable.
+
+</details>
+
+---
+
+<details>
+<summary><strong>Future work</strong></summary>
+
+* **Low-light/nighttime evaluation** — out of scope for the current benchmark because the current dataset does not contain the required content.
+
+> Future work may extend the ontology with cues deliberately outside the current benchmark scope:
+
+* `reach_behind`
+* `hair_makeup`
+* `reach_side`
+* `head_nodding` — temporal cue requiring multiple frames
+
+</details>

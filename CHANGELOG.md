@@ -227,3 +227,8 @@
 - Clarify fixed cropping and cue balanced subject splits
 - Define matching threshold and checkpoint tie breaking rules
 - Specify runtime profiling and deployment metric sources
+
+## [2026-08-17 13:53:15] - Restructure benchmark documentation into dedicated protocol guides
+- Streamline README with benchmark overview and protocol links
+- Add detailed annotation training and evaluation protocols
+- Add quick start guide covering data preprocessing and splits
