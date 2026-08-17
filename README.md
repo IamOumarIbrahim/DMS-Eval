@@ -113,8 +113,8 @@
 </tr>
 <tr>
 <td><a href="./docs/training-protocol.md"><strong>Training protocol</strong></a></td>
-<td>Initialization, model-specific recipes, shared controls, and unresolved training values</td>
-<td>Frozen + resolve later</td>
+<td>Initialization, model-specific recipes, and shared training controls</td>
+<td>Frozen</td>
 </tr>
 <tr>
 <td><a href="./docs/evaluation-protocol.md"><strong>Evaluation protocol</strong></a></td>
@@ -175,16 +175,12 @@
 <summary><strong>Show the resolve-later checklist</strong></summary>
 
 - [ ] Exact subject IDs in `splits.json`
-- [ ] Fixed crop coordinates
-- [ ] Maximum epoch count
-- [ ] Training and runtime numerical precision
-- [ ] Shared random seed
-- [ ] Data-loader worker count
-- [ ] Runtime backend, warm-up, timing boundary, and throughput procedure
-- [ ] CUDA, framework, and GPU-driver versions
-- [ ] Comparable FLOPs and model file-size sources
+- [ ] Exact numerical validation-selected confidence threshold for each model
+- [ ] CUDA, PyTorch, model-framework, and NVIDIA GPU-driver versions
+- [ ] Comparable FLOPs source/value
+- [ ] Comparable model file-size source/artifact
 
-See the [evaluation protocol](./docs/evaluation-protocol.md) and [training protocol](./docs/training-protocol.md) for the existing descriptions of these unresolved values.
+See [Benchmark scope, data & splits](./docs/quick-start.md) and the [evaluation protocol](./docs/evaluation-protocol.md) for the existing descriptions of these unresolved values.
 
 </details>
 

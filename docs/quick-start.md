@@ -12,7 +12,7 @@
 
 - [x] Dataset, model set, input resolution, sampling policy, annotation format, and 8/3/3 subject allocation are frozen.
 - [x] The split unit is strictly subject-disjoint.
-- [ ] Exact fixed crop coordinates remain unresolved.
+- [x] The dataset-wide 640×640 crop is frozen at `x = 272`, `y = 71`, `width = 640`, `height = 640`.
 - [ ] Exact train, validation, and test subject IDs remain unresolved.
 
 </details>
@@ -59,44 +59,59 @@
 
 | Preprocessing Parameter | 🧊 Frozen Value | Implementation Specification |
 | :--- | :--- | :--- |
+| **Source RGB Video Resolution** | 1280×720 | Source dimensions before the dataset-wide crop |
+| **Source RGB Video File Type** | MP4 | RGB-face source videos |
+| **Total RGB-Face Videos** | 81 | Dataset-wide source-video count |
+| **Camera Framing** | Effectively consistent | Supports one unchanged dataset-wide crop |
 | **Source Video Frame Rate** | 29.76 FPS | Native temporal rate across synchronized streams |
 | **Video Duration Range** | 55.28–519.39 s | Natural session lengths across 14 volunteer participants |
 | **Temporal Sampling** | 1 frame / 1 second | Fixed uniform interval across all videos |
 | **Saved Image Format** | JPG | Compressed standard image container |
 | **Stored Image Resolution** | 640×640 | Direct benchmark model input dimension |
-| **Spatial Cropping Target** | Driver-facing cabin region | Selected once on a reference frame; the exact same crop coordinates are reused for every video and subject |
-| **Crop coordinate representation** | Source-image pixels | Stored directly as `(x, y, width, height)` |
+| **Spatial Cropping Target** | Driver-facing cabin region | Fixed consistently across the dataset |
+| **Fixed Crop Geometry** | `x = 272`, `y = 71`, `width = 640`, `height = 640` | The exact same crop is reused for every video and subject |
+| **Crop Coordinate Representation** | Source-image pixels | Stored as `(x, y, width, height)` |
 | **Aspect Ratio Handling** | Direct spatial crop | Zero padding / letterboxing borders; zero non-uniform stretching |
 
 > [!IMPORTANT]
 > **Spatial Preprocessing Constraints:**
 > * **No Letterboxing / Padding:** Zero gray/black padding borders are introduced.
 > * **No Aspect-Ratio Stretching:** Image proportions are strictly preserved via direct spatial cropping.
-> * **Dataset-wide fixed crop:** Once the crop geometry is finalized, it is applied unchanged to every source video and subject.
+> * **Dataset-wide fixed crop:** The frozen crop is applied unchanged to every source video and subject.
 
 <details>
-<summary><strong>Show preprocessing configuration and unresolved crop value</strong></summary>
+<summary><strong>Show frozen preprocessing configuration and crop geometry</strong></summary>
 
 ### Preprocessing Configuration
 
-> Fixed cabin crop bounding coordinates are saved to:
+> Fixed cabin crop coordinates are saved to:
 
 ```text
 preprocessing.json
 ```
 
-The configuration will contain source-image pixel values:
+The authoritative stored representation is:
 
-```text
-x
-y
-width
-height
+```json
+{
+  "x": 272,
+  "y": 71,
+  "width": 640,
+  "height": 640
+}
 ```
 
-#### ⚠️ Resolve Later
+Equivalent geometric corners are:
 
-* Exact crop coordinates `(x, y, width, height)`.
+```text
+Top-left:     (272, 71)
+Top-right:    (912, 71)
+Bottom-left:  (272, 711)
+Bottom-right: (912, 711)
+```
+
+> [!NOTE]
+> The stored `(x, y, width, height)` representation above is authoritative and avoids ambiguity about inclusive or exclusive zero-based pixel-index conventions.
 
 </details>
 
@@ -130,7 +145,7 @@ height
 * The 14 subjects are **not assigned purely at random**.
 * Subject assignment to the frozen 8/3/3 partition will consider **target-cue representation**.
 * The six frozen target cues should be kept **approximately balanced across training, validation, and test at the subject level**, while preserving strict subject disjointness.
-* Exact subject IDs remain unresolved until the subject-level cue distribution is inspected.
+* Exact subject IDs remain unresolved because the dataset has not yet been annotated, so subject-level target-cue distributions are not yet known.
 
 ### Split Manifest
 

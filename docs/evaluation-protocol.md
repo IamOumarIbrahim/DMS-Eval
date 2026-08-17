@@ -5,13 +5,14 @@
 > [!NOTE]
 > This document contains protocol information extracted from the DMS-Eval README. Frozen decisions and unresolved values retain their original status.
 
-> **Jump to:** [Metrics](#frozen-metrics) · [Shared evaluator](#shared-evaluation-harness) · [Test usage](#validation--test-usage) · [Thresholding](#confidence-threshold-selection) · [Runtime](#runtime-profiling--frozen-so-far) · [Unresolved choices](#unresolved-choices)
+> **Jump to:** [Metrics](#frozen-metrics) · [Shared evaluator](#shared-evaluation-harness) · [Test usage](#validation--test-usage) · [Thresholding](#confidence-threshold-selection) · [Runtime](#runtime-profiling) · [Unresolved choices](#unresolved-choices)
 
 - [x] Metrics, reporting granularity, shared evaluator, matching rules, and checkpoint selection are frozen.
 - [x] Validation/test isolation and one final test pass are frozen.
 - [x] Shared runtime hardware, batch size, test coverage, and median-latency reporting are frozen.
 - [x] Confidence-threshold candidate generation, selection objective, matching rules, and tie-breaking procedure are frozen.
-- [ ] Exact runtime precision, backend, warm-up, timing boundary, throughput procedure, and environment remain unresolved.
+- [x] Native PyTorch + CUDA, FP16 inference, 10 warm-ups, model-only timing, and CUDA-event latency and throughput procedures are frozen.
+- [ ] Exact CUDA, PyTorch, model-framework, and NVIDIA GPU-driver versions remain unresolved.
 
 ---
 
@@ -30,8 +31,8 @@
 | | Precision | Full Test Set | Evaluated at validation-optimal F1 confidence threshold using IoU = 0.50 |
 | | Recall | Full Test Set | Evaluated at validation-optimal F1 confidence threshold using IoU = 0.50 |
 | | F1-Score | Full Test Set | Primary criterion for per-model validation confidence-threshold selection |
-| **Runtime Efficiency** | Inference Latency (ms/image) | Full Test Set | Median latency; batch size 1; exact timing boundary ⚠️ Resolve Later |
-| | FPS / Throughput | Full Test Set | Report latency-derived FPS and separately measured throughput; exact separate procedure ⚠️ Resolve Later |
+| **Runtime Efficiency** | Inference Latency (ms/image) | Full Test Set | Median model-inference latency; batch size 1; PyTorch CUDA events |
+| | FPS / Throughput | Full Test Set | Report latency-derived FPS and separately measured continuous-test-set throughput |
 | **Deployment Profile** | Parameters (M) | Architectural | Use official published model parameter counts |
 | | Model File Size (MB) | Architectural | Use published/official information; exact comparable artifact/source ⚠️ Resolve Later |
 | | Computational Workload (GFLOPs) | Architectural | Use published/official information at 640×640; exact comparable source/value ⚠️ Resolve Later |
@@ -128,9 +129,13 @@ Final checkpoints are selected using validation results from the shared DMS-Eval
 2. If tied, choose the checkpoint with the **higher validation `mAP@0.5`**.
 3. If still tied, choose the checkpoint from the **later epoch**.
 
-### Runtime Profiling — Frozen So Far
+<a id="runtime-profiling"></a>
+
+### Runtime Profiling — 🧊 Frozen
 
 * Final runtime benchmarking uses the **same NVIDIA RTX 4060 with 8 GB VRAM** for all three models.
+* The common runtime backend is **native PyTorch + CUDA**.
+* Runtime inference precision is **FP16** for YOLO11n, D-FINE-N, and YOLO26n.
 * Runtime batch size is **1**.
 * Runtime measurements cover the **entire test split**.
 * The final test/runtime pass is performed **once**.
@@ -138,7 +143,71 @@ Final checkpoints are selected using validation results from the shared DMS-Eval
 * Report both:
   * FPS derived from measured latency.
   * A separately measured throughput/FPS result.
-* Exact inference precision, backend, warm-up procedure, timing boundary, and separate throughput procedure remain unresolved.
+
+> [!IMPORTANT]
+> The primary runtime comparison does not use TensorRT, ONNX Runtime, OpenVINO, or another exported backend.
+
+#### Warm-up Procedure
+
+Before each model's timed runtime measurement, complete **10 untimed warm-up inference passes** under these conditions:
+
+* Batch size: `1`
+* Input: 640×640
+* Backend: native PyTorch + CUDA
+* Inference precision: FP16
+* The warm-up passes are excluded from reported latency and throughput measurements.
+* The identical procedure is applied to all three models.
+
+#### Latency Timing Boundary
+
+Latency measures **model inference only**.
+
+Inside the latency timer:
+
+* Model forward/inference execution
+
+Outside the latency timer:
+
+* Disk I/O
+* Image/file loading
+* External dataset preprocessing
+* Annotation/evaluator logic
+* Benchmark metric computation
+* Other non-model work
+
+The timing-boundary definition is identical for all three architectures.
+
+#### Per-Image Latency Timing Method
+
+1. Complete the 10 untimed warm-up passes.
+2. Use PyTorch CUDA events around each timed model inference.
+3. Synchronize appropriately before reading elapsed GPU time.
+4. Record per-image inference latency.
+5. Report the already-frozen **median latency** across the entire test split.
+
+Unsynchronized Python wall-clock timing is not used for GPU latency.
+
+#### Separate Throughput/FPS Procedure
+
+1. Complete the 10 untimed warm-up passes.
+2. Process the **entire test split continuously**.
+3. Keep runtime batch size at `1`.
+4. Measure **model inference only**.
+5. Place one CUDA start event before the first timed inference.
+6. Place one CUDA end event after the final timed inference.
+7. Synchronize after the end event.
+8. Obtain total elapsed GPU inference time.
+9. Compute:
+
+```text
+throughput FPS = number of test images / total measured inference time in seconds
+```
+
+This result is reported separately from:
+
+```text
+latency-derived FPS
+```
 
 <details>
 <summary><strong>Show deployment-profile sources and removed condition-wise evaluation</strong></summary>
@@ -210,27 +279,18 @@ The selected threshold is then frozen for that model and applied unchanged durin
 
 <p align="center"><sub><b>Table 2.</b> Unresolved protocol choices and the claims they affect.</sub></p>
 
-| Color | Still unresolved                               | What must be finalized                                                                                                | Claim affected                                                    |
-| ----- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| 🔴    | **Exact subject IDs / `splits.json`**          | Freeze the exact 8 train / 3 validation / 3 test subjects before training and use the identical split for all models. | **same training/test data**, **subject-disjoint test split**      |
-| 🔴    | **Exact crop coordinates**                     | Freeze one `(x, y, width, height)` crop and apply it identically to every model.                                      | **same training/test data**, **image resolution**                 |
-| 🔴    | **Training numerical precision**               | Choose one training precision mode and use it for all three models.                                                   | **same numerical precision**                                      |
-| 🔴    | **Runtime inference precision**                | Choose one inference precision and use it for all three runtime evaluations.                                          | **same numerical precision**                                      |
-| 🔴    | **Runtime backend**                            | Freeze one common execution/backend basis for runtime comparison.                                                     | **same inference timing protocol**                                |
-| 🔴    | **Warm-up procedure**                          | Freeze the same warm-up procedure for every model.                                                                    | **same inference timing protocol**                                |
-| 🔴    | **Timing boundary**                            | Define exactly what operations are inside the latency timer and apply that definition identically.                    | **same inference timing protocol**                                |
-| 🔴    | **Separate throughput/FPS procedure**          | Define one identical procedure for independently measuring throughput/FPS.                                            | **same inference timing protocol**                                |
-| 🟠    | **Exact maximum epoch count**                  | Choose the common maximum training budget for all three models.                                                       | **shared training-budget controls**                               |
-| 🟠    | **CUDA / framework / GPU-driver versions**     | Freeze and record the software environment used for the benchmark.                                                    | Supports **same hardware / timing protocol**                      |
-| 🟢    | **Exact shared random seed**                   | Choose one value and use it for every model.                                                                          | Reproducibility                                                   |
-| 🟢    | **Data-loader worker count**                   | Choose one worker count and use it for every model.                                                                   | Reproducibility                                                   |
-| 🟢    | **Comparable FLOPs source/value**              | Select comparable official/published 640×640 values for all three exact variants.                                     | Deployment reporting; **not required for the fairness paragraph** |
-| 🟢    | **Comparable model file-size source/artifact** | Define the comparable artifact/source used for all three models.                                                      | Deployment reporting; **not required for the fairness paragraph** |
+| Color | Still unresolved | What must be finalized | Claim affected |
+| ----- | ---------------- | ---------------------- | -------------- |
+| 🔴 | **Exact subject IDs / `splits.json`** | Freeze the exact 8 train / 3 validation / 3 test subjects after annotation makes subject-level target-cue distributions available; keep every subject strictly within one split. | **same training/test data**, **subject-disjoint test split** |
+| 🟠 | **CUDA / PyTorch / model-framework / NVIDIA GPU-driver versions** | Record the exact software environment actually used for training and evaluation. | Supports reproducibility and the **same inference timing protocol** |
+| 🟢 | **Exact validation-selected confidence thresholds** | Record the numerical threshold selected for YOLO11n, D-FINE-N, and YOLO26n using the frozen validation-only procedure. | Evaluation reporting; the shared selection procedure is already frozen |
+| 🟢 | **Comparable FLOPs source/value** | Select comparable official/published 640×640 values for all three exact variants. | Deployment reporting; **not required for the fairness paragraph** |
+| 🟢 | **Comparable model file-size source/artifact** | Define the comparable artifact/source used for all three models. | Deployment reporting; **not required for the fairness paragraph** |
 
 **🔴 = must get right for the paragraph to remain literally true**
 **🟠 = important protocol definition**
 **🟢 = reproducibility/reporting; does not currently threaten the core fairness claim**
 
-The **confidence-threshold search procedure is no longer on this table** because we froze it.
+The **confidence-threshold search procedure is frozen**; only the three numerical thresholds produced from future validation predictions remain unresolved.
 
 </details>

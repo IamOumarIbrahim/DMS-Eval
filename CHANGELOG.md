@@ -232,3 +232,8 @@
 - Streamline README with benchmark overview and protocol links
 - Add detailed annotation training and evaluation protocols
 - Add quick start guide covering data preprocessing and splits
+
+## [2026-08-17 14:49:58] - Freeze preprocessing training and runtime benchmark protocols
+- Fix dataset-wide crop geometry at 640x640
+- Define FP16 CUDA runtime timing and throughput procedures
+- Reduce unresolved items to splits thresholds environment and deployment sources
