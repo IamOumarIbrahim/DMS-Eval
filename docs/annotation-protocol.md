@@ -12,7 +12,7 @@
 - [x] Removed and merged classes are documented.
 - [x] Annotation-quality controls are frozen.
 - [x] Label Studio (Community Edition) is frozen as the annotation tool, using one project (DMS-Eval) and one task per image with metadata filtering.
-- [x] AI-assisted pre-annotation is frozen as provisional assistance with mandatory human review of every frame.
+- [x] Direct manual human expert annotation is established across all 15,723 frames to construct the master ground truth.
 
 ---
 
@@ -102,81 +102,27 @@
 * **Task metadata:** Subject, video, filename, and sampled-frame index are retained as task metadata to allow filtering and processing by subject.
 * Every task uses the same six frozen target-cue rectangle labels.
 
-### 🧊 Frozen AI-Assisted Pre-Annotation
+### Direct Manual Human Annotation
 
-The AI/vision agent provides **pre-annotation assistance only**. It reduces manual drawing work but does not replace human ground-truth validation.
+The human expert annotator directly annotates all 15,723 frames to construct the authoritative ground truth for the benchmark.
 
-1. The agent may attempt to pre-annotate all six target cues.
-2. The agent writes proposed bounding boxes directly into Label Studio as **predictions**; an intermediate COCO file is not the normal pre-annotation workflow.
-3. All agent annotations are provisional proposals, never final ground truth.
-4. A human must review every proposed annotation.
-5. A human must review every sampled frame, including frames where the agent proposes zero annotations.
-6. During review, the human may accept a proposal, move or resize a box, change its class, delete a false positive, or manually add missed annotations.
-7. Only human-reviewed annotations may enter the final master COCO ground truth.
+1. **100% Direct Human Annotation:** The human expert inspects every single sampled frame (including zero-cue frames) and manually draws bounding boxes for all visible cues.
+2. **Definitive Ground Truth:** All annotations created and submitted in Label Studio are saved directly into the local database as authoritative human annotations.
+3. **No Intermediate Workflow Fields in JSON:** There is no need for intermediate review flags or "human check needed" variables in the dataset schema. Submitted annotations represent finalized ground truth.
+4. **Zero-Cue Frames:** Normal alert driving frames containing none of the 6 cues are submitted with zero bounding boxes and correctly recorded as negative background samples.
+5. **Authoritative Export:** Completed annotations are exported from Label Studio directly into the master COCO file at [`dataset/annotations.json`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/annotations.json).
 
-> [!IMPORTANT]
-> **Human authority:** The human annotator/reviewer has final authority. The AI agent must never overwrite annotations that the human has already reviewed or finalized, and rerunning the agent must preserve all reviewed/finalized human annotations.
+### Detection Ontology Integrity
 
-> [!NOTE]
-> The AI-assisted workflow follows the existing ambiguity rules below. It does not create a separate AI-specific rule for ambiguous cue presence or borderline class choice.
+Workflow state is not embedded into the detection ontology. The ontology contains **strictly the 6 target visual cues**:
+- `eyes_closed`
+- `yawning`
+- `head_down`
+- `hand_over_mouth`
+- `phone_use`
+- `head_turned_away`
 
-### 🧊 Frozen Label Studio Review-State Representation
-
-Workflow state remains separate from the six-class detection ontology.
-
-#### Agent proposed
-
-All boxes created by this agent are stored as Label Studio:
-
-```text
-predictions
-```
-
-They must not be submitted as human annotations. Predictions are provisional and remain distinguishable from human-created or human-confirmed annotations.
-
-#### Needs secondary review
-
-When cue presence itself is genuinely uncertain:
-
-* Do not create a speculative detection box.
-* Record `needs_secondary_review` in the external progress ledger with the suspected cue and rationale.
-* Make the flag visible to the eventual human reviewer through task metadata or a dedicated image-level review field.
-* Keep the uncertain cue out of the master COCO ground truth until a human settles it.
-
-#### Human reviewed
-
-Only a real human may mark an image:
-
-```text
-human_reviewed
-```
-
-The agent must never describe its own work as human-reviewed, accepted, finalized, or ground truth.
-
-#### Finalized
-
-An image may be finalized only after:
-
-```text
-human review
-→ all secondary-review flags resolved
-→ required second-pass review
-→ final acceptance
-```
-
-#### No fake detection classes
-
-Do not add workflow labels such as:
-
-```text
-reviewed
-needs_review
-agent_generated
-ambiguous
-finalized
-```
-
-to the six-class object-detection ontology. Workflow state must remain separate from detection classes.
+No synthetic workflow labels (such as `reviewed`, `needs_review`, `ai_generated`, `ambiguous`, or `finalized`) exist in the COCO ground truth classes.
 
 #### External progress ledger
 

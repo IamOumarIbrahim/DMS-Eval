@@ -1,8 +1,9 @@
 """
-DMS-Eval Label Studio Checkpoint & Backup Exporter
-==================================================
-Exports recoverable Label Studio project state, task metadata, predictions,
-review metadata, decision log, and progress ledger into `archive/label-studio-backups/`.
+DMS-Eval Label Studio Checkpoint & Backup Exporter (REST API)
+============================================================
+Exports recoverable Label Studio project state, task metadata, annotations,
+predictions, decision log, and progress ledger into `archive/label-studio-backups/`
+using official REST API endpoints with Token authentication.
 """
 
 import os
@@ -10,62 +11,46 @@ import sys
 import json
 import pathlib
 import datetime
+import requests
 
 repo_root = pathlib.Path(__file__).resolve().parents[2]
-data_dir = repo_root / 'tools' / 'label-studio' / 'data'
+env_file = repo_root / 'tools' / 'label-studio' / '.env'
 backup_dir = repo_root / 'archive' / 'label-studio-backups'
 ledger_file = repo_root / 'tools' / 'label-studio' / 'annotation_progress_ledger.json'
 decision_log_file = repo_root / 'tools' / 'label-studio' / 'annotation_decision_log.json'
 
-os.environ['LABEL_STUDIO_BASE_DATA_DIR'] = str(data_dir)
-os.environ['LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED'] = 'true'
-os.environ['LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT'] = str(repo_root)
+api_key = ''
+url = 'http://127.0.0.1:8080'
+if env_file.exists():
+    with open(env_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.startswith('LABEL_STUDIO_API_KEY='):
+                api_key = line.strip().split('=', 1)[1]
+            elif line.startswith('LABEL_STUDIO_URL='):
+                url = line.strip().split('=', 1)[1]
 
-import label_studio.server
-label_studio.server._setup_env()
-
-from projects.models import Project
-from tasks.models import Task, Prediction, Annotation
+headers = {
+    'Authorization': f'Token {api_key}',
+    'Content-Type': 'application/json'
+}
 
 def export_checkpoint():
     backup_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d_%H%M%S")
     backup_path = backup_dir / f"label_studio_checkpoint_{timestamp}.json"
 
-    project = Project.objects.filter(title='DMS-Eval').first()
-    if not project:
-        print("Project DMS-Eval not found.")
+    # Fetch project metadata via REST API
+    r_proj = requests.get(f'{url}/api/projects/1', headers=headers)
+    if r_proj.status_code != 200:
+        print(f"Failed to fetch Project 1: {r_proj.status_code} {r_proj.text}")
         return None
+    proj_meta = r_proj.json()
 
-    tasks_data = []
-    for task in Task.objects.filter(project=project):
-        preds = []
-        for p in task.predictions.all():
-            preds.append({
-                "id": p.id,
-                "model_version": p.model_version,
-                "result": p.result,
-                "created_at": p.created_at.isoformat() if hasattr(p, 'created_at') else None
-            })
-        
-        annots = []
-        for a in task.annotations.all():
-            annots.append({
-                "id": a.id,
-                "completed_by": str(a.completed_by),
-                "result": a.result,
-                "was_cancelled": a.was_cancelled,
-                "ground_truth": a.ground_truth
-            })
+    # Fetch project tasks via REST API (exported snapshot)
+    r_tasks = requests.get(f'{url}/api/tasks?project=1&page_size=100000', headers=headers)
+    tasks_data = r_tasks.json().get('tasks', []) if r_tasks.status_code == 200 else []
 
-        tasks_data.append({
-            "task_id": task.id,
-            "data": task.data,
-            "predictions": preds,
-            "annotations": annots
-        })
-
-    # Read ledger
+    # Read ledger and decision log if present
     ledger = {}
     if ledger_file.exists():
         with open(ledger_file, 'r', encoding='utf-8') as lf:
@@ -78,25 +63,17 @@ def export_checkpoint():
 
     checkpoint_payload = {
         "timestamp": timestamp,
-        "project": {
-            "id": project.id,
-            "title": project.title,
-            "label_config": project.label_config
-        },
+        "project": proj_meta,
         "task_count": len(tasks_data),
         "tasks": tasks_data,
-        "ledger_summary": {
-            "total_tracked": len(ledger),
-            "processed": sum(1 for v in ledger.values() if v.get('processing_status') in ['agent_processed', 'zero_proposals']),
-            "secondary_review": sum(1 for v in ledger.values() if v.get('secondary_review_required'))
-        },
+        "ledger": ledger,
         "decision_log": decision_log
     }
 
     with open(backup_path, 'w', encoding='utf-8') as bf:
         json.dump(checkpoint_payload, bf, indent=2)
 
-    print(f"Checkpoint successfully exported to {backup_path}")
+    print(f"Checkpoint successfully exported via REST API to {backup_path}")
     return backup_path
 
 if __name__ == '__main__':

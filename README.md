@@ -35,7 +35,7 @@
 | **Dataset** | DMD-derived real-cabin RGB video | **Models** | YOLO11n, D-FINE-N, YOLO26n |
 | **Input** | 640×640 individual frames | **Sampling** | 1 frame every 1 second |
 | **Split** | 8 / 3 / 3 subjects | **Split unit** | Strictly subject-disjoint |
-| **Annotations** | Label Studio → human-reviewed master COCO JSON | **Hardware** | NVIDIA RTX 4060, 8 GB VRAM |
+| **Annotations** | Direct manual human annotation (Label Studio) → master COCO JSON | **Hardware** | NVIDIA RTX 4060, 8 GB VRAM |
 | **Training batch** | 1, no gradient accumulation | **Runtime batch** | 1 |
 | **Primary metric** | mAP@0.5:0.95 | **Input unit** | Single static frame |
 
@@ -70,7 +70,7 @@ dataset/images/
 > The frozen preprocessing rules and the unresolved non-integer-FPS sampling detail are maintained in [Benchmark scope, data & splits](./docs/quick-start.md).
 
 > [!IMPORTANT]
-> Annotation uses **Label Studio** (Community Edition) with one project (**DMS-Eval**) and one task per image. Subject, video, filename, and sampled-frame index are retained as task metadata. AI-assisted pre-annotations are provisional predictions only: every sampled frame and every proposed prediction requires human review before inclusion in the master COCO ground truth. See the [annotation protocol](./docs/annotation-protocol.md).
+> Annotation uses **Label Studio** (Community Edition) with one project (**DMS-Eval**) and one task per image. Subject, video, filename, and sampled-frame index are retained as task metadata. All 15,723 sampled frames are directly and manually annotated by the human expert annotator under the frozen 6-cue ontology to produce the authoritative master COCO ground truth in `dataset/annotations.json`. See the [annotation protocol](./docs/annotation-protocol.md) and [manual annotation guide (1-page PDF)](./docs/manual-annotation-guide.pdf).
 
 ---
 
@@ -82,6 +82,7 @@ dataset/images/
 | :--- | :--- | :--- |
 | [**Benchmark scope, data & splits**](./docs/quick-start.md) | Frozen scope, preprocessing, subject splits, annotation format, frame naming, and future work | Frozen + resolve later |
 | [**Annotation protocol & cue ontology**](./docs/annotation-protocol.md) | Six warning cues, bounding-box rules, removed classes, and data-quality controls | Frozen |
+| [**Manual annotation field guide (PDF)**](./docs/manual-annotation-guide.pdf) | Single-page desktop PDF reference: hotkey cheat sheet, bounding-box extents, and decision matrix | Practical field guide |
 | [**Training protocol**](./docs/training-protocol.md) | Initialization, model-specific recipes, and shared training controls | Frozen |
 | [**Evaluation protocol**](./docs/evaluation-protocol.md) | Metrics, evaluator, test isolation, thresholding, checkpoint selection, runtime, and unresolved choices | Frozen + resolve later |
 | [**Execution checklist & roadmap**](./docs/execution-checklist.md) | Step-by-step 7-module implementation roadmap, dependencies, quality controls, and deliverables | Actionable checklist |

@@ -30,9 +30,20 @@ from tasks.models import Task, Annotation
 from io_storages.localfiles.models import LocalFilesImportStorage
 
 def get_or_create_user_and_org():
+    env_file = repo_root / 'tools' / 'label-studio' / '.env'
+    initial_pass = os.environ.get('LABEL_STUDIO_USER_PASSWORD')
+    if not initial_pass and env_file.exists():
+        with open(env_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.startswith('LABEL_STUDIO_USER_PASSWORD='):
+                    initial_pass = line.strip().split('=', 1)[1]
+    if not initial_pass:
+        import secrets
+        initial_pass = secrets.token_urlsafe(24)
+
     user = User.objects.filter(is_active=True).first()
     if not user:
-        user = User.objects.create_user(email='annotator@dms-eval.local', password='password123')
+        user = User.objects.create_user(email='annotator@dms-eval.local', password=initial_pass)
         org = Organization.create_organization(created_by=user, title='DMS-Eval')
         user.active_organization = org
         user.save()

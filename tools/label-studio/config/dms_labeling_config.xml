@@ -3,7 +3,7 @@
   <Image name="image" value="$image" zoom="true" zoomBy="1.5" brightnessControl="true" contrastControl="true"/>
 
   <!-- 6 Frozen DMS-Eval Target Warning Cues -->
-  <Header value="DMS-Eval Target Warning Cues (Bounding Boxes)"/>
+  <Header value="DMS-Eval Target Warning Cues (1-6)"/>
   <RectangleLabels name="cues" toName="image" canRotate="false">
     <Label value="eyes_closed" background="#FF4D4F"/>
     <Label value="yawning" background="#FA8C16"/>
@@ -12,11 +12,4 @@
     <Label value="phone_use" background="#1890FF"/>
     <Label value="head_turned_away" background="#13C2C2"/>
   </RectangleLabels>
-
-  <!-- Image-Level Human Review Field (Strictly separate from detection classes) -->
-  <Header value="Review &amp; Quality Status"/>
-  <Choices name="review_status" toName="image" showInline="true">
-    <Choice value="human_reviewed"/>
-    <Choice value="needs_secondary_review"/>
-  </Choices>
 </View>
