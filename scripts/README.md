@@ -25,10 +25,12 @@ An end-to-end multi-processed Python CLI pipeline that extracts, crops, and veri
      - Corners: `(272, 71)` to `(912, 711)`
    - Uses no resizing, padding, letterboxing, or stretching.
    - Saves cropped frames under `dataset/images/subject_<ID>/video_<ID>/`.
-   - Final cropped filenames must preserve the original absolute source-frame index:
+   - Final cropped filenames use the sequential sampled-frame index within each video:
      ```
-     subject_<ID>_video_<ID>_frame_<ABSOLUTE_SOURCE_FRAME_INDEX>.jpg
+     subject_<SUBJECT_ID>_video_<VIDEO_ID>_frame_<SAMPLED_FRAME_INDEX>.jpg
      ```
+   - Numbering begins at `0001`, is zero-padded to four digits, and restarts for each video.
+   - The sampled-frame index is not claimed to be the original MP4 source-frame index.
 3. **Automated Quality Verification**:
    - Detects any pure black or corrupt frames (`max_pixel == 0`).
    - Measures Laplacian Variance ($\sigma^2(\nabla^2 I)$) sharpness across all frames.
@@ -68,7 +70,9 @@ dataset/
 ├── images/                                  # 640x640 cropped dataset; not committed to Git
 │   ├── subject_01/
 │   │   ├── video_01/
-│   │   │   ├── subject_01_video_01_frame_<ABSOLUTE_SOURCE_FRAME_INDEX>.jpg
+│   │   │   ├── subject_01_video_01_frame_0001.jpg
+│   │   │   ├── subject_01_video_01_frame_0002.jpg
+│   │   │   ├── subject_01_video_01_frame_0003.jpg
 │   │   │   └── ...
 │   │   ├── video_02/
 │   │   └── ...

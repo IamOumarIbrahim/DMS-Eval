@@ -257,19 +257,31 @@ The master COCO annotation file stores:
 
 ### 🧊 Frozen
 
-> Traceable, audit-ready naming schema encoding subject identity, source video, and absolute frame index:
+> Frozen naming schema encoding the canonical subject, canonical video, and sequential sampled-frame number:
 
 Frame filenames must contain:
 
-* Subject ID
-* Video ID
-* Original absolute source-frame index
+* Canonical DMS-Eval subject ID
+* Canonical video ID for that subject
+* Sequential sampled-frame index within that video
 
 ```text
-subject_<ID>_video_<ID>_frame_<ABSOLUTE_SOURCE_FRAME_INDEX>.jpg
+subject_<SUBJECT_ID>_video_<VIDEO_ID>_frame_<SAMPLED_FRAME_INDEX>.jpg
 ```
 
-> This preserves the origin of every sampled frame and makes the dataset fully auditable and traceable.
+```text
+subject_01_video_01_frame_0001.jpg
+subject_01_video_01_frame_0002.jpg
+subject_01_video_01_frame_0003.jpg
+```
+
+* Sampled-frame numbering begins at `0001`.
+* The sampled-frame index is zero-padded to four digits.
+* Numbering restarts for each video.
+* The frame component is **not** the original MP4 source-frame index.
+
+> [!NOTE]
+> The filename provides the subject, video, and sampled-frame sequence number. Additional source-video provenance may rely on the subject/video organization and dataset manifest; the filename itself makes no stronger claim.
 
 </details>
 

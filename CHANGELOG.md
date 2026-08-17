@@ -262,3 +262,13 @@
 - Add subject and video mappings with frame counts
 - Improve extraction cropping and dataset organization tooling
 - Clarify CVAT review requirements and sampling documentation
+
+## [2026-08-17 16:46:10] - Correct frozen final-image naming rule
+- Make the existing cropped-image filenames authoritative
+- Define frame numbers as sequential sampled-frame indices within each video
+- Remove the claim that final-image frame numbers are absolute MP4 source-frame indices
+
+## [2026-08-17 16:47:33] - Correct sampled frame naming documentation
+- Define frames as sequential sampled indices per video
+- Document four digit numbering beginning at 0001
+- Remove claims of absolute MP4 source frame indices
