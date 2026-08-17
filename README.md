@@ -103,6 +103,11 @@ dataset/images/
 | `head_down` | — |
 | `hand_over_mouth` | — |
 
+<p align="center">
+  <img src="./assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="460"><br>
+  <sub><b>Figure 2.</b> An example of our annotation of <code>head_turned_away</code> in Label Studio (full head/face bounding box).</sub>
+</p>
+
 > [!TIP]
 > Cue definitions, bounding-box extents, exclusions, co-occurrence rules, and annotation-quality controls are maintained in the [annotation protocol](./docs/annotation-protocol.md).
 

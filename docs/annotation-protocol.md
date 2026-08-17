@@ -88,6 +88,11 @@
 
 * **Bounding Box Extent:** Full head/face.
 
+<p align="center">
+  <img src="../assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="420"><br>
+  <sub><b>Figure 1.</b> An example of our annotation of <code>head_turned_away</code> in Label Studio (enclosing full visible head/face).</sub>
+</p>
+
 </details>
 
 ---

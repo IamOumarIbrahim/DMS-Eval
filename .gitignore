@@ -37,6 +37,8 @@ docs/literature/
 # Dataset Raw Files
 dataset/DMD
 dataset/images
+dataset/project-*.json
+dataset/*.zip
 archive/
 
 # Tools & Label Studio
