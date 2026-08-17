@@ -103,9 +103,10 @@ dataset/images/
 | — | `head_turned_away` *(not focused forward / head down)* |
 
 <p align="center">
-  <img src="./assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="310">
-  <img src="./assets/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="310"><br>
-  <sub><b>Figure 2.</b> Examples of our manual annotations in Label Studio: <code>head_turned_away</code> (left, cyan box enclosing full head/face profile) and <code>hand_over_mouth</code> (right, purple box enclosing full head/face and occluding hand).</sub>
+  <img src="./assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="210">
+  <img src="./assets/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="210">
+  <img src="./assets/phone_use_annotation_example.png" alt="An example of our annotation of phone_use in Label Studio" width="210"><br>
+  <sub><b>Figure 2.</b> Examples of our manual annotations in Label Studio: <code>head_turned_away</code> (left, cyan box), <code>hand_over_mouth</code> (center, purple box), and <code>phone_use</code> (right, pink box enclosing phone and hand held at ear in calling posture).</sub>
 </p>
 
 > [!NOTE]

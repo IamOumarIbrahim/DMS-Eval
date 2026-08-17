@@ -80,6 +80,11 @@
   - Hands-free phone calls (Bluetooth/speakerphone) where no device is held to the ear are **excluded**.
   - Phones resting passively on seats, mounts, or consoles are **excluded**.
 
+<p align="center">
+  <img src="../assets/phone_use_annotation_example.png" alt="An example of our annotation of phone_use in Label Studio" width="420"><br>
+  <sub><b>Figure 2.</b> An example of our annotation of <code>phone_use</code> in Label Studio (enclosing handheld phone and interacting hand held at the ear in calling posture).</sub>
+</p>
+
 ### `head_turned_away`
 
 > Annotate whenever the driver is not focused on the road forward to them (including lateral head rotation left/right and downward cervical flexion / head slump).
@@ -89,7 +94,7 @@
 
 <p align="center">
   <img src="../assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="420"><br>
-  <sub><b>Figure 2.</b> An example of our annotation of <code>head_turned_away</code> in Label Studio (enclosing full visible head/face).</sub>
+  <sub><b>Figure 3.</b> An example of our annotation of <code>head_turned_away</code> in Label Studio (enclosing full visible head/face).</sub>
 </p>
 
 </details>
