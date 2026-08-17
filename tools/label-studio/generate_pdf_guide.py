@@ -48,7 +48,6 @@ def build_pdf(target_path: str):
 
     styles = getSampleStyleSheet()
     
-    # Custom tight styles
     title_style = ParagraphStyle(
         'DocTitle',
         fontName='Helvetica-Bold',
@@ -132,67 +131,60 @@ def build_pdf(target_path: str):
             Paragraph("<b>Function</b>", table_header)
         ],
         [
-            Paragraph("<font color='#E53E3E'><b>1</b></font>", body_bold),
-            Paragraph("<code>eyes_closed</code>", body_code),
-            Paragraph("<b>Separate box per eye</b>", body_bold),
+            Paragraph("<font color='#DD6B20'><b>1</b></font>", body_bold),
+            Paragraph("<code>yawning</code>", body_code),
+            Paragraph("<b>Mouth region only</b>", body_bold),
             Paragraph("<b>Ctrl + Enter</b>", body_bold),
             Paragraph("Submit & Next Frame", body_text)
         ],
         [
-            Paragraph("<font color='#DD6B20'><b>2</b></font>", body_bold),
-            Paragraph("<code>yawning</code>", body_code),
-            Paragraph("<b>Mouth region only</b>", body_bold),
+            Paragraph("<font color='#805AD5'><b>2</b></font>", body_bold),
+            Paragraph("<code>hand_over_mouth</code>", body_code),
+            Paragraph("<b>Full head / face</b>", body_bold),
             Paragraph("<b>Mouse Wheel</b>", body_bold),
             Paragraph("Zoom Canvas In / Out", body_text)
         ],
         [
-            Paragraph("<font color='#D69E2E'><b>3</b></font>", body_bold),
-            Paragraph("<code>head_down</code>", body_code),
-            Paragraph("<b>Full head / face</b>", body_bold),
+            Paragraph("<font color='#3182CE'><b>3</b></font>", body_bold),
+            Paragraph("<code>drinking</code>", body_code),
+            Paragraph("<b>Face + bottle together</b>", body_bold),
             Paragraph("<b>Ctrl + Drag</b>", body_bold),
             Paragraph("Pan Canvas while Zoomed", body_text)
         ],
         [
-            Paragraph("<font color='#805AD5'><b>4</b></font>", body_bold),
-            Paragraph("<code>hand_over_mouth</code>", body_code),
-            Paragraph("<b>Full head / face</b>", body_bold),
+            Paragraph("<font color='#D53F8C'><b>4</b></font>", body_bold),
+            Paragraph("<code>phone_use</code>", body_code),
+            Paragraph("<b>Hand + phone at ear</b>", body_bold),
             Paragraph("<b>Delete / Bksp</b>", body_bold),
             Paragraph("Delete Selected Box", body_text)
         ],
         [
-            Paragraph("<font color='#3182CE'><b>5</b></font>", body_bold),
-            Paragraph("<code>drinking</code>", body_code),
-            Paragraph("<b>Face + bottle together</b>", body_bold),
+            Paragraph("<font color='#319795'><b>5</b></font>", body_bold),
+            Paragraph("<code>head_turned_away</code>", body_code),
+            Paragraph("<b>Full head / face</b>", body_bold),
             Paragraph("<b>Ctrl + Z</b>", body_bold),
             Paragraph("Undo Last Edit", body_text)
         ],
         [
-            Paragraph("<font color='#D53F8C'><b>6</b></font>", body_bold),
-            Paragraph("<code>phone_use</code>", body_code),
-            Paragraph("<b>Hand + phone at ear</b>", body_bold),
+            Paragraph("<b>—</b>", body_bold),
+            Paragraph("<i>Negative Frame</i>", body_bold),
+            Paragraph("<b>0 Boxes (Alert Forward)</b>", body_bold),
             Paragraph("<b>0 Boxes</b>", body_bold),
             Paragraph("<b>Ctrl+Enter</b> (Negative Baseline)", body_text)
-        ],
-        [
-            Paragraph("<font color='#319795'><b>7</b></font>", body_bold),
-            Paragraph("<code>head_turned_away</code>", body_code),
-            Paragraph("<b>Full head / face</b>", body_bold),
-            Paragraph("<b>Canvas Reset</b>", body_bold),
-            Paragraph("Double-click canvas to fit", body_text)
         ]
     ]
 
-    t_hotkeys = Table(hotkey_data, colWidths=[22, 86, 140, 95, 213])
+    t_hotkeys = Table(hotkey_data, colWidths=[22, 90, 145, 90, 209])
     t_hotkeys.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#2B6CB0")),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('TOPPADDING', (0,0), (-1,-1), 1.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 1.5),
+        ('TOPPADDING', (0,0), (-1,-1), 2),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor("#F7FAFC"), colors.white]),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
     ]))
     story.append(t_hotkeys)
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 5))
 
     # SECTION 2: Target Warning Cues (Core Rules)
     story.append(Paragraph("<b>🎯 2. Target Warning Cues & Bounding Box Rules</b>", section_heading))
@@ -205,60 +197,48 @@ def build_pdf(target_path: str):
             Paragraph("<b>Strict Exclusions (DO NOT ANNOTATE)</b>", table_header)
         ],
         [
-            Paragraph("<font color='#C53030'><b>[1] eyes_closed</b></font>", body_bold),
-            Paragraph("Visibly fully closed, partially closed, or heavy-lidded eyes.", body_text),
-            Paragraph("<b>Separate tight box per eye</b>.<br/>Annotate Left & Right eyes individually.", body_bold),
-            Paragraph("• <b>Never</b> draw 1 box across both eyes.<br/>• <b>Downward gaze</b> with open slit is NOT closed.<br/>• Glare/shadow is NOT closed.", body_text)
-        ],
-        [
-            Paragraph("<font color='#DD6B20'><b>[2] yawning</b></font>", body_bold),
+            Paragraph("<font color='#DD6B20'><b>[1] yawning</b></font>", body_bold),
             Paragraph("Visibly active yawn distension / deep inhalation posture.", body_text),
             Paragraph("<b>Mouth region only</b>.<br/>Tight rectangle around lips/mouth.", body_bold),
             Paragraph("• <b>Talking/singing</b> open mouth is NOT yawning.<br/>• Do NOT enclose the entire face/head.", body_text)
         ],
         [
-            Paragraph("<font color='#B7791F'><b>[3] head_down</b></font>", body_bold),
-            Paragraph("Head clearly and substantially lowered/slumped forward.", body_text),
-            Paragraph("<b>Full head and face</b>.<br/>Crown of hair down to jaw/chin.", body_bold),
-            Paragraph("• Minor downward eye glances are NOT head down.<br/>• Must represent substantial cervical flexion.", body_text)
-        ],
-        [
-            Paragraph("<font color='#6B46C1'><b>[4] hand_over_mouth</b></font>", body_bold),
+            Paragraph("<font color='#6B46C1'><b>[2] hand_over_mouth</b></font>", body_bold),
             Paragraph("Hand/fingers visibly touch, cover, or occlude mouth.", body_text),
             Paragraph("<b>Full head and face</b>.<br/>Enclose entire head + occluding hand.", body_bold),
             Paragraph("• Hand resting on chin without covering mouth aperture is NOT hand over mouth.<br/>• Hand on wheel is NOT hand over mouth.", body_text)
         ],
         [
-            Paragraph("<font color='#2B6CB0'><b>[5] drinking</b></font>", body_bold),
+            Paragraph("<font color='#2B6CB0'><b>[3] drinking</b></font>", body_bold),
             Paragraph("Active drinking with bottle, cup, or can at mouth/face.", body_text),
             Paragraph("<b>Face + bottle together</b>.<br/>Enclose face and beverage container.", body_bold),
             Paragraph("• Passive bottles in cup holders are NOT drinking.<br/>• Must depict active consumption posture.", body_text)
         ],
         [
-            Paragraph("<font color='#D53F8C'><b>[6] phone_use</b></font>", body_bold),
+            Paragraph("<font color='#D53F8C'><b>[4] phone_use</b></font>", body_bold),
             Paragraph("Active handheld phone call (holding phone to ear/head).", body_text),
             Paragraph("<b>Hand + phone at ear</b>.<br/>Enclose phone, hand, and adjacent ear.", body_bold),
             Paragraph("• <b>Texting / lap browsing is EXCLUDED</b>.<br/>• Hands-free voice calls are NOT phone use.<br/>• Mounted phones are NOT phone use.", body_text)
         ],
         [
-            Paragraph("<font color='#285E61'><b>[7] head_turned_away</b></font>", body_bold),
-            Paragraph("Head substantially turned left, right, or away from road.", body_text),
+            Paragraph("<font color='#285E61'><b>[5] head_turned_away</b></font>", body_bold),
+            Paragraph("<b>Driver not focused on road forward</b>.<br/>Includes lateral turn (left/right) and downward head slump.", body_text),
             Paragraph("<b>Full head and face</b>.<br/>Enclose entire visible head profile.", body_bold),
-            Paragraph("• Minor standard mirror glances (5°–15°) are NOT turned away.<br/>• Must be a substantial departure from forward view.", body_text)
+            Paragraph("• Minor standard mirror glances (5°–15°) are NOT turned away.<br/>• <code>head_down</code> is <b>merged</b> into this class.", body_text)
         ]
     ]
 
-    t_cues = Table(cues_data, colWidths=[88, 144, 140, 184])
+    t_cues = Table(cues_data, colWidths=[90, 144, 140, 182])
     t_cues.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#2B6CB0")),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('TOPPADDING', (0,0), (-1,-1), 1.8),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 1.8),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor("#F7FAFC"), colors.white]),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
     ]))
     story.append(t_cues)
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 5))
 
     # SECTION 3: Decision Matrix & Protocol Enforcements
     story.append(Paragraph("<b>🔍 3. Protocol Rules & Edge Case Decision Matrix</b>", section_heading))
@@ -270,9 +250,9 @@ def build_pdf(target_path: str):
             Paragraph("<b>Authoritative Benchmark Rationale</b>", table_header)
         ],
         [
-            Paragraph("Driver looking down at dash/cluster; eye slit open", body_bold),
-            Paragraph("<font color='#C53030'><b>0 Boxes (Negative)</b></font>", body_bold),
-            Paragraph("Downward gaze is not closed eyes; head is not substantially slumped forward.", body_text)
+            Paragraph("Driver head slumped downward or rotated away from forward roadway", body_bold),
+            Paragraph("<font color='#285E61'><b>head_turned_away</b></font>", body_bold),
+            Paragraph("Annotate full head/face under <code>head_turned_away</code> (subsumes all non-forward gaze/head postures including head down).", body_text)
         ],
         [
             Paragraph("Driver yawning while hand visibly covers mouth", body_bold),
@@ -285,9 +265,14 @@ def build_pdf(target_path: str):
             Paragraph("Annotate <code>phone_use</code> around hand + phone at ear (calling sense only; texting excluded).", body_text)
         ],
         [
-            Paragraph("Driver drinking water from bottle at lips", body_bold),
+            Paragraph("Driver drinking water/beverage from bottle at lips", body_bold),
             Paragraph("<font color='#2B6CB0'><b>drinking</b></font>", body_bold),
             Paragraph("Annotate <code>drinking</code> around face + bottle together (active consumption).", body_text)
+        ],
+        [
+            Paragraph("Closed eyes / blinking during normal driving", body_bold),
+            Paragraph("<font color='#C53030'><b>0 Boxes (Negative)</b></font>", body_bold),
+            Paragraph("<code>eyes_closed</code> is removed entirely from the single-frame benchmark ontology.", body_text)
         ],
         [
             Paragraph("Single Static Frame Isolation Principle", body_bold),
@@ -296,12 +281,12 @@ def build_pdf(target_path: str):
         ]
     ]
 
-    t_rules = Table(rules_data, colWidths=[180, 105, 271])
+    t_rules = Table(rules_data, colWidths=[180, 110, 266])
     t_rules.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#2B6CB0")),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('TOPPADDING', (0,0), (-1,-1), 1.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 1.5),
+        ('TOPPADDING', (0,0), (-1,-1), 2),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor("#F7FAFC"), colors.white]),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
     ]))

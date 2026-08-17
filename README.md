@@ -96,12 +96,11 @@ dataset/images/
 
 <p align="center"><sub><b>Table 3.</b> Single-frame warning-cue ontology.</sub></p>
 
-| Drowsiness Cue | Distraction Cue |
+| Drowsiness Cue | Distraction / Inattention Cue |
 | :--- | :--- |
-| `eyes_closed` | `drinking` |
-| `yawning` | `phone_use` *(calling)* |
-| `head_down` | `head_turned_away` |
-| `hand_over_mouth` | — |
+| `yawning` | `drinking` |
+| `hand_over_mouth` | `phone_use` *(calling)* |
+| — | `head_turned_away` *(not focused forward / head down)* |
 
 <p align="center">
   <img src="./assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="310">

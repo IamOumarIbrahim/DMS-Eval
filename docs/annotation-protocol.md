@@ -18,19 +18,17 @@
 
 ## Target Warning Cues
 
-> The DMS-Eval benchmark targets **6 🧊 frozen visual warning cues** with specified bounding-box extents:
+> The DMS-Eval benchmark targets **5 🧊 frozen visual warning cues** with specified bounding-box extents:
 
 <p align="center"><sub><b>Table 1.</b> Frozen target warning cues and bounding-box extents.</sub></p>
 
 | 🧊 Frozen cue | Meaning | Bounding box |
 | :--- | :--- | :--- |
-| `eyes_closed` | Driver's eyes are visibly closed, including fully closed and visibly partially closed / heavy-lidded eyes | Separate box per eye |
 | `yawning` | Driver is visibly yawning; an ordinary open mouth is not sufficient | Mouth region only |
-| `head_down` | Head is clearly and substantially lowered/forward relative to normal forward-facing driving posture | Full head/face |
 | `hand_over_mouth` | Hand visibly covers or occludes the mouth | Full head/face |
 | `drinking` | Driver is actively drinking from a bottle, cup, or can with vessel brought to face/mouth | Face + bottle together |
 | `phone_use` | Driver is engaged in an active handheld phone call (holding phone to ear/head); texting/browsing and hands-free calls are excluded | Hand + phone at ear/head |
-| `head_turned_away` | Head is substantially turned left/right or away from the forward driving direction | Full head/face |
+| `head_turned_away` | Driver is not focused on the forward roadway (including lateral head rotation left/right and downward cervical flexion / head slump) | Full head/face |
 
 <details>
 <summary><strong>Show detailed per-cue annotation rules</strong></summary>
@@ -42,15 +40,7 @@
 > [!IMPORTANT]
 > **Static Frame Context & Co-occurrence:**
 > * All target warning cues are judged using the **individual sampled frame only**. Surrounding video frames are not referenced.
-> * A frame may contain **multiple target warning cues simultaneously** (e.g., `eyes_closed` alongside `hand_over_mouth`). In such cases, annotate all applicable cues; overlapping bounding boxes are fully permitted.
-
-### `eyes_closed`
-
-> Annotate when the driver's eyes are visibly fully closed, partially closed, or heavy-lidded.
-
-* Each eye receives its **own separate bounding box**.
-* **Prohibited:** A single bounding box spanning both eyes or a full-face box.
-* The label is decided from the **single frame only** with no temporal blink filtering applied.
+> * A frame may contain **multiple target warning cues simultaneously** (e.g., `yawning` alongside `hand_over_mouth` or `head_turned_away`). In such cases, annotate all applicable cues; overlapping bounding boxes are fully permitted.
 
 ### `yawning`
 
@@ -60,20 +50,11 @@
 * **Bounding Box Extent:** Mouth region only.
 * `mouth_open` is **not** an independent class.
 
-### `head_down`
-
-> Annotate when the driver's head is clearly and substantially lowered/forward relative to a normal forward-facing driving posture.
-
-* **Bounding Box Extent:** Full head/face.
-* **Exclusions:** Minor downward movements or brief glances at the instrument cluster.
-* `head_down` is used instead of `head_nodding` because `head_nodding` is an inherently multi-frame temporal event.
-
 ### `hand_over_mouth`
 
 > Annotate when the driver's hand visibly covers or occludes the mouth.
 
 * **Bounding Box Extent:** Full head/face.
-* If another cue (e.g., `eyes_closed`) is also visible in the same frame, annotate **both cues**.
 
 <p align="center">
   <img src="../assets/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="420"><br>
@@ -101,9 +82,10 @@
 
 ### `head_turned_away`
 
-> Annotate when the driver's head is substantially turned left, right, or away from the road forward.
+> Annotate whenever the driver is not focused on the road forward to them (including lateral head rotation left/right and downward cervical flexion / head slump).
 
 * **Bounding Box Extent:** Full head/face.
+* **Merged Cues:** Downward head slump / cervical flexion (`head_down`) is merged directly into this category.
 
 <p align="center">
   <img src="../assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="420"><br>
@@ -136,10 +118,8 @@ The human expert annotator directly annotates all 15,723 frames to construct the
 
 ### Detection Ontology Integrity
 
-Workflow state is not embedded into the detection ontology. The ontology contains **strictly the 6 target visual cues**:
-- `eyes_closed`
+Workflow state is not embedded into the detection ontology. The ontology contains **strictly the 5 target visual cues**:
 - `yawning`
-- `head_down`
 - `hand_over_mouth`
 - `drinking`
 - `phone_use`
@@ -173,13 +153,11 @@ This state must not be stored in the COCO class ontology.
 
 | Behavioral Domain | Target Warning Cue | Salience Rank | Single-Frame Visual Trigger | Bounding Box Extent |
 | :--- | :--- | :---: | :--- | :--- |
-| **Drowsiness** | `eyes_closed` | 1 *(Highest)* | Visibly fully closed, partially closed, or heavy-lidded eyes | Separate box per eye |
-| | `yawning` | 2 | Visible yawning with wide oral opening and facial elongation | Mouth region only |
-| | `head_down` | 3 | Pronounced forward/downward head slouch | Full head/face |
-| | `hand_over_mouth` | 4 *(Lowest)* | Hand visibly covering or occluding the mouth region | Full head/face |
-| **Distraction** | `drinking` | 1 *(Highest)* | Active drinking from a bottle/cup/can brought to the face | Face + bottle together |
+| **Drowsiness** | `yawning` | 1 *(Highest)* | Visible yawning with wide oral opening and facial elongation | Mouth region only |
+| | `hand_over_mouth` | 2 *(Lowest)* | Hand visibly covering or occluding the mouth region | Full head/face |
+| **Distraction / Inattention** | `drinking` | 1 *(Highest)* | Active drinking from a bottle/cup/can brought to the face | Face + bottle together |
 | | `phone_use` | 2 | Handheld phone call with phone held to the ear/head | Hand + phone at ear |
-| | `head_turned_away` | 3 *(Lowest)* | Head substantially rotated left, right, or away from the roadway | Full head/face |
+| | `head_turned_away` | 3 *(Lowest)* | Driver not focused on forward road (head rotated left/right or slumped downward) | Full head/face |
 
 <details>
 <summary><strong>Show removed, merged, narrowed, and background classes</strong></summary>
@@ -193,9 +171,11 @@ This state must not be stored in the COCO class ontology.
 | Excluded / Merged Candidate | Category Disposition | Rationale / Benchmark Decision |
 | :--- | :--- | :--- |
 | `eyes_open`, `drive_safe` | Background / Negative | Normal driving baselines; evaluated as true negatives rather than positive targets |
+| `eyes_closed` | Removed | Excluded entirely from the single-frame benchmark ontology |
+| `head_down` | Merged | Subsumed directly under `head_turned_away` (not focused on the road forward) |
 | `talk_passenger` | Removed | Substantial visual ambiguity and overlap with `head_turned_away` |
 | `mouth_open` | Merged | Subsumed directly under `yawning` |
-| `eyes_partially_closed` | Merged | Subsumed directly under `eyes_closed` |
+| `eyes_partially_closed` | Removed | Subsumed with `eyes_closed` removal |
 | `hand_on_face` | Narrowed | Refined specifically to `hand_over_mouth` |
 | `face_occluded` | Quality Flag | Handled as a data-quality / visibility condition rather than an object class |
 | `phone_texting` | Removed | Texting / typing on lap is excluded to focus strictly on calling posture (`phone_use`) and beverage interaction (`drinking`) |
