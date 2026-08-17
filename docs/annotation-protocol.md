@@ -74,6 +74,11 @@
 * **Bounding Box Extent:** Full head/face.
 * If another cue (e.g., `eyes_closed`) is also visible in the same frame, annotate **both cues**.
 
+<p align="center">
+  <img src="../assets/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="420"><br>
+  <sub><b>Figure 1.</b> An example of our annotation of <code>hand_over_mouth</code> in Label Studio (enclosing full visible head/face and occluding hand).</sub>
+</p>
+
 ### `phone_use`
 
 > Annotate when the driver is visibly texting or actively interacting with a handheld phone.
@@ -90,7 +95,7 @@
 
 <p align="center">
   <img src="../assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="420"><br>
-  <sub><b>Figure 1.</b> An example of our annotation of <code>head_turned_away</code> in Label Studio (enclosing full visible head/face).</sub>
+  <sub><b>Figure 2.</b> An example of our annotation of <code>head_turned_away</code> in Label Studio (enclosing full visible head/face).</sub>
 </p>
 
 </details>

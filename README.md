@@ -104,8 +104,9 @@ dataset/images/
 | `hand_over_mouth` | — |
 
 <p align="center">
-  <img src="./assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="460"><br>
-  <sub><b>Figure 2.</b> An example of our annotation of <code>head_turned_away</code> in Label Studio (full head/face bounding box).</sub>
+  <img src="./assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="310">
+  <img src="./assets/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="310"><br>
+  <sub><b>Figure 2.</b> Examples of our manual annotations in Label Studio: <code>head_turned_away</code> (left, cyan box enclosing full head/face profile) and <code>hand_over_mouth</code> (right, purple box enclosing full head/face and occluding hand).</sub>
 </p>
 
 > [!TIP]
