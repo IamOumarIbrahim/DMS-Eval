@@ -1,6 +1,6 @@
 # Evaluation Protocol
 
-[← Back to the DMS-Eval landing page](../README.md)
+[← Back to the DMS-Eval landing page](../README.md) · [Execution Checklist](./execution-checklist.md)
 
 > [!NOTE]
 > This document contains protocol information extracted from the DMS-Eval README. Frozen decisions and unresolved values retain their original status.

@@ -1,6 +1,6 @@
 # Annotation Protocol & Cue Ontology
 
-[← Back to the DMS-Eval landing page](../README.md)
+[← Back to the DMS-Eval landing page](../README.md) · [Execution Checklist](./execution-checklist.md)
 
 > [!NOTE]
 > This document contains protocol information extracted from the DMS-Eval README. Frozen decisions and unresolved values retain their original status.
@@ -119,6 +119,56 @@ The AI/vision agent provides **pre-annotation assistance only**. It reduces manu
 
 > [!NOTE]
 > The AI-assisted workflow follows the existing ambiguity rules below. It does not create a separate AI-specific rule for ambiguous cue presence or borderline class choice.
+
+### 🧊 Frozen CVAT Review-State Representation
+
+Workflow state remains separate from the six-class detection ontology.
+
+#### AI proposed
+
+AI-generated annotation objects use CVAT's native:
+
+```text
+Source = AUTO
+```
+
+AI-created annotations are provisional only.
+
+#### Needs secondary review
+
+When cue presence itself is ambiguous, do not create a speculative ground-truth box. Create an open CVAT Issue associated with the relevant frame/object area stating that secondary review is required. The issue remains unresolved until a human settles it.
+
+#### Human reviewed
+
+Human checking uses the CVAT job workflow:
+
+```text
+Annotation
+    ↓
+Validation
+    ↓
+Acceptance
+```
+
+A job is finalized only after the required human review is complete and unresolved issues have been settled. The AI agent must never mark its own annotation work as human-reviewed, accepted, or final.
+
+#### No fake workflow classes
+
+Do not add `reviewed`, `needs_review`, `ai_generated`, `ambiguous`, or any other workflow-state label to the six-class detection ontology.
+
+#### External progress ledger
+
+Maintain a machine-readable annotation progress ledger keyed by the real image filename. It must support safe resume without duplicating annotations or overwriting human-reviewed work, and distinguish at minimum:
+
+```text
+not_processed
+ai_processed
+secondary_review_required
+human_reviewed
+finalized
+```
+
+This state must not be stored in the COCO class ontology.
 
 ---
 

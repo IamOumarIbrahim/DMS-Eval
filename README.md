@@ -1,17 +1,19 @@
-<div align="center">
+<h1 align="center">DMS-Eval</h1>
 
-# DMS-Eval
+<p align="center">
+  <strong>A planned benchmark for nano-scale object detectors in frame-level driver monitoring</strong>
+</p>
 
-**A planned benchmark for nano-scale object detectors in frame-level driver monitoring**
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-In_Development-orange?style=flat" alt="Status: In Development">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
+  <img src="https://img.shields.io/badge/Input-640%C3%97640-555?style=flat" alt="Input: 640×640">
+  <img src="https://img.shields.io/badge/Detectors-YOLO%20%7C%20DETR-4c1?style=flat" alt="Detectors: YOLO | DETR">
+</p>
 
-![Status: In Development](https://img.shields.io/badge/Status-In_Development-orange?style=flat)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-![Input: 640×640](https://img.shields.io/badge/Input-640%C3%97640-555?style=flat)
-![Detectors: YOLO | DETR](https://img.shields.io/badge/Detectors-YOLO%20%7C%20DETR-4c1?style=flat)
-
-<img src="./assets/socialpreview.png" alt="DMS-Eval social preview" width="820">
-
-</div>
+<p align="center">
+  <img src="./assets/socialpreview.png" alt="DMS-Eval social preview" width="820">
+</p>
 
 **DMS-Eval** is a planned benchmark framework currently in development for evaluating nano-scale (lightweight) object detection architectures for detecting visual cues associated with driver drowsiness and distraction in real time across diverse cabin operating conditions.
 
@@ -26,61 +28,20 @@
 
 ## Benchmark at a glance
 
-<div align="center">
-<table>
-<caption><strong>Table 1. Frozen benchmark scope summary</strong></caption>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Frozen value</th>
-<th>Setting</th>
-<th>Frozen value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Dataset</strong></td>
-<td>DMD-derived real-cabin RGB video</td>
-<td><strong>Models</strong></td>
-<td>YOLO11n, D-FINE-N, YOLO26n</td>
-</tr>
-<tr>
-<td><strong>Input</strong></td>
-<td>640×640 individual frames</td>
-<td><strong>Sampling</strong></td>
-<td>1 frame every 1 second</td>
-</tr>
-<tr>
-<td><strong>Split</strong></td>
-<td>8 / 3 / 3 subjects</td>
-<td><strong>Split unit</strong></td>
-<td>Strictly subject-disjoint</td>
-</tr>
-<tr>
-<td><strong>Annotations</strong></td>
-<td>CVAT → human-reviewed master COCO JSON</td>
-<td><strong>Hardware</strong></td>
-<td>NVIDIA RTX 4060, 8 GB VRAM</td>
-</tr>
-<tr>
-<td><strong>Training batch</strong></td>
-<td>1, no gradient accumulation</td>
-<td><strong>Runtime batch</strong></td>
-<td>1</td>
-</tr>
-<tr>
-<td><strong>Primary metric</strong></td>
-<td>mAP@0.5:0.95</td>
-<td><strong>Input unit</strong></td>
-<td>Single static frame</td>
-</tr>
-</tbody>
-</table>
-</div>
+<p align="center"><sub><b>Table 1.</b> Frozen benchmark scope summary.</sub></p>
+
+| Setting | Frozen value | Setting | Frozen value |
+| :--- | :--- | :--- | :--- |
+| **Dataset** | DMD-derived real-cabin RGB video | **Models** | YOLO11n, D-FINE-N, YOLO26n |
+| **Input** | 640×640 individual frames | **Sampling** | 1 frame every 1 second |
+| **Split** | 8 / 3 / 3 subjects | **Split unit** | Strictly subject-disjoint |
+| **Annotations** | CVAT → human-reviewed master COCO JSON | **Hardware** | NVIDIA RTX 4060, 8 GB VRAM |
+| **Training batch** | 1, no gradient accumulation | **Runtime batch** | 1 |
+| **Primary metric** | mAP@0.5:0.95 | **Input unit** | Single static frame |
 
 <p align="center">
-<img src="./assets/640X640.png" alt="Standardized 640 by 640 benchmark input" width="640"><br>
-<sub><strong>Figure 1.</strong> Standardized 640×640 benchmark input.</sub>
+  <img src="./assets/640X640.png" alt="Standardized 640 by 640 benchmark input" width="640"><br>
+  <sub><b>Figure 1.</b> Standardized 640×640 benchmark input.</sub>
 </p>
 
 > [!NOTE]
@@ -115,76 +76,31 @@ dataset/images/
 
 ## Documentation
 
-<div align="center">
-<table>
-<caption><strong>Table 2. Detailed protocol documentation</strong></caption>
-<thead>
-<tr>
-<th>Document</th>
-<th>What it contains</th>
-<th>Status covered</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="./docs/quick-start.md"><strong>Benchmark scope, data &amp; splits</strong></a></td>
-<td>Frozen scope, preprocessing, subject splits, annotation format, frame naming, and future work</td>
-<td>Frozen + resolve later</td>
-</tr>
-<tr>
-<td><a href="./docs/annotation-protocol.md"><strong>Annotation protocol &amp; cue ontology</strong></a></td>
-<td>Six warning cues, bounding-box rules, removed classes, and data-quality controls</td>
-<td>Frozen</td>
-</tr>
-<tr>
-<td><a href="./docs/training-protocol.md"><strong>Training protocol</strong></a></td>
-<td>Initialization, model-specific recipes, and shared training controls</td>
-<td>Frozen</td>
-</tr>
-<tr>
-<td><a href="./docs/evaluation-protocol.md"><strong>Evaluation protocol</strong></a></td>
-<td>Metrics, evaluator, test isolation, thresholding, checkpoint selection, runtime, and unresolved choices</td>
-<td>Frozen + resolve later</td>
-</tr>
-</tbody>
-</table>
-</div>
+<p align="center"><sub><b>Table 2.</b> Detailed protocol documentation and execution resources.</sub></p>
+
+| Document | What it contains | Status covered |
+| :--- | :--- | :--- |
+| [**Benchmark scope, data & splits**](./docs/quick-start.md) | Frozen scope, preprocessing, subject splits, annotation format, frame naming, and future work | Frozen + resolve later |
+| [**Annotation protocol & cue ontology**](./docs/annotation-protocol.md) | Six warning cues, bounding-box rules, removed classes, and data-quality controls | Frozen |
+| [**Training protocol**](./docs/training-protocol.md) | Initialization, model-specific recipes, and shared training controls | Frozen |
+| [**Evaluation protocol**](./docs/evaluation-protocol.md) | Metrics, evaluator, test isolation, thresholding, checkpoint selection, runtime, and unresolved choices | Frozen + resolve later |
+| [**Execution checklist & roadmap**](./docs/execution-checklist.md) | Step-by-step 7-module implementation roadmap, dependencies, quality controls, and deliverables | Actionable checklist |
 
 > [!TIP]
-> Start with [**Benchmark scope, data & splits**](./docs/quick-start.md), then use the annotation, training, and evaluation documents as the source for implementation details.
+> Start with [**Benchmark scope, data & splits**](./docs/quick-start.md), then use the annotation, training, and evaluation documents as the source for implementation details. Refer to the [**Execution checklist & roadmap**](./docs/execution-checklist.md) for current implementation progress.
 
 ---
 
 ## Frozen target cues
 
-<div align="center">
-<table>
-<caption><strong>Table 3. Single-frame warning-cue ontology</strong></caption>
-<thead>
-<tr>
-<th>Drowsiness</th>
-<th>Distraction</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>eyes_closed</code></td>
-<td><code>phone_use</code></td>
-</tr>
-<tr>
-<td><code>yawning</code></td>
-<td><code>head_turned_away</code></td>
-</tr>
-<tr>
-<td><code>head_down</code></td>
-<td rowspan="2">—</td>
-</tr>
-<tr>
-<td><code>hand_over_mouth</code></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p align="center"><sub><b>Table 3.</b> Single-frame warning-cue ontology.</sub></p>
+
+| Drowsiness Cue | Distraction Cue |
+| :--- | :--- |
+| `eyes_closed` | `phone_use` |
+| `yawning` | `head_turned_away` |
+| `head_down` | — |
+| `hand_over_mouth` | — |
 
 > [!TIP]
 > Cue definitions, bounding-box extents, exclusions, co-occurrence rules, and annotation-quality controls are maintained in the [annotation protocol](./docs/annotation-protocol.md).

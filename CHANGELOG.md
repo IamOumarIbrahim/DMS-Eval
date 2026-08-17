@@ -272,3 +272,8 @@
 - Define frames as sequential sampled indices per video
 - Document four digit numbering beginning at 0001
 - Remove claims of absolute MP4 source frame indices
+
+## [2026-08-17 18:22:33] - Add execution roadmap and annotation review workflow
+- Add seven-module benchmark execution checklist and submission roadmap
+- Define CVAT review states and external annotation progress tracking
+- Simplify README tables and link protocol documentation consistently
