@@ -91,6 +91,20 @@
 
 ---
 
+## Dataset Preprocessing & Frame Extraction
+
+The dataset extraction and 640×640 face cropping pipeline is automated via [`scripts/extract_and_crop_dmd.py`](./scripts/extract_and_crop_dmd.py):
+
+```bash
+# Run full pipeline (extraction + cropping + verification)
+python scripts/extract_and_crop_dmd.py
+
+# Custom parameters example
+python scripts/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped dataset/images --sample-fps 1.0 --crop-box 272 71 640 640 --workers 6
+```
+
+---
+
 ## Documentation
 
 <div align="center">

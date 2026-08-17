@@ -81,6 +81,18 @@
 > * **No Aspect-Ratio Stretching:** Image proportions are strictly preserved via direct spatial cropping.
 > * **Dataset-wide fixed crop:** The frozen crop is applied unchanged to every source video and subject.
 
+### Extraction & Cropping Script
+
+The extraction and cropping pipeline is automated via [`scripts/extract_and_crop_dmd.py`](../scripts/extract_and_crop_dmd.py):
+
+```bash
+# Run full pipeline (extraction + cropping + verification)
+python scripts/extract_and_crop_dmd.py
+
+# Custom parameters example
+python scripts/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped dataset/images --sample-fps 1.0 --crop-box 272 71 640 640 --workers 6
+```
+
 <details>
 <summary><strong>Show frozen preprocessing configuration and crop geometry</strong></summary>
 

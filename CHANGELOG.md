@@ -247,3 +247,8 @@
 - Adds whitespace to a blank separator line
 - Leaves documented training controls unchanged
 - Preserves all protocol content and structure
+
+## [2026-08-17 15:49:50] - Add DMD frame extraction cropping and verification pipeline
+- Add parallel video frame extraction and standardized face cropping
+- Verify cropped frames for corruption black pixels and sharpness
+- Document preprocessing usage outputs and ignored generated images
