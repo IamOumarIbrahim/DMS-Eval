@@ -39,16 +39,12 @@
 | **Training batch** | 1, no gradient accumulation | **Runtime batch** | 1 |
 | **Primary metric** | mAP@0.5:0.95 | **Input unit** | Single static frame |
 
-<p align="center">
-  <img src="./assets/640X640.png" alt="Standardized 640 by 640 benchmark input" width="640"><br>
-  <sub><b>Figure 1.</b> Standardized 640×640 benchmark input.</sub>
-</p>
 
 > [!NOTE]
 > Longer videos naturally contribute more sampled frames under the uniform 1 FPS policy. Frames containing none of the target warning cues remain valid negative samples.
 
 > [!IMPORTANT]
-> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All six target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
+> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All five target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
 
 ---
 
@@ -70,7 +66,7 @@ dataset/images/
 > The frozen preprocessing rules and the unresolved non-integer-FPS sampling detail are maintained in [Benchmark scope, data & splits](./docs/quick-start.md).
 
 > [!IMPORTANT]
-> Annotation uses **Label Studio** (Community Edition) with one project (**DMS-Eval**) and one task per image. Subject, video, filename, and sampled-frame index are retained as task metadata. All 15,723 sampled frames are directly and manually annotated by the human expert annotator under the frozen 6-cue ontology to produce the authoritative master COCO ground truth in `dataset/annotations.json`. See the [annotation protocol](./docs/annotation-protocol.md) and [manual annotation guide (1-page PDF)](./docs/manual-annotation-guide.pdf).
+> Annotation uses **Label Studio** (Community Edition) with one project (**DMS-Eval**) and one task per image. Subject, video, filename, and sampled-frame index are retained as task metadata. All 15,723 sampled frames are directly and manually annotated by the human expert annotator under the frozen 5-cue ontology to produce the authoritative master COCO ground truth in `dataset/annotations.json`. See the [annotation protocol](./docs/annotation-protocol.md) and [manual annotation guide (1-page PDF)](./docs/manual-annotation-guide.pdf).
 
 ---
 
@@ -81,7 +77,7 @@ dataset/images/
 | Document | What it contains | Status covered |
 | :--- | :--- | :--- |
 | [**Benchmark scope, data & splits**](./docs/quick-start.md) | Frozen scope, preprocessing, subject splits, annotation format, frame naming, and future work | Frozen + resolve later |
-| [**Annotation protocol & cue ontology**](./docs/annotation-protocol.md) | Six warning cues, bounding-box rules, removed classes, and data-quality controls | Frozen |
+| [**Annotation protocol & cue ontology**](./docs/annotation-protocol.md) | Five warning cues, bounding-box rules, removed classes, and data-quality controls | Frozen |
 | [**Manual annotation field guide (PDF)**](./docs/manual-annotation-guide.pdf) | Single-page desktop PDF reference: hotkey cheat sheet, bounding-box extents, and decision matrix | Practical field guide |
 | [**Training protocol**](./docs/training-protocol.md) | Initialization, model-specific recipes, and shared training controls | Frozen |
 | [**Evaluation protocol**](./docs/evaluation-protocol.md) | Metrics, evaluator, test isolation, thresholding, checkpoint selection, runtime, and unresolved choices | Frozen + resolve later |

@@ -12,7 +12,7 @@
 
 - [x] Dataset, model set, input resolution, sampling policy, annotation format, and 8/3/3 subject allocation are frozen.
 - [x] The split unit is strictly subject-disjoint.
-- [x] All six target cues must occur in every split with roughly similar proportional representation based on per-subject frame counts.
+- [x] All five target cues must occur in every split with roughly similar proportional representation based on per-subject frame counts.
 - [x] The dataset-wide 640×640 crop is frozen at `x = 272`, `y = 71`, `width = 640`, `height = 640`.
 - [x] The frame-extraction pipeline is implemented under `scripts/`; generated images are not committed to Git.
 - [ ] Exact train, validation, and test subject IDs remain unresolved.
@@ -100,6 +100,27 @@ dataset/
     └── ...
 ```
 
+<p align="center"><sub><b>Table 2b.</b> Extracted 640×640 single-frame crops per subject folder (<code>dataset/images/</code>).</sub></p>
+
+| Subject Folder | Video Count | Extracted Frames (1 FPS) | Relative Yield (%) |
+| :--- | :---: | :---: | :---: |
+| `subject_01` | 5 | 1,114 | 7.09% |
+| `subject_02` | 5 | 1,095 | 6.96% |
+| `subject_03` | 5 | 1,173 | 7.46% |
+| `subject_04` | 5 | 1,113 | 7.08% |
+| `subject_05` | 5 | 1,080 | 6.87% |
+| `subject_06` | 5 | 1,195 | 7.60% |
+| `subject_07` | 5 | 1,082 | 6.88% |
+| `subject_08` | 5 | 1,105 | 7.03% |
+| `subject_09` | 5 | 1,200 | 7.63% |
+| `subject_10` | 3 | 920 | 5.85% |
+| `subject_11` | 5 | 1,155 | 7.35% |
+| `subject_12` | 5 | 1,213 | 7.71% |
+| `subject_13` | 5 | 1,189 | 7.56% |
+| `subject_14` | 5 | 1,089 | 6.93% |
+| **Total (14 Subjects)** | **68** | **15,723** | **100.00%** |
+
+
 #### ⚠️ Resolve Later — Non-Integer-FPS Sampling
 
 The exact implementation rule mapping **“1 frame every 1 second”** to source frames when the source FPS is approximately `29.76` remains unresolved.
@@ -165,7 +186,7 @@ Bottom-right: (912, 711)
 > * Subject assignments must be **finalized in `splits.json` before any model training begins** and must never be altered based on validation or benchmark performance.
 
 > [!IMPORTANT]
-> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All six target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
+> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All five target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
 
 <details>
 <summary><strong>Show subject-assignment policy and split manifest</strong></summary>
@@ -176,8 +197,8 @@ Bottom-right: (912, 711)
 * Use the **annotated sampled frames** to determine each subject's target-cue distribution.
 * Measure cue distribution using **frame counts per cue**, not bounding-box counts.
 * If one sampled frame contains multiple target cues, count that frame **once toward each cue present**.
-* Keep the six target cues **roughly proportionally similar across training, validation, and test**.
-* **All six target cues must appear in all three splits:** training, validation, and test.
+* Keep the five target cues **roughly proportionally similar across training, validation, and test**.
+* **All five target cues must appear in all three splits:** training, validation, and test.
 * Do **not** additionally balance the total number of sampled frames between splits.
 * Select and freeze the exact subject IDs only after annotation is complete and per-subject cue counts are available.
 
@@ -240,7 +261,7 @@ dataset/
 The master COCO annotation file stores:
 
 * Sampled image information
-* Six target categories
+* Five target categories
 * Bounding boxes
 * Category IDs
 * Annotation IDs

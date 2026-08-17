@@ -7,7 +7,7 @@
 
 > **Jump to:** [Target cues](#target-warning-cues) · [Annotation workflow](#annotation-workflow) · [Cue hierarchy](#cue-categories--visual-salience) · [Detailed rules](#annotation-rules) · [Data quality](#annotation--data-quality)
 
-- [x] Six target warning cues are frozen.
+- [x] Five target warning cues are frozen.
 - [x] Bounding-box extents and single-frame rules are frozen.
 - [x] Removed and merged classes are documented.
 - [x] Annotation-quality controls are frozen.
@@ -109,7 +109,7 @@
 * **Project structure:** One Label Studio project (`DMS-Eval`)
 * **Task structure:** One Label Studio task per image (15,723 tasks total)
 * **Task metadata:** Subject, video, filename, and sampled-frame index are retained as task metadata to allow filtering and processing by subject.
-* Every task uses the same six frozen target-cue rectangle labels.
+* Every task uses the same five frozen target-cue rectangle labels.
 
 ### Direct Manual Human Annotation
 
@@ -118,7 +118,7 @@ The human expert annotator directly annotates all 15,723 frames to construct the
 1. **100% Direct Human Annotation:** The human expert inspects every single sampled frame (including zero-cue frames) and manually draws bounding boxes for all visible cues.
 2. **Definitive Ground Truth:** All annotations created and submitted in Label Studio are saved directly into the local database as authoritative human annotations.
 3. **No Intermediate Workflow Fields in JSON:** There is no need for intermediate review flags or "human check needed" variables in the dataset schema. Submitted annotations represent finalized ground truth.
-4. **Zero-Cue Frames:** Normal alert driving frames containing none of the 6 cues are submitted with zero bounding boxes and correctly recorded as negative background samples.
+4. **Zero-Cue Frames:** Normal alert driving frames containing none of the 5 cues are submitted with zero bounding boxes and correctly recorded as negative background samples.
 5. **Authoritative Export:** Completed annotations are exported from Label Studio directly into the master COCO file at [`dataset/annotations.json`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/annotations.json).
 
 ### Detection Ontology Integrity
@@ -233,7 +233,7 @@ This state must not be stored in the COCO class ontology.
 #### Instance annotation rules
 
 * Each distinct physical instance of a cue receives **one annotation box**.
-* If multiple separate instances occur (e.g., both eyes closed), **each instance receives its own box**.
+* If multiple separate cue instances occur in the same frame, **each instance receives its own box**.
 
 #### Unusable sampled frames
 

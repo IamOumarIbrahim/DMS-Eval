@@ -49,9 +49,4 @@ __pycache__/
 *_tmp.pdf
 
 # Tools & Label Studio
-tools/label-studio/.venv/
-tools/label-studio/data/
-tools/label-studio/media/
-tools/label-studio/export/
-tools/label-studio/.env
-tools/label-studio/*.sqlite3*
+tools/
