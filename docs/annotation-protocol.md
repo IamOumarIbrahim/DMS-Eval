@@ -29,6 +29,7 @@
 | `head_down` | Head is clearly and substantially lowered/forward relative to normal forward-facing driving posture | Full head/face |
 | `hand_over_mouth` | Hand visibly covers or occludes the mouth | Full head/face |
 | `drinking` | Driver is actively drinking from a bottle, cup, or can with vessel brought to face/mouth | Face + bottle together |
+| `phone_use` | Driver is engaged in an active handheld phone call (holding phone to ear/head); texting/browsing and hands-free calls are excluded | Hand + phone at ear/head |
 | `head_turned_away` | Head is substantially turned left/right or away from the forward driving direction | Full head/face |
 
 <details>
@@ -87,6 +88,17 @@
 * **Exclusions:** Bottles or cups resting passively in cup holders or consoles without active consumption posture.
 * Focus is strictly on **active drinking interaction** (face + bottle).
 
+### `phone_use`
+
+> Annotate when the driver is actively engaged in a handheld phone call (holding the phone to the ear/head).
+
+* **Bounding Box Extent:** Hand + phone held to ear/head (enclosing the interacting hand, phone, and adjacent ear/face region).
+* **Scope Definition (Calling Sense Only):** Focus is strictly on **handheld phone calling / holding phone to the ear**.
+* **Strict Exclusions:**
+  - Texting, lap browsing, or typing on a phone are **excluded**.
+  - Hands-free phone calls (Bluetooth/speakerphone) where no device is held to the ear are **excluded**.
+  - Phones resting passively on seats, mounts, or consoles are **excluded**.
+
 ### `head_turned_away`
 
 > Annotate when the driver's head is substantially turned left, right, or away from the road forward.
@@ -130,6 +142,7 @@ Workflow state is not embedded into the detection ontology. The ontology contain
 - `head_down`
 - `hand_over_mouth`
 - `drinking`
+- `phone_use`
 - `head_turned_away`
 
 No synthetic workflow labels (such as `reviewed`, `needs_review`, `ai_generated`, `ambiguous`, or `finalized`) exist in the COCO ground truth classes.
@@ -165,7 +178,8 @@ This state must not be stored in the COCO class ontology.
 | | `head_down` | 3 | Pronounced forward/downward head slouch | Full head/face |
 | | `hand_over_mouth` | 4 *(Lowest)* | Hand visibly covering or occluding the mouth region | Full head/face |
 | **Distraction** | `drinking` | 1 *(Highest)* | Active drinking from a bottle/cup/can brought to the face | Face + bottle together |
-| | `head_turned_away` | 2 *(Lowest)* | Head substantially rotated left, right, or away from the roadway | Full head/face |
+| | `phone_use` | 2 | Handheld phone call with phone held to the ear/head | Hand + phone at ear |
+| | `head_turned_away` | 3 *(Lowest)* | Head substantially rotated left, right, or away from the roadway | Full head/face |
 
 <details>
 <summary><strong>Show removed, merged, narrowed, and background classes</strong></summary>
@@ -184,8 +198,8 @@ This state must not be stored in the COCO class ontology.
 | `eyes_partially_closed` | Merged | Subsumed directly under `eyes_closed` |
 | `hand_on_face` | Narrowed | Refined specifically to `hand_over_mouth` |
 | `face_occluded` | Quality Flag | Handled as a data-quality / visibility condition rather than an object class |
-| `phone_use` | Removed | Excluded from the visual distraction ontology in favor of core secondary object interaction (`drinking`) |
-| `smoking`, `eating` | Removed | Secondary non-core object interactions outside the 6-cue benchmark scope |
+| `phone_texting` | Removed | Texting / typing on lap is excluded to focus strictly on calling posture (`phone_use`) and beverage interaction (`drinking`) |
+| `smoking`, `eating` | Removed | Secondary non-core object interactions outside the benchmark scope |
 | `adjust_radio`, `switch_gear` | Removed | Momentary vehicle operation controls |
 | `gaze_away`, `eye_rubbing` | Removed | Highly ambiguous in single static frames without temporal gaze tracking |
 | `hands_off_wheel`, `hands_free` | Removed | Explicitly excluded from the current benchmark ontology |

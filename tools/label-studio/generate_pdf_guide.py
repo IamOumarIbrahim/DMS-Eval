@@ -32,21 +32,19 @@ class NumberedCanvas(canvas.Canvas):
         self.saveState()
         self.setFont("Helvetica", 7.5)
         self.setFillColor(colors.HexColor("#718096"))
-        self.drawString(36, 20, "DMS-Eval Benchmark · Manual Annotation Protocol · http://127.0.0.1:8080")
-        self.drawRightString(letter[0] - 36, 20, f"Page {self._pageNumber} of {page_count}")
+        self.drawString(36, 18, "DMS-Eval Benchmark · Manual Annotation Protocol · http://127.0.0.1:8080")
+        self.drawRightString(letter[0] - 36, 18, f"Page {self._pageNumber} of {page_count}")
         self.restoreState()
 
 def build_pdf(target_path: str):
     doc = SimpleDocTemplate(
         target_path,
         pagesize=letter,
-        leftMargin=30,
-        rightMargin=30,
-        topMargin=25,
-        bottomMargin=30
+        leftMargin=28,
+        rightMargin=28,
+        topMargin=20,
+        bottomMargin=26
     )
-
-    usable_width = letter[0] - 60  # 612 - 60 = 552 pt
 
     styles = getSampleStyleSheet()
     
@@ -54,51 +52,51 @@ def build_pdf(target_path: str):
     title_style = ParagraphStyle(
         'DocTitle',
         fontName='Helvetica-Bold',
-        fontSize=15,
-        leading=17,
+        fontSize=14,
+        leading=16,
         textColor=colors.HexColor("#1A202C")
     )
     subtitle_style = ParagraphStyle(
         'DocSubtitle',
         fontName='Helvetica',
-        fontSize=8,
-        leading=10,
+        fontSize=7.5,
+        leading=9.5,
         textColor=colors.HexColor("#4A5568")
     )
     section_heading = ParagraphStyle(
         'SectionHeading',
         fontName='Helvetica-Bold',
-        fontSize=9.5,
-        leading=12,
+        fontSize=9,
+        leading=11,
         textColor=colors.HexColor("#2B6CB0"),
-        spaceAfter=3
+        spaceAfter=2
     )
     body_bold = ParagraphStyle(
         'BodyBold',
         fontName='Helvetica-Bold',
-        fontSize=7.5,
-        leading=9.5,
+        fontSize=7,
+        leading=8.5,
         textColor=colors.HexColor("#1A202C")
     )
     body_text = ParagraphStyle(
         'BodyText',
         fontName='Helvetica',
-        fontSize=7.5,
-        leading=9.5,
+        fontSize=7,
+        leading=8.5,
         textColor=colors.HexColor("#2D3748")
     )
     body_code = ParagraphStyle(
         'BodyCode',
         fontName='Helvetica-Bold',
-        fontSize=7.5,
-        leading=9.5,
+        fontSize=7,
+        leading=8.5,
         textColor=colors.HexColor("#805AD5")
     )
     table_header = ParagraphStyle(
         'TableHeader',
         fontName='Helvetica-Bold',
-        fontSize=7.5,
-        leading=9.5,
+        fontSize=7,
+        leading=8.5,
         textColor=colors.white
     )
 
@@ -111,7 +109,7 @@ def build_pdf(target_path: str):
             Paragraph("<b>Single-Page Quick Reference</b><br/>Project: <code>DMS-Eval</code> · 15,723 Frames", subtitle_style)
         ]
     ]
-    t_head = Table(header_data, colWidths=[340, 212])
+    t_head = Table(header_data, colWidths=[340, 216])
     t_head.setStyle(TableStyle([
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
         ('ALIGN', (1,0), (1,0), 'RIGHT'),
@@ -119,8 +117,8 @@ def build_pdf(target_path: str):
         ('TOPPADDING', (0,0), (-1,-1), 0),
     ]))
     story.append(t_head)
-    story.append(Spacer(1, 4))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#CBD5E0"), spaceBefore=2, spaceAfter=4))
+    story.append(Spacer(1, 3))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#CBD5E0"), spaceBefore=1, spaceAfter=3))
 
     # SECTION 1: Hotkeys & Interface Controls
     story.append(Paragraph("<b>⚡ 1. Label Studio Shortcuts & Navigation</b>", section_heading))
@@ -169,28 +167,35 @@ def build_pdf(target_path: str):
             Paragraph("Undo Last Edit", body_text)
         ],
         [
-            Paragraph("<font color='#319795'><b>6</b></font>", body_bold),
+            Paragraph("<font color='#D53F8C'><b>6</b></font>", body_bold),
+            Paragraph("<code>phone_use</code>", body_code),
+            Paragraph("<b>Hand + phone at ear</b>", body_bold),
+            Paragraph("<b>0 Boxes</b>", body_bold),
+            Paragraph("<b>Ctrl+Enter</b> (Negative Baseline)", body_text)
+        ],
+        [
+            Paragraph("<font color='#319795'><b>7</b></font>", body_bold),
             Paragraph("<code>head_turned_away</code>", body_code),
             Paragraph("<b>Full head / face</b>", body_bold),
-            Paragraph("<b>Empty Frame</b>", body_bold),
-            Paragraph("<b>Ctrl+Enter</b> (Negative Sample)", body_text)
+            Paragraph("<b>Canvas Reset</b>", body_bold),
+            Paragraph("Double-click canvas to fit", body_text)
         ]
     ]
 
-    t_hotkeys = Table(hotkey_data, colWidths=[24, 86, 140, 95, 207])
+    t_hotkeys = Table(hotkey_data, colWidths=[22, 86, 140, 95, 213])
     t_hotkeys.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#2B6CB0")),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('TOPPADDING', (0,0), (-1,-1), 2),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 2),
+        ('TOPPADDING', (0,0), (-1,-1), 1.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 1.5),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor("#F7FAFC"), colors.white]),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
     ]))
     story.append(t_hotkeys)
-    story.append(Spacer(1, 5))
+    story.append(Spacer(1, 4))
 
-    # SECTION 2: The 6 Frozen Target Cues (Core Rules)
-    story.append(Paragraph("<b>🎯 2. The 6 Frozen Target Cues & Bounding Box Rules</b>", section_heading))
+    # SECTION 2: Target Warning Cues (Core Rules)
+    story.append(Paragraph("<b>🎯 2. Target Warning Cues & Bounding Box Rules</b>", section_heading))
 
     cues_data = [
         [
@@ -202,8 +207,8 @@ def build_pdf(target_path: str):
         [
             Paragraph("<font color='#C53030'><b>[1] eyes_closed</b></font>", body_bold),
             Paragraph("Visibly fully closed, partially closed, or heavy-lidded eyes.", body_text),
-            Paragraph("<b>Separate tight box per eye</b>.<br/>Annotate Left and Right eyes individually.", body_bold),
-            Paragraph("• <b>Never</b> draw 1 box across both eyes.<br/>• <b>Downward gaze</b> with open slit is NOT closed.<br/>• Unverified glare/shadow is NOT closed.", body_text)
+            Paragraph("<b>Separate tight box per eye</b>.<br/>Annotate Left & Right eyes individually.", body_bold),
+            Paragraph("• <b>Never</b> draw 1 box across both eyes.<br/>• <b>Downward gaze</b> with open slit is NOT closed.<br/>• Glare/shadow is NOT closed.", body_text)
         ],
         [
             Paragraph("<font color='#DD6B20'><b>[2] yawning</b></font>", body_bold),
@@ -221,33 +226,39 @@ def build_pdf(target_path: str):
             Paragraph("<font color='#6B46C1'><b>[4] hand_over_mouth</b></font>", body_bold),
             Paragraph("Hand/fingers visibly touch, cover, or occlude mouth.", body_text),
             Paragraph("<b>Full head and face</b>.<br/>Enclose entire head + occluding hand.", body_bold),
-            Paragraph("• Hand resting on chin without covering mouth aperture is NOT hand over mouth.<br/>• Hand on steering wheel is NOT hand over mouth.", body_text)
+            Paragraph("• Hand resting on chin without covering mouth aperture is NOT hand over mouth.<br/>• Hand on wheel is NOT hand over mouth.", body_text)
         ],
         [
             Paragraph("<font color='#2B6CB0'><b>[5] drinking</b></font>", body_bold),
             Paragraph("Active drinking with bottle, cup, or can at mouth/face.", body_text),
             Paragraph("<b>Face + bottle together</b>.<br/>Enclose face and beverage container.", body_bold),
-            Paragraph("• Bottles/cups resting passively in holders are NOT drinking.<br/>• Must depict active consumption posture.", body_text)
+            Paragraph("• Passive bottles in cup holders are NOT drinking.<br/>• Must depict active consumption posture.", body_text)
         ],
         [
-            Paragraph("<font color='#285E61'><b>[6] head_turned_away</b></font>", body_bold),
+            Paragraph("<font color='#D53F8C'><b>[6] phone_use</b></font>", body_bold),
+            Paragraph("Active handheld phone call (holding phone to ear/head).", body_text),
+            Paragraph("<b>Hand + phone at ear</b>.<br/>Enclose phone, hand, and adjacent ear.", body_bold),
+            Paragraph("• <b>Texting / lap browsing is EXCLUDED</b>.<br/>• Hands-free voice calls are NOT phone use.<br/>• Mounted phones are NOT phone use.", body_text)
+        ],
+        [
+            Paragraph("<font color='#285E61'><b>[7] head_turned_away</b></font>", body_bold),
             Paragraph("Head substantially turned left, right, or away from road.", body_text),
             Paragraph("<b>Full head and face</b>.<br/>Enclose entire visible head profile.", body_bold),
-            Paragraph("• Minor standard mirror glances (5°–15°) are NOT turned away.<br/>• Must be a substantial departure from forward road view.", body_text)
+            Paragraph("• Minor standard mirror glances (5°–15°) are NOT turned away.<br/>• Must be a substantial departure from forward view.", body_text)
         ]
     ]
 
-    t_cues = Table(cues_data, colWidths=[90, 142, 140, 180])
+    t_cues = Table(cues_data, colWidths=[88, 144, 140, 184])
     t_cues.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#2B6CB0")),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('TOPPADDING', (0,0), (-1,-1), 2.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
+        ('TOPPADDING', (0,0), (-1,-1), 1.8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 1.8),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor("#F7FAFC"), colors.white]),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
     ]))
     story.append(t_cues)
-    story.append(Spacer(1, 5))
+    story.append(Spacer(1, 4))
 
     # SECTION 3: Decision Matrix & Protocol Enforcements
     story.append(Paragraph("<b>🔍 3. Protocol Rules & Edge Case Decision Matrix</b>", section_heading))
@@ -266,31 +277,31 @@ def build_pdf(target_path: str):
         [
             Paragraph("Driver yawning while hand visibly covers mouth", body_bold),
             Paragraph("<font color='#2B6CB0'><b>Both Boxes</b></font>", body_bold),
-            Paragraph("Annotate <code>hand_over_mouth</code> (Full Head) AND <code>yawning</code> (Mouth). Overlapping boxes are expected.", body_text)
+            Paragraph("Annotate <code>hand_over_mouth</code> (Full Head) AND <code>yawning</code> (Mouth). Overlapping boxes expected.", body_text)
         ],
         [
-            Paragraph("Driver holding bottle/can to mouth/lips", body_bold),
+            Paragraph("Driver holding phone to ear during call", body_bold),
+            Paragraph("<font color='#D53F8C'><b>phone_use</b></font>", body_bold),
+            Paragraph("Annotate <code>phone_use</code> around hand + phone at ear (calling sense only; texting excluded).", body_text)
+        ],
+        [
+            Paragraph("Driver drinking water from bottle at lips", body_bold),
             Paragraph("<font color='#2B6CB0'><b>drinking</b></font>", body_bold),
-            Paragraph("Annotate <code>drinking</code> around face + bottle together (active beverage consumption).", body_text)
-        ],
-        [
-            Paragraph("Extreme glare / shadow / inconclusive cue visibility", body_bold),
-            Paragraph("<font color='#C53030'><b>0 Boxes (Conservative)</b></font>", body_bold),
-            Paragraph("Do not guess or create speculative boxes without clear, conclusive visual evidence.", body_text)
+            Paragraph("Annotate <code>drinking</code> around face + bottle together (active consumption).", body_text)
         ],
         [
             Paragraph("Single Static Frame Isolation Principle", body_bold),
             Paragraph("<b>Current Frame Only</b>", body_bold),
-            Paragraph("Judge strictly by visible pixels in the current image. Do not infer blinks or motion from video memory.", body_text)
+            Paragraph("Judge strictly by visible pixels in the current image. Do not infer blinks/motion from video memory.", body_text)
         ]
     ]
 
-    t_rules = Table(rules_data, colWidths=[180, 105, 267])
+    t_rules = Table(rules_data, colWidths=[180, 105, 271])
     t_rules.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#2B6CB0")),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('TOPPADDING', (0,0), (-1,-1), 2),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 2),
+        ('TOPPADDING', (0,0), (-1,-1), 1.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 1.5),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor("#F7FAFC"), colors.white]),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
     ]))
