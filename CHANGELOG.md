@@ -1,3 +1,8 @@
+## [2026-08-18 22:22:00] - Document DMD three-folder source composition and negative frame richness
+- Document inclusion of all three DMD session categories (`distraction`, `drowsiness`, `gaze`) across 81 videos
+- Document negative frame abundance rationale to prevent lightweight model overtraining on positive targets
+- Update `docs/quick-start.md`, `docs/annotation-protocol.md`, `README.md`, and `manuscript/main.tex`
+
 ## [2026-08-18 22:19:00] - Enforce single-annotation policy and yawning/hand_over_mouth mutual exclusivity
 - Enforce strict single-annotation constraint (at most one bounding box per image across dataset)
 - Establish mutual exclusivity between `yawning` and `hand_over_mouth` (prioritizing `hand_over_mouth` when hand covers mouth)

@@ -48,8 +48,9 @@
 | **Split timing** | Finalized prior to training | Permanent partition freeze |
 
 > [!NOTE]
+> * **Source DMD Session Composition:** The original Driver Monitoring Dataset (DMD) contains three distinct session folders: `distraction`, `drowsiness`, and `gaze`. DMS-Eval incorporates all 81 videos across all three session folders.
+> * **Negative Frame Abundance & Overfitting Prevention:** Retaining the `gaze` session videos alongside safe driving intervals within `distraction` and `drowsiness` provides a large natural corpus of true negative background frames (0 bounding boxes). This rich abundance of negative frames is essential to prevent compact object detectors from overtraining on positive targets, ensuring models maintain low false-positive rates during alert driving and normal gaze/mirror checks.
 > * **Proportional Frame Yield:** Longer videos naturally contribute more sampled frames than shorter videos due to the uniform 1 FPS temporal sampling across full video durations.
-> * **Background / Negative Frames:** Frames containing none of the target warning cues remain valid negative samples to ensure robust false-positive evaluation.
 
 ---
 

@@ -41,7 +41,8 @@
 
 
 > [!NOTE]
-> Longer videos naturally contribute more sampled frames under the uniform 1 FPS policy. Frames containing none of the target warning cues remain valid negative samples.
+> **Source DMD Composition & Negative Sample Richness:**
+> The original DMD dataset is organized into three behavioral session folders: `distraction`, `drowsiness`, and `gaze`. DMS-Eval incorporates all 81 videos across all three folders. Retaining the `gaze` sessions alongside non-cue driving periods in `distraction` and `drowsiness` supplies a substantial volume of naturalistic negative frames (0 bounding boxes), preventing lightweight object detectors from overtraining on positive cues and training them to suppress false alarms during alert driving. Longer videos naturally contribute proportionally more sampled frames under the uniform 1 FPS policy.
 
 > [!IMPORTANT]
 > **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All four target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
