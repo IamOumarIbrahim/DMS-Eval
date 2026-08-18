@@ -37,9 +37,10 @@
 ### General
 
 > [!IMPORTANT]
-> **Static Frame Context & Co-occurrence:**
+> **Static Frame Context & Single-Annotation Policy (At Most One Annotation Per Image):**
 > * All target warning cues are judged using the **individual sampled frame only**. Surrounding video frames are not referenced.
-> * A frame may contain **multiple target warning cues simultaneously** (e.g., `yawning` alongside `hand_over_mouth`). In such cases, annotate all applicable cues; overlapping bounding boxes are fully permitted.
+> * **Strict Single-Annotation Constraint:** Each image should have **at most one annotation** (0 or 1 bounding box per image). An image must **never contain multiple annotations**, and `yawning` and `hand_over_mouth` must **never be labeled twice in one image**.
+> * **Drowsiness Salience & Priority Rule:** If the driver is yawning while a hand visibly covers or occludes the mouth, annotate strictly as **`hand_over_mouth`** (full head/face). Do not draw a second box for `yawning`. `yawning` is annotated only when the mouth aperture is unobstructed by a covering hand.
 
 ### `yawning`
 
@@ -221,10 +222,10 @@ This state must not be stored in the COCO class ontology.
 
 * When cue presence is definite but the exact class is borderline, choose the category **immediately** rather than deferring to review.
 
-#### Instance annotation rules
-
-* Each distinct physical instance of a cue receives **one annotation box**.
-* If multiple separate cue instances occur in the same frame, **each instance receives its own box**.
+#### Single-annotation constraint
+ 
+* **At Most One Annotation Per Image:** Each sampled image must contain at most one bounding box annotation (0 or 1 annotation per frame).
+* **Mutual Exclusivity:** `yawning` and `hand_over_mouth` must never be labeled twice in one image. When a covering hand occludes a yawn, prioritize `hand_over_mouth`. No image may contain multiple warning cue bounding boxes.
 
 #### Unusable sampled frames
 

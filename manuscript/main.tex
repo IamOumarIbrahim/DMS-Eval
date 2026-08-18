@@ -54,6 +54,8 @@ The benchmark is developed on real-cabin RGB video from the Driver Monitoring Da
 \item \texttt{phone\_use}: handheld phone and interacting hand held to ear/head in calling posture.
 \end{enumerate}
 
+Under our single-frame annotation protocol, each sampled image contains at most one visual warning cue annotation (0 or 1 bounding box per image). In particular, \texttt{yawning} and \texttt{hand\_over\_mouth} are mutually exclusive and are never labeled twice in the same image; if a driver yawns while a hand visibly covers or occludes the mouth, the instance is uniquely labeled as \texttt{hand\_over\_mouth} (full head/face), ensuring clear, non-overlapping ground-truth targets.
+
 Under the controlled-comparison principle, all models are evaluated using identical data partitions under a strict 8 / 3 / 3 subject-disjoint split (8 Train, 3 Validation, 3 Test subjects) to prevent identity leakage, utilizing identical hardware (NVIDIA RTX 4060, 8~GB VRAM), batch size 1, 220 fine-tuning epochs without early stopping, fixed random seed (13), and FP16 automatic mixed precision. Optimal checkpoints and confidence thresholds ($\tau$) are selected strictly on the validation split prior to an isolated, single-pass test evaluation.
 
 \subsection{Research Question and Scope}

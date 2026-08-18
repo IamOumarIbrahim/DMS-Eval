@@ -1,3 +1,9 @@
+## [2026-08-18 22:19:00] - Enforce single-annotation policy and yawning/hand_over_mouth mutual exclusivity
+- Enforce strict single-annotation constraint (at most one bounding box per image across dataset)
+- Establish mutual exclusivity between `yawning` and `hand_over_mouth` (prioritizing `hand_over_mouth` when hand covers mouth)
+- Update `docs/annotation-protocol.md`, `README.md`, `docs/execution-checklist.md`, and `manuscript/main.tex`
+- Update Decision Matrix in `tools/label-studio/generate_pdf_guide.py` and recompile `docs/manual-annotation-guide.pdf`
+
 ## [2026-08-18 22:16:00] - Document head orientation removal rationale and recompile PDF guide
 - Document mirror-check ambiguity rationale across `docs/annotation-protocol.md`, `README.md`, and `manuscript/main.tex`
 - Update Decision Matrix and edge case rules in `tools/label-studio/generate_pdf_guide.py`

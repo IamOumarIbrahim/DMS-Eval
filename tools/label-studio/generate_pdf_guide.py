@@ -243,8 +243,8 @@ def build_pdf(target_path: str):
         ],
         [
             Paragraph("Driver yawning while hand visibly covers mouth", body_bold),
-            Paragraph("<font color='#2B6CB0'><b>Both Boxes</b></font>", body_bold),
-            Paragraph("Annotate <code>hand_over_mouth</code> (Full Head) AND <code>yawning</code> (Mouth). Overlapping boxes expected.", body_text)
+            Paragraph("<font color='#6B46C1'><b>hand_over_mouth</b></font>", body_bold),
+            Paragraph("Annotate strictly <code>hand_over_mouth</code> (Full Head). Max 1 annotation per image; never label yawning and hand over mouth together.", body_text)
         ],
         [
             Paragraph("Driver holding phone to ear during call", body_bold),
