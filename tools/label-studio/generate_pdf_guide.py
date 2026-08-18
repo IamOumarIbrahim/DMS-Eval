@@ -237,9 +237,9 @@ def build_pdf(target_path: str):
             Paragraph("<b>Authoritative Benchmark Rationale</b>", table_header)
         ],
         [
-            Paragraph("Driver looking away or head rotated toward mirrors/passenger", body_bold),
+            Paragraph("Driver looking at side/rearview mirrors or head rotated away", body_bold),
             Paragraph("<font color='#C53030'><b>0 Boxes (Negative)</b></font>", body_bold),
-            Paragraph("Head orientation / gaze tracking is excluded from static 2D warning cue ontology.", body_text)
+            Paragraph("Drivers routinely perform mirror checks. In static 1-FPS split frames, there is no objective boundary between safe glances and real inattention; excluded to eliminate subjective label noise.", body_text)
         ],
         [
             Paragraph("Driver yawning while hand visibly covers mouth", body_bold),

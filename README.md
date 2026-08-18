@@ -106,7 +106,8 @@ dataset/images/
 
 > [!NOTE]
 > **Ontological Design Decisions:**
-> - **`eyes_closed` & Head Orientation Removal:** Single-frame 2D object detectors suffer from substantial false positives on momentary physiological blinks and downward road glances; robust eye-state tracking and head orientation require temporal sequence modeling.
+> - **`head_turned_away` & `gaze_away` Removal:** Drivers routinely perform mirror checks (side/rearview mirrors) and visual scanning during safe driving. In isolated 1 FPS static frames without temporal sequence context or 3D gaze tracking, there is no objective or consistent boundary to distinguish brief, safe mirror glances (false positives) from dangerous, prolonged inattention (true positives). To eliminate subjective label noise from split datasets, head rotation is excluded in favor of the 4 self-contained visual warning cues.
+> - **`eyes_closed` Removal:** Single-frame 2D object detectors suffer from substantial false positives on momentary physiological blinks and downward road glances; reliable eye-state tracking requires continuous temporal sequence modeling.
 
 > [!TIP]
 > Cue definitions, bounding-box extents, exclusions, co-occurrence rules, and annotation-quality controls are maintained in the [annotation protocol](./docs/annotation-protocol.md).

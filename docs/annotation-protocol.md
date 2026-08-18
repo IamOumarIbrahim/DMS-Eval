@@ -157,14 +157,15 @@ This state must not be stored in the COCO class ontology.
 <details>
 <summary><strong>Show removed, merged, narrowed, and background classes</strong></summary>
 
-## Removed Classes
+## Removed Classes & Ontological Scope Decisions
 
-> Deliberately excluded classes and merged concepts to eliminate label ambiguity:
+> Deliberately excluded classes and merged concepts to eliminate label ambiguity and subjective annotation noise:
 
 <p align="center"><sub><b>Table 3.</b> Removed, merged, narrowed, and background classes.</sub></p>
 
 | Excluded / Merged Candidate | Category Disposition | Rationale / Benchmark Decision |
 | :--- | :--- | :--- |
+| `head_turned_away`, `gaze_away` | Removed | **Mirror Checking vs. True Inattention Ambiguity:** Drivers routinely check side and rearview mirrors and perform active visual scanning as safe driving behavior. In single static 1-FPS split frames without continuous temporal video context or 3D gaze tracking, there is no objective or consistent boundary to distinguish brief, safe mirror glances (false positives) from dangerous, prolonged inattention (true positives). Excluded to eliminate subjective label noise in favor of 4 self-contained visual warning cues. |
 | `eyes_open`, `drive_safe` | Background / Negative | Normal driving baselines; evaluated as true negatives rather than positive targets |
 | `eyes_closed` | Removed | Frame-based 2D object detectors evaluated on single static frames suffer from high false-positive rates due to normal physiological blinks and downward road/mirror glances; reliable eyelid closure tracking requires temporal sequence modeling |
 | `head_down` | Removed | Redundant in static single-frame detection and inherently represents a multi-frame temporal event ("falling asleep" / microsleep nodding); excluded from single-frame static warning cue ontology |
@@ -176,7 +177,7 @@ This state must not be stored in the COCO class ontology.
 | `phone_texting` | Removed | Texting / typing on lap is excluded to focus strictly on calling posture (`phone_use`) and beverage interaction (`drinking`) |
 | `smoking`, `eating` | Removed | Secondary non-core object interactions outside the benchmark scope |
 | `adjust_radio`, `switch_gear` | Removed | Momentary vehicle operation controls |
-| `gaze_away`, `eye_rubbing` | Removed | Highly ambiguous in single static frames without temporal gaze tracking |
+| `eye_rubbing` | Removed | Highly ambiguous in single static frames without temporal tracking |
 | `hands_off_wheel`, `hands_free` | Removed | Explicitly excluded from the current benchmark ontology |
 
 </details>

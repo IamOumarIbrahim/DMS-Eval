@@ -1,3 +1,8 @@
+## [2026-08-18 22:16:00] - Document head orientation removal rationale and recompile PDF guide
+- Document mirror-check ambiguity rationale across `docs/annotation-protocol.md`, `README.md`, and `manuscript/main.tex`
+- Update Decision Matrix and edge case rules in `tools/label-studio/generate_pdf_guide.py`
+- Recompile 1-page manual annotation field guide PDF (`docs/manual-annotation-guide.pdf`)
+
 ## [2026-08-18 19:15:00] - Refine warning cue ontology to 4 frozen target cues
 - Establish a focused 4-cue benchmark ontology (`yawning`, `hand_over_mouth`, `drinking`, `phone_use`)
 - Update `docs/annotation-protocol.md`, `README.md`, `docs/quick-start.md`, `docs/execution-checklist.md`, and `docs/evaluation-protocol.md` to reflect the 4-cue ontology
