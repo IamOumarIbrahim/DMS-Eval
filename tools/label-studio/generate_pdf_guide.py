@@ -159,18 +159,11 @@ def build_pdf(target_path: str):
             Paragraph("Delete Selected Box", body_text)
         ],
         [
-            Paragraph("<font color='#319795'><b>5</b></font>", body_bold),
-            Paragraph("<code>head_turned_away</code>", body_code),
-            Paragraph("<b>Full head / face</b>", body_bold),
-            Paragraph("<b>Ctrl + Z</b>", body_bold),
-            Paragraph("Undo Last Edit", body_text)
-        ],
-        [
             Paragraph("<b>—</b>", body_bold),
             Paragraph("<i>Negative Frame</i>", body_bold),
-            Paragraph("<b>0 Boxes (Alert Forward)</b>", body_bold),
-            Paragraph("<b>0 Boxes</b>", body_bold),
-            Paragraph("<b>Ctrl+Enter</b> (Negative Baseline)", body_text)
+            Paragraph("<b>0 Boxes (Alert / No Cue)</b>", body_bold),
+            Paragraph("<b>Ctrl + Z</b>", body_bold),
+            Paragraph("Undo Last Edit", body_text)
         ]
     ]
 
@@ -187,7 +180,7 @@ def build_pdf(target_path: str):
     story.append(Spacer(1, 5))
 
     # SECTION 2: Target Warning Cues (Core Rules)
-    story.append(Paragraph("<b>🎯 2. Target Warning Cues & Bounding Box Rules</b>", section_heading))
+    story.append(Paragraph("<b>🎯 2. Target Warning Cues & Bounding Box Rules (4 Frozen Cues)</b>", section_heading))
 
     cues_data = [
         [
@@ -219,12 +212,6 @@ def build_pdf(target_path: str):
             Paragraph("Active handheld phone call (holding phone to ear/head).", body_text),
             Paragraph("<b>Hand + phone at ear</b>.<br/>Enclose phone, hand, and adjacent ear.", body_bold),
             Paragraph("• <b>Texting / lap browsing is EXCLUDED</b>.<br/>• Hands-free voice calls are NOT phone use.<br/>• Mounted phones are NOT phone use.", body_text)
-        ],
-        [
-            Paragraph("<font color='#285E61'><b>[5] head_turned_away</b></font>", body_bold),
-            Paragraph("<b>Driver not focused on road forward</b>.<br/>Includes lateral turn (left/right) and downward head slump.", body_text),
-            Paragraph("<b>Full head and face</b>.<br/>Enclose entire visible head profile.", body_bold),
-            Paragraph("• Minor standard mirror glances (5°–15°) are NOT turned away.<br/>• <code>head_down</code> is <b>merged</b> into this class.", body_text)
         ]
     ]
 
@@ -250,9 +237,9 @@ def build_pdf(target_path: str):
             Paragraph("<b>Authoritative Benchmark Rationale</b>", table_header)
         ],
         [
-            Paragraph("Driver head slumped downward or rotated away from forward roadway", body_bold),
-            Paragraph("<font color='#285E61'><b>head_turned_away</b></font>", body_bold),
-            Paragraph("Annotate full head/face under <code>head_turned_away</code> (subsumes all non-forward gaze/head postures including head down).", body_text)
+            Paragraph("Driver looking away or head rotated toward mirrors/passenger", body_bold),
+            Paragraph("<font color='#C53030'><b>0 Boxes (Negative)</b></font>", body_bold),
+            Paragraph("Head orientation / gaze tracking is excluded from static 2D warning cue ontology.", body_text)
         ],
         [
             Paragraph("Driver yawning while hand visibly covers mouth", body_bold),

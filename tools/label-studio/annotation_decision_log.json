@@ -2,21 +2,17 @@
   "subject_01_video_01_frame_0019.jpg": {
     "subject": "subject_01",
     "video": "video_01",
-    "cues_detected": [
-      "head_turned_away"
-    ],
+    "cues_detected": [],
     "secondary_review": false,
-    "rationale": "Detected profile face view -> head_turned_away",
+    "rationale": "Negative sample (no frozen cues present)",
     "timestamp": "2026-08-17T14:56:03.991064Z"
   },
   "subject_01_video_01_frame_0023.jpg": {
     "subject": "subject_01",
     "video": "video_01",
-    "cues_detected": [
-      "head_turned_away"
-    ],
+    "cues_detected": [],
     "secondary_review": false,
-    "rationale": "Detected profile face view -> head_turned_away",
+    "rationale": "Negative sample (no frozen cues present)",
     "timestamp": "2026-08-17T14:56:23.939124Z"
   },
   "subject_01_video_01_frame_0025.jpg": {

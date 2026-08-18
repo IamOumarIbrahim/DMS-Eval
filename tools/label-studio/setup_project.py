@@ -1,7 +1,7 @@
 """
 DMS-Eval Label Studio Project Setup & Dataset Importer
 ======================================================
-Prepares the Label Studio project with the 6 frozen DMS-Eval target warning cues,
+Prepares the Label Studio project with the 4 frozen DMS-Eval target warning cues,
 connects local storage to `dataset/images/`, and prepares the 15,723 frame dataset.
 """
 
@@ -62,7 +62,7 @@ def setup_project(title="DMS-Eval Benchmark Annotation (15k Frames)"):
         organization=org,
         defaults={
             'created_by': user,
-            'description': '15,723 frame benchmark annotation across 14 subjects targeting the 6 frozen warning cues.',
+            'description': '15,723 frame benchmark annotation across 14 subjects targeting the 4 frozen warning cues.',
             'label_config': label_config
         }
     )

@@ -337,7 +337,7 @@ The selected threshold is then frozen for that model and applied unchanged durin
 
 | Color | Still unresolved | What must be finalized | Claim affected |
 | ----- | ---------------- | ---------------------- | -------------- |
-| 🔴 | **Exact subject IDs / `splits.json`** | Freeze the exact 8 train / 3 validation / 3 test subjects only after annotation provides per-subject frame counts for all six target cues; keep every subject strictly within one split. | **same training/test data**, **subject-disjoint test split** |
+| 🔴 | **Exact subject IDs / `splits.json`** | Freeze the exact 8 train / 3 validation / 3 test subjects only after annotation provides per-subject frame counts for all four target cues; keep every subject strictly within one split. | **same training/test data**, **subject-disjoint test split** |
 | 🟠 | **Exact 8/3/3 subject-assignment algorithm/method** | Determine later how to choose the best assignment from annotated per-subject cue distributions without assuming an optimization function, search procedure, tolerance, distance metric, weighting rule, or numerical threshold. | Split reproducibility |
 | 🟠 | **CUDA / PyTorch / model-framework versions or commits / NVIDIA GPU-driver / THOP versions** | Record the exact software environment actually used for training, evaluation, and local FLOPs calculation. | Supports reproducibility, the **same inference timing protocol**, and the common FLOPs procedure |
 | 🟢 | **Exact validation-selected confidence thresholds** | Record the numerical threshold selected for YOLO11n, D-FINE-N, and YOLO26n using the frozen validation-only procedure. | Evaluation reporting; the shared selection procedure is already frozen |

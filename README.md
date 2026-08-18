@@ -44,7 +44,7 @@
 > Longer videos naturally contribute more sampled frames under the uniform 1 FPS policy. Frames containing none of the target warning cues remain valid negative samples.
 
 > [!IMPORTANT]
-> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All five target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
+> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All four target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
 
 ---
 
@@ -66,7 +66,7 @@ dataset/images/
 > The frozen preprocessing rules and the unresolved non-integer-FPS sampling detail are maintained in [Benchmark scope, data & splits](./docs/quick-start.md).
 
 > [!IMPORTANT]
-> Annotation uses **Label Studio** (Community Edition) with one project (**DMS-Eval**) and one task per image. Subject, video, filename, and sampled-frame index are retained as task metadata. All 15,723 sampled frames are directly and manually annotated by the human expert annotator under the frozen 5-cue ontology to produce the authoritative master COCO ground truth in `dataset/annotations.json`. See the [annotation protocol](./docs/annotation-protocol.md) and [manual annotation guide (1-page PDF)](./docs/manual-annotation-guide.pdf).
+> Annotation uses **Label Studio** (Community Edition) with one project (**DMS-Eval**) and one task per image. Subject, video, filename, and sampled-frame index are retained as task metadata. All 15,723 sampled frames are directly and manually annotated by the human expert annotator under the frozen 4-cue ontology to produce the authoritative master COCO ground truth in `dataset/annotations.json`. See the [annotation protocol](./docs/annotation-protocol.md) and [manual annotation guide (1-page PDF)](./docs/manual-annotation-guide.pdf).
 
 ---
 
@@ -77,7 +77,7 @@ dataset/images/
 | Document | What it contains | Status covered |
 | :--- | :--- | :--- |
 | [**Benchmark scope, data & splits**](./docs/quick-start.md) | Frozen scope, preprocessing, subject splits, annotation format, frame naming, and future work | Frozen + resolve later |
-| [**Annotation protocol & cue ontology**](./docs/annotation-protocol.md) | Five warning cues, bounding-box rules, removed classes, and data-quality controls | Frozen |
+| [**Annotation protocol & cue ontology**](./docs/annotation-protocol.md) | Four warning cues, bounding-box rules, removed classes, and data-quality controls | Frozen |
 | [**Manual annotation field guide (PDF)**](./docs/manual-annotation-guide.pdf) | Single-page desktop PDF reference: hotkey cheat sheet, bounding-box extents, and decision matrix | Practical field guide |
 | [**Training protocol**](./docs/training-protocol.md) | Initialization, model-specific recipes, and shared training controls | Frozen |
 | [**Evaluation protocol**](./docs/evaluation-protocol.md) | Metrics, evaluator, test isolation, thresholding, checkpoint selection, runtime, and unresolved choices | Frozen + resolve later |
@@ -96,19 +96,17 @@ dataset/images/
 | :--- | :--- |
 | `yawning` | `drinking` |
 | `hand_over_mouth` | `phone_use` *(calling)* |
-| — | `head_turned_away` *(not focused forward / head down)* |
 
 <p align="center">
-  <img src="./assets/head_turned_away_annotation_example.png" alt="An example of our annotation of head_turned_away in Label Studio" width="210">
+  <img src="./assets/yawning_annotation_example.png" alt="An example of our annotation of yawning in Label Studio" width="210">
   <img src="./assets/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="210">
   <img src="./assets/phone_use_annotation_example.png" alt="An example of our annotation of phone_use in Label Studio" width="210"><br>
-  <sub><b>Figure 2.</b> Examples of our manual annotations in Label Studio: <code>head_turned_away</code> (left, cyan box), <code>hand_over_mouth</code> (center, purple box), and <code>phone_use</code> (right, pink box enclosing phone and hand held at ear in calling posture).</sub>
+  <sub><b>Figure 2.</b> Examples of our manual annotations in Label Studio: <code>yawning</code> (left, orange box around mouth), <code>hand_over_mouth</code> (center, purple box), and <code>phone_use</code> (right, pink box enclosing phone and hand held at ear in calling posture).</sub>
 </p>
 
 > [!NOTE]
 > **Ontological Design Decisions:**
-> - **`eyes_closed` Removal:** Single-frame 2D object detectors suffer from substantial false positives on momentary physiological blinks and downward road glances; robust eye-state tracking requires temporal models (e.g. multi-frame EAR).
-> - **`head_down` Merge:** Head-down posture is redundant as a standalone static class and represents an inherently temporal "falling asleep" / microsleep event; it is merged into `head_turned_away` as a unified inattention class (*driver not focused on the road forward*).
+> - **`eyes_closed` & Head Orientation Removal:** Single-frame 2D object detectors suffer from substantial false positives on momentary physiological blinks and downward road glances; robust eye-state tracking and head orientation require temporal sequence modeling.
 
 > [!TIP]
 > Cue definitions, bounding-box extents, exclusions, co-occurrence rules, and annotation-quality controls are maintained in the [annotation protocol](./docs/annotation-protocol.md).

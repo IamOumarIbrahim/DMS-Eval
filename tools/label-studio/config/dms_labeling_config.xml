@@ -2,13 +2,12 @@
   <!-- Main image viewport with zooming, brightness, and contrast controls -->
   <Image name="image" value="$image" zoom="true" zoomBy="1.5" brightnessControl="true" contrastControl="true"/>
 
-  <!-- 5 Frozen DMS-Eval Target Warning Cues -->
-  <Header value="DMS-Eval Target Warning Cues (1-5)"/>
+  <!-- 4 Frozen DMS-Eval Target Warning Cues -->
+  <Header value="DMS-Eval Target Warning Cues (1-4)"/>
   <RectangleLabels name="cues" toName="image" canRotate="false">
     <Label value="yawning" background="#FA8C16"/>
     <Label value="hand_over_mouth" background="#722ED1"/>
     <Label value="drinking" background="#1890FF"/>
     <Label value="phone_use" background="#EB2F96"/>
-    <Label value="head_turned_away" background="#13C2C2"/>
   </RectangleLabels>
 </View>

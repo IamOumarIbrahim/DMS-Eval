@@ -12,7 +12,7 @@
 
 - [x] Dataset, model set, input resolution, sampling policy, annotation format, and 8/3/3 subject allocation are frozen.
 - [x] The split unit is strictly subject-disjoint.
-- [x] All five target cues must occur in every split with roughly similar proportional representation based on per-subject frame counts.
+- [x] All four target cues must occur in every split with roughly similar proportional representation based on per-subject frame counts.
 - [x] The dataset-wide 640×640 crop is frozen at `x = 272`, `y = 71`, `width = 640`, `height = 640`.
 - [x] The frame-extraction pipeline is implemented under `scripts/`; generated images are not committed to Git.
 - [ ] Exact train, validation, and test subject IDs remain unresolved.
@@ -186,7 +186,7 @@ Bottom-right: (912, 711)
 > * Subject assignments must be **finalized in `splits.json` before any model training begins** and must never be altered based on validation or benchmark performance.
 
 > [!IMPORTANT]
-> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All five target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
+> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All four target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
 
 <details>
 <summary><strong>Show subject-assignment policy and split manifest</strong></summary>
@@ -197,8 +197,8 @@ Bottom-right: (912, 711)
 * Use the **annotated sampled frames** to determine each subject's target-cue distribution.
 * Measure cue distribution using **frame counts per cue**, not bounding-box counts.
 * If one sampled frame contains multiple target cues, count that frame **once toward each cue present**.
-* Keep the five target cues **roughly proportionally similar across training, validation, and test**.
-* **All five target cues must appear in all three splits:** training, validation, and test.
+* Keep the four target cues **roughly proportionally similar across training, validation, and test**.
+* **All four target cues must appear in all three splits:** training, validation, and test.
 * Do **not** additionally balance the total number of sampled frames between splits.
 * Select and freeze the exact subject IDs only after annotation is complete and per-subject cue counts are available.
 
@@ -261,7 +261,7 @@ dataset/
 The master COCO annotation file stores:
 
 * Sampled image information
-* Five target categories
+* Four target categories
 * Bounding boxes
 * Category IDs
 * Annotation IDs

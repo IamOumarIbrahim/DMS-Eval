@@ -38,23 +38,12 @@ or Math in Paper Title or Abstract.
 \end{abstract}
 
 \begin{IEEEkeywords}
-driver monitoring systems, driver drowsiness detection, driver distraction detection, lightweight object detection, benchmark evaluation, computer vision, YOLO, DETR, real-time edge AI
+driver monitoring systems, driver drowsiness detection, driver distraction detection, lightweight object detection, benchmark evaluation, computer vision
 \end{IEEEkeywords}
 
 \section{Introduction}
-In-cabin Driver Monitoring Systems (DMS) constitute a vital component of modern Advanced Driver Assistance Systems (ADAS) and autonomous vehicle safety suites, aiming to prevent roadway collisions through early visual detection of driver drowsiness and inattention. While high-level driver state assessment often leverages temporal recurrent or multi-frame sequence models, automotive edge deployments impose severe compute, memory, and latency constraints. Consequently, there is an urgent practical demand for lightweight, nano-scale 2D object detectors capable of executing real-time single-frame inference on embedded in-cabin hardware.
-
-To systematically evaluate modern compact detector paradigms under strictly controlled single-frame constraints, this paper introduces \textbf{DMS-Eval}, an empirical benchmark comparing real-time nano-scale object detectors. We evaluate leading single-stage convolutional detectors (Ultralytics YOLO11n \cite{yolo11_ultralytics} and Ultralytics YOLO26n \cite{yolo26_ultralytics}) against modern end-to-end Real-Time Detection Transformers (D-FINE-N \cite{peng2024dfine}).
-
-The benchmark is developed on real-cabin RGB video from the Driver Monitoring Dataset (DMD) \cite{ortega2020dmd}. Across 81 driver-facing videos from 14 volunteer participants, frames are sampled uniformly at 1~FPS and cropped to a frozen $640 \times 640$ spatial window ($x = 272, y = 71, w = 640, h = 640$) as illustrated in Fig.~\ref{fig_crop}, yielding a standardized dataset of 15,723 frames. Ground truth is constructed through 100\% direct manual expert annotation in Label Studio targeting 4 frozen visual warning cues (exemplified in Fig.~\ref{fig_annotation_examples}):
-\begin{enumerate}
-\item \texttt{yawning}: mouth region only (wide oral opening/distension);
-\item \texttt{hand\_over\_mouth}: full head/face enclosing the occluding hand;
-\item \texttt{drinking}: driver face and beverage container together in active consumption posture;
-\item \texttt{phone\_use}: handheld phone and interacting hand held to ear/head in calling posture.
-\end{enumerate}
-
-Under the controlled-comparison principle, all models are evaluated using identical data partitions under a strict 8 / 3 / 3 subject-disjoint split (8 Train, 3 Validation, 3 Test subjects) to prevent identity leakage, utilizing identical hardware (NVIDIA RTX 4060, 8~GB VRAM), batch size 1, 220 fine-tuning epochs without early stopping, fixed random seed (13), and FP16 automatic mixed precision. Optimal checkpoints and confidence thresholds ($\tau$) are selected strictly on the validation split prior to an isolated, single-pass test evaluation.
+This document is a model and instructions for \LaTeX.
+Please observe the conference page limits. For more information about how to become an IEEE Conference author or how to write your paper, please visit   IEEE Conference Author Center website: https://conferences.ieeeauthorcenter.ieee.org/.
 
 \subsection{Research Question and Scope}
 
@@ -63,6 +52,7 @@ This study is limited to \textbf{frame-level observable cues of driver drowsines
 \begin{quote}
 \textbf{RQ:} \textit{Under a controlled, compute-constrained evaluation, how do lightweight object detectors compare in detection accuracy, inference efficiency, and robustness when identifying visual cues associated with driver distraction and drowsiness under normal and low-light/nighttime driving conditions?}
 \end{quote}
+
 
 \section{Prepare Your Paper Before Styling}
 Before you begin to format your paper, first write and save the content as a 
@@ -78,7 +68,7 @@ for you.
 Define abbreviations and acronyms the first time they are used in the text, 
 even after they have been defined in the abstract. Abbreviations such as 
 IEEE, SI, MKS, CGS, ac, dc, and rms do not have to be defined. Do not use 
-abbreviations in the title or heads unless they are unavoidable. See Table~\ref{tab_abbr} for the primary abbreviations and acronyms used throughout the DMS-Eval benchmark.
+abbreviations in the title or heads unless they are unavoidable.
 
 \subsection{Units}
 \begin{itemize}
@@ -194,58 +184,37 @@ figures and tables after they are cited in the text. Use the abbreviation
 ``Fig.~\ref{fig}'', even at the beginning of a sentence.
 
 \begin{table}[htbp]
-\caption{List of Abbreviations and Acronyms}
+\caption{Table Type Styles}
 \begin{center}
-\begin{tabular}{|l|l|}
+\begin{tabular}{|c|c|c|c|}
 \hline
-\textbf{Abbreviation} & \textbf{Definition / Description} \\
+\textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
+\cline{2-4} 
+\textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
 \hline
-DMS & Driver Monitoring System \\
-DMD & Driver Monitoring Dataset \\
-YOLO & You Only Look Once \\
-DETR & DEtection TRansformer \\
-mAP & Mean Average Precision \\
-FPS & Frames Per Second \\
-FLOPs & Floating Point Operations \\
-GFLOPs & Giga Floating Point Operations ($10^9$ FLOPs) \\
-NMS & Non-Maximum Suppression \\
-EAR & Eye Aspect Ratio \\
-COCO & Common Objects in Context \\
-IoU & Intersection over Union \\
-AMP & Automatic Mixed Precision (FP16) \\
-VRAM & Video Random Access Memory \\
+copy& More table copy$^{\mathrm{a}}$& &  \\
 \hline
+\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
 \end{tabular}
-\label{tab_abbr}
+\label{tab1}
 \end{center}
 \end{table}
 
-\paragraph{Benchmark Status and Pending Updates}
-The following sections document benchmark components that are frozen alongside components awaiting empirical execution:
-\begin{itemize}
-\item \textbf{Dataset Partitions}: 14 subjects with 8/3/3 subject-disjoint split. \texttt{[TO BE UPDATED: Exact Train, Validation, and Test Subject ID allocation in splits.json]}.
-\item \textbf{Sampling Implementation}: Uniform 1~FPS sampling policy. \texttt{[TO BE UPDATED: Exact mapping rule from $\approx 29.76$~FPS source video to 1~FPS extracted frames]}.
-\item \textbf{Software Environment}: NVIDIA RTX 4060 (8~GB VRAM). \texttt{[TO BE UPDATED: Exact pinned software versions for CUDA, PyTorch, cuDNN, Ultralytics, D-FINE commit, and THOP]}.
-\item \textbf{Validation Calibration}: Shared F1-maximization threshold sweep. \texttt{[TO BE UPDATED: Validation-selected optimal confidence thresholds ($\tau_{\text{YOLO11n}}, \tau_{\text{D-FINE-N}}, \tau_{\text{YOLO26n}}$)]}.
-\item \textbf{Detection Benchmark Results}: Shared evaluator ($mAP@0.5:0.95$, $mAP@0.5$, Precision, Recall, F1). \texttt{[TO BE UPDATED: Empirical test-set detection performance metrics across candidate models]}.
-\item \textbf{Inference and Footprint Metrics}: FP16 median latency, throughput, THOP GFLOPs, disk size. \texttt{[TO BE UPDATED: Profiling measurements on target RTX 4060 GPU]}.
-\end{itemize}
-
 \begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{640X640.png}}
-\caption{In-cabin driver-facing frame extraction on DMD video with standardized $640 \times 640$ spatial window cropping ($x=272, y=71, w=640, h=640$), centering the driver's head, face, and torso for low-latency single-frame object detection.}
-\label{fig_crop}
+\centerline{\includegraphics{fig1.png}}
+\caption{Example of a figure caption.}
+\label{fig}
 \end{figure}
 
-\begin{figure}[htbp]
-\centerline{
-  \includegraphics[width=0.31\columnwidth]{yawning_annotation_example.png}\hfil
-  \includegraphics[width=0.31\columnwidth]{hand_over_mouth_annotation_example.png}\hfil
-  \includegraphics[width=0.31\columnwidth]{phone_use_annotation_example.png}
-}
-\caption{Visual demonstrations of our manual annotations in Label Studio under the frozen 4-cue ontology: (left) \texttt{yawning} (orange bounding box tightly surrounding the mouth aperture only), (center) \texttt{hand\_over\_mouth} (purple bounding box enclosing full head, face, and occluding hand), and (right) \texttt{phone\_use} (pink bounding box enclosing hand and handheld device at the ear in calling posture).}
-\label{fig_annotation_examples}
-\end{figure}
+Figure Labels: Use 8 point Times New Roman for Figure labels. Use words 
+rather than symbols or abbreviations when writing Figure axis labels to 
+avoid confusing the reader. As an example, write the quantity 
+``Magnetization'', or ``Magnetization, M'', not just ``M''. If including 
+units in the label, present them within parentheses. Do not label axes only 
+with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization 
+\{A[m(1)]\}'', not just ``A/m''. Do not label axes with a ratio of 
+quantities and units. For example, write ``Temperature (K)'', not 
+``Temperature/K''.
 
 \section*{Acknowledgment}
 

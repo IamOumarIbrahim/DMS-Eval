@@ -1,4 +1,17 @@
-﻿## [2026-08-16 00:22:24] - Improve README navigation and license visibility
+## [2026-08-18 19:15:00] - Refine warning cue ontology to 4 frozen target cues
+- Establish a focused 4-cue benchmark ontology (`yawning`, `hand_over_mouth`, `drinking`, `phone_use`)
+- Update `docs/annotation-protocol.md`, `README.md`, `docs/quick-start.md`, `docs/execution-checklist.md`, and `docs/evaluation-protocol.md` to reflect the 4-cue ontology
+- Update Label Studio XML configuration and PDF field guide generator
+- Clean legacy annotation logs and backups
+- Complete full-repository audit verifying zero residual occurrences across documentation and code
+
+## [2026-08-18 18:49:00] - Add yawning manual annotation example to documentation
+- Add `yawning_annotation_example.png` visual asset illustrating Label Studio mouth-region bounding box
+- Document `yawning` annotation example as Figure 1 in annotation protocol
+- Update figure numbering across annotation protocol rules
+- Add `yawning` annotation example to README Figure 2 gallery with updated captions
+
+## [2026-08-16 00:22:24] - Improve README navigation and license visibility
 - Add MIT license badge beside project status
 - Add table of contents for key sections
 - Align license heading with README structure
