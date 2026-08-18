@@ -74,6 +74,11 @@
 * **Exclusions:** Bottles or cups resting passively in cup holders or consoles without active consumption posture.
 * Focus is strictly on **active drinking interaction** (face + bottle).
 
+<p align="center">
+  <img src="../assets/drinking_annotation_example.png" alt="An example of our annotation of drinking in Label Studio" width="420"><br>
+  <sub><b>Figure 3.</b> An example of our annotation of <code>drinking</code> in Label Studio (enclosing driver face and beverage container together in active consumption posture).</sub>
+</p>
+
 ### `phone_use`
 
 > Annotate when the driver is actively engaged in a handheld phone call (holding the phone to the ear/head).
@@ -87,7 +92,7 @@
 
 <p align="center">
   <img src="../assets/phone_use_annotation_example.png" alt="An example of our annotation of phone_use in Label Studio" width="420"><br>
-  <sub><b>Figure 3.</b> An example of our annotation of <code>phone_use</code> in Label Studio (enclosing handheld phone and interacting hand held at the ear in calling posture).</sub>
+  <sub><b>Figure 4.</b> An example of our annotation of <code>phone_use</code> in Label Studio (enclosing handheld phone and interacting hand held at the ear in calling posture).</sub>
 </p>
 
 </details>

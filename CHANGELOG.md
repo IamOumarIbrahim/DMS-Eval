@@ -1,3 +1,9 @@
+## [2026-08-18 23:26:00] - Add drinking manual annotation visual example to documentation and manuscript
+- Save `drinking_annotation_example.png` visual asset illustrating Label Studio face + beverage container bounding box
+- Document `drinking` annotation example as Figure 3 in `docs/annotation-protocol.md` and update figure numbering
+- Update `README.md` Figure 2 gallery to display all 4 target warning cues
+- Update `manuscript/main.tex` Fig. 2 to include all 4 visual examples with comprehensive caption
+
 ## [2026-08-18 22:22:00] - Document DMD three-folder source composition and negative frame richness
 - Document inclusion of all three DMD session categories (`distraction`, `drowsiness`, `gaze`) across 81 videos
 - Document negative frame abundance rationale to prevent lightweight model overtraining on positive targets

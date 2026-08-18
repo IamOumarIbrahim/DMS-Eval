@@ -99,10 +99,11 @@ dataset/images/
 | `hand_over_mouth` | `phone_use` *(calling)* |
 
 <p align="center">
-  <img src="./assets/yawning_annotation_example.png" alt="An example of our annotation of yawning in Label Studio" width="210">
-  <img src="./assets/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="210">
-  <img src="./assets/phone_use_annotation_example.png" alt="An example of our annotation of phone_use in Label Studio" width="210"><br>
-  <sub><b>Figure 2.</b> Examples of our manual annotations in Label Studio: <code>yawning</code> (left, orange box around mouth), <code>hand_over_mouth</code> (center, purple box), and <code>phone_use</code> (right, pink box enclosing phone and hand held at ear in calling posture).</sub>
+  <img src="./assets/yawning_annotation_example.png" alt="An example of our annotation of yawning in Label Studio" width="160">
+  <img src="./assets/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="160">
+  <img src="./assets/drinking_annotation_example.png" alt="An example of our annotation of drinking in Label Studio" width="160">
+  <img src="./assets/phone_use_annotation_example.png" alt="An example of our annotation of phone_use in Label Studio" width="160"><br>
+  <sub><b>Figure 2.</b> Examples of our manual annotations in Label Studio across the 4 frozen target warning cues: <code>yawning</code> (orange box around mouth), <code>hand_over_mouth</code> (purple box), <code>drinking</code> (blue box enclosing face + beverage container), and <code>phone_use</code> (pink box enclosing phone and hand held at ear in calling posture).</sub>
 </p>
 
 > [!NOTE]
