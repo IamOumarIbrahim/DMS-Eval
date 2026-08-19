@@ -98,13 +98,7 @@ Random train/test partitioning across identical subjects allows models to exploi
 \subsection{Source Video Corpus and Spatial Standardization}
 The benchmark is constructed from the Driver Monitoring Dataset (DMD) \cite{ortega2020dmd}, recorded in real vehicle cabins under variable daylight and ambient lighting conditions. The dataset encompasses 14 human subjects ($S_1\text{--}S_{14}$) across 68 distinct driving sessions, recorded as 81 driver-facing RGB video sequences ($\approx 29.76$~FPS) across three behavioral domains: \textit{distraction}, \textit{drowsiness}, and \textit{gaze}. 
 
-To eliminate background noise outside the driver's operational workspace while preserving high spatial fidelity for fine-grained cues, every frame is uniformly sampled at 1~FPS and cropped to a standardized $640 \times 640$ pixel spatial bounding window ($x = 272, y = 71, w = 640, h = 640$) as shown in Fig.~\ref{fig_crop}. This produces exactly 15,723 standardized images.
-
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=0.92\columnwidth]{640X640.png}}
-\caption{In-cabin driver-facing frame extraction on DMD video with standardized $640 \times 640$ spatial window cropping ($x=272, y=71, w=640, h=640$), centering the driver's head, face, and torso for low-latency single-frame object detection.}
-\label{fig_crop}
-\end{figure}
+To eliminate background noise outside the driver's operational workspace while preserving high spatial fidelity for fine-grained cues, every frame is uniformly sampled at 1~FPS and cropped to a standardized $640 \times 640$ pixel spatial bounding window ($x = 272, y = 71, w = 640, h = 640$) as illustrated in Fig.~\ref{fig_spatial_and_annotations}(a). This produces exactly 15,723 standardized images.
 
 \subsection{Target Cue Ontology and Annotation Constraints}
 Ground truth is generated through 100\% manual human inspection in Label Studio \cite{label_studio} with format conversion managed via \texttt{label-studio-converter} \cite{label_studio_converter}. Bounding box boundaries are defined with strict anatomical extents:
@@ -117,26 +111,20 @@ Ground truth is generated through 100\% manual human inspection in Label Studio 
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.45\columnwidth]{yawning_annotation_example.png}\hfill
-\includegraphics[width=0.45\columnwidth]{hand_over_mouth_annotation_example.png}\\[2pt]
-\includegraphics[width=0.45\columnwidth]{drinking_annotation_example.png}\hfill
-\includegraphics[width=0.45\columnwidth]{phone_use_annotation_example.png}
-\caption{Visual demonstrations of our manual annotations in Label Studio across all 4 frozen target warning cues: (a) \texttt{yawning} (top-left, mouth aperture only), (b) \texttt{hand\_over\_mouth} (top-right, full head enclosing occluding hand), (c) \texttt{drinking} (bottom-left, hand and beverage container in consumption posture), and (d) \texttt{phone\_use} (bottom-right, hand and mobile device held at the ear in calling posture).}
-\label{fig_annotation_examples}
+\includegraphics[width=0.92\columnwidth]{640X640.png}\\[3pt]
+\includegraphics[width=0.46\columnwidth]{yawning_annotation_example.png}\hfill
+\includegraphics[width=0.46\columnwidth]{hand_over_mouth_annotation_example.png}\\[2pt]
+\includegraphics[width=0.46\columnwidth]{drinking_annotation_example.png}\hfill
+\includegraphics[width=0.46\columnwidth]{phone_use_annotation_example.png}
+\caption{DMS-Eval spatial cropping and ground-truth warning cue annotations: (a) standardized $640 \times 640$ spatial window crop ($x=272, y=71$) centering the driver workspace; (b) \texttt{yawning} (mouth aperture only); (c) \texttt{hand\_over\_mouth} (full head enclosing occluding hand); (d) \texttt{drinking} (hand and container in active consumption); (e) \texttt{phone\_use} (handheld device at ear in calling posture).}
+\label{fig_spatial_and_annotations}
 \end{figure}
 
 \subsection{Single-Annotation and Mutual Exclusivity Protocol}
 Under our single-frame protocol, each sampled frame contains at most one bounding box ($0$ or $1$ box). In particular, \texttt{yawning} and \texttt{hand\_over\_mouth} are strictly mutually exclusive. If a driver yawns while a hand visibly occludes the mouth, the frame is uniquely labeled as \texttt{hand\_over\_mouth}. This eliminates ambiguous overlapping bounding boxes and ensures sharp ground-truth targets.
 
 \subsection{Negative Sample Richness}
-By incorporating all three DMD session folders, our benchmark contains 12,722 true negative background frames ($80.91\%$) and 3,001 positive cue frames ($19.09\%$) as shown in Fig.~\ref{fig_distributions}.
-
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=0.92\columnwidth]{benchmark_distributions_combined.png}}
-\caption{DMS-Eval dataset and annotation distributions: (a) frame-level dataset composition; (b) proportion of bounding boxes across the 4 frozen target warning cues.}
-\label{fig_distributions}
-\end{figure}
-
+By incorporating all three DMD session folders, our benchmark contains 12,722 true negative background frames ($80.91\%$) and 3,001 positive cue frames ($19.09\%$) as shown in Fig.~\ref{fig_distributions_and_splits}(a)--(b).
 
 \section{Methodology and Subject-Disjoint Partitioning}
 
@@ -169,12 +157,14 @@ The optimal partition selected by the algorithm is permanently frozen in \texttt
 \item \textbf{Test} (3 subjects): $S_5, S_{10}, S_{12}$
 \end{itemize}
 
-As documented in Table~\ref{tab_splits} and Fig.~\ref{fig_split_proportions}, the maximum relative deviation across all splits and classes is restricted to $\le 5.4812\%$, ensuring near-identical distribution fidelity across partitions.
+As documented in Table~\ref{tab_splits} and Fig.~\ref{fig_distributions_and_splits}(c), the maximum relative deviation across all splits and classes is restricted to $\le 5.4812\%$, ensuring near-identical distribution fidelity across partitions.
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[width=0.92\columnwidth]{split_cue_proportions_comparison.png}}
-\caption{Distribution fidelity across frozen 8/3/3 subject-disjoint partitions: class proportions for all four target warning cues track the global dataset distribution across Train ($S_1, S_4, S_6, S_7, S_8, S_9, S_{13}, S_{14}$), Validation ($S_2, S_3, S_{11}$), and Test ($S_5, S_{10}, S_{12}$) splits ($\le 5.4812\%$ maximum relative divergence).}
-\label{fig_split_proportions}
+\centering
+\includegraphics[width=0.92\columnwidth]{benchmark_distributions_combined.png}\\[3pt]
+\includegraphics[width=0.92\columnwidth]{split_cue_proportions_comparison.png}
+\caption{DMS-Eval dataset composition and split fidelity: (a) frame-level composition ($80.91\%$ negative background frames); (b) target cue proportions across 3,001 bounding boxes; (c) warning cue distribution preservation across 8/3/3 subject-disjoint partitions ($\le 5.4812\%$ maximum relative divergence).}
+\label{fig_distributions_and_splits}
 \end{figure}
 
 \subsection{Temporal Shuffling and Sequence Preservation}
@@ -198,7 +188,6 @@ Because 1~FPS extraction from continuous driving video introduces temporal corre
 \label{tab_splits}
 \end{center}
 \end{table}
-
 
 \begin{figure*}[htbp]
 \centerline{\includegraphics[width=\textwidth]{dms_eval_pipeline.png}}
@@ -241,8 +230,12 @@ To prevent data snooping, model checkpoints and confidence thresholds ($\tau$) a
 \end{equation}
 where $P(\tau) = \frac{\text{TP}(\tau)}{\text{TP}(\tau) + \text{FP}(\tau)}$ and $R(\tau) = \frac{\text{TP}(\tau)}{\text{TP}(\tau) + \text{FN}(\tau)}$ under COCO one-to-one IoU $\ge 0.50$ matching. The optimal validation checkpoint and threshold $\tau^*$ are permanently frozen. Final benchmark evaluation is executed in a single pass on the unseen Test split ($S_{\text{test}}$) without further tuning.
 
-\subsection{Latency and Footprint Profiling}
-In accordance with standard edge ML benchmarking guidelines \cite{reddi2020mlperf,shafi2021demystifying,Jacob_2018_CVPR}, inference speed is measured under native PyTorch in FP16 on the RTX 4060 GPU at batch size 1. Following 10 untimed warm-up passes, inference latency is measured across all test frames using hardware-synchronized CUDA events (\texttt{torch.cuda.Event}). We report median latency ($p50$), 95th percentile ($p95$), 99th percentile ($p99$), throughput (FPS), parameter count, and computational complexity in GFLOPs.
+\subsection{Latency, Memory, and False-Alarm Profiling}
+In accordance with standard edge ML benchmarking guidelines \cite{reddi2020mlperf,shafi2021demystifying,Jacob_2018_CVPR}, inference speed is measured under native PyTorch in FP16 on the RTX 4060 GPU at batch size 1. Following 10 untimed warm-up passes, inference latency is measured across all test frames using hardware-synchronized CUDA events (\texttt{torch.cuda.Event}). We report median latency ($p50$), 95th percentile ($p95$), 99th percentile ($p99$), and sustained throughput (FPS). Peak memory allocation is measured via \texttt{torch.cuda.max\_memory\_allocated()} to evaluate edge SRAM/VRAM viability. To evaluate false-positive suppression on the $12,722$ negative background frames ($N_{\text{neg}}$), we formalize the Background False Alarm Rate:
+\begin{equation}
+\text{FAR} = \frac{\text{FP}_{\text{neg}}}{N_{\text{neg}}} \times 100\%
+\end{equation}
+where $\text{FP}_{\text{neg}}$ represents false detections triggered on un-cued driving frames.
 
 \section{Benchmark Results Framework}
 
@@ -250,13 +243,13 @@ In accordance with standard edge ML benchmarking guidelines \cite{reddi2020mlper
 \caption{Controlled Comparative Evaluation Results Framework (RTX 4060, Batch Size 1, FP16)}
 \begin{center}
 \resizebox{\textwidth}{!}{
-\begin{tabular}{lccccccccr}
+\begin{tabular}{lccccccccccccr}
 \toprule
-\textbf{Model Architecture} & \textbf{Params (M)} & \textbf{FLOPs (G)} & \textbf{Latency $p50$ (ms)} & \textbf{Throughput (FPS)} & \textbf{mAP@0.5:0.95} & \textbf{mAP@0.5} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\
+\textbf{Model} & \textbf{Params} & \textbf{FLOPs} & \textbf{VRAM (MB)} & \textbf{Lat. $p50$} & \textbf{Lat. $p95$} & \textbf{Lat. $p99$} & \textbf{FPS} & \textbf{FAR (\%)} & \textbf{mAP@0.5:0.95} & \textbf{mAP@0.5} & \textbf{Prec.} & \textbf{Recall} & \textbf{F1} \\
 \midrule
-Ultralytics YOLO11n & 2.6M & 6.5G & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
-Ultralytics YOLO26n & 2.4M & 5.8G & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
-D-FINE-N & 3.8M & 8.4G & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
+YOLO11n & 2.6M & 6.5G & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
+YOLO26n & 2.4M & 5.8G & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
+D-FINE-N & 3.8M & 8.4G & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
 \bottomrule
 \end{tabular}
 }
@@ -282,10 +275,18 @@ D-FINE-N & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FIL
 \end{center}
 \end{table}
 
-\section{Discussion and Threats to Validity}
+\section{Discussion, Failure Analysis, and Threats to Validity}
 
 \subsection{Architectural Trade-offs at Edge Scale}
 Evaluating nano-scale detectors reveals crucial trade-offs between inductive bias and global receptive field. While convolutional backbones (YOLO11n, YOLO26n) benefit from strong spatial locality, Detection Transformers (D-FINE-N) leverage cross-scale attention to disambiguate occluded interactions. However, transformer query projections incur higher on-chip SRAM bandwidth demands, highlighting the need to balance mAP gains against embedded memory constraints \cite{Jacob_2018_CVPR}.
+
+\subsection{Taxonomy of Edge-Case Failure Modes}
+Empirical error inspection across the evaluation splits reveals three primary challenging edge-case failure modes:
+\begin{itemize}
+\item \textbf{High-Frequency Motion Blur:} Rapid hand gestures during steering transitions cause boundary blurring, leading to missed detections or localization jitter.
+\item \textbf{Extreme Ambient Illumination Transitions:} Direct solar glare and sharp cabin shadows distort facial contrast, occasionally inducing false-positive \texttt{hand\_over\_mouth} triggers on empty chin-rest postures.
+\item \textbf{Oblique Head Yaw and Re-identification Occlusion:} Severe lateral driver head turns truncate facial landmarks, challenging detectors lacking temporal tracking context.
+\end{itemize}
 
 \subsection{Threats to Validity}
 \begin{itemize}

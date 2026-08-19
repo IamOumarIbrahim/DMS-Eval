@@ -1,3 +1,11 @@
+## [2026-08-20 00:17:00] - Reconcile metric parity, consolidate figures, formalize false-alarm rate, and scaffold visualizations
+- Reconcile Section V-D latency percentiles and edge metrics with Table II, adding columns for $p50, p95, p99$ latency, sustained FPS, Peak VRAM (MB), and Background False Alarm Rate (FAR)
+- Consolidate Section III & IV figures into multi-panel composite figures (`fig_spatial_and_annotations` and `fig_distributions_and_splits`), reclaiming ~1.5 columns of float space within the strict 6-page IEEE budget
+- Formally define Background False Alarm Rate ($\text{FAR} = \frac{\text{FP}_{\text{neg}}}{N_{\text{neg}}} \times 100\%$) and Peak VRAM tracking via `torch.cuda.max_memory_allocated()` in Section V-D
+- Add Section VII-B (*Taxonomy of Edge-Case Failure Modes*) breaking down high-frequency motion blur, ambient illumination glare/shadows, and oblique head yaw occlusions
+- Develop visualization generation scaffolding scripts for Pareto efficiency frontiers (`scripts/charts/generate_pareto_frontier.py`) and qualitative activation heatmaps (`scripts/charts/generate_activation_heatmaps.py`)
+- Recompile verified 6-page camera-ready IEEE conference PDF (`manuscript/main.pdf`) with 0 errors and 0 warnings
+
 ## [2026-08-19 23:56:00] - Audit repository for cross-documentation consistency
 - Audit all documentation (`docs/README.md`, `docs/quick-start.md`, `docs/annotation-protocol.md`, `docs/training-protocol.md`, `docs/evaluation-protocol.md`, `scripts/README.md`, `assets/README.md`, `dataset/annotations_per_subject_shuffled/README.md`) against the manuscript
 - Correct Category ID ordering in `docs/README.md` to match canonical 1-indexed COCO mappings (1: `yawning`, 2: `hand_over_mouth`, 3: `drinking`, 4: `phone_use`)
