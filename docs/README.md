@@ -28,10 +28,10 @@ Welcome to the comprehensive technical documentation for **DMS-Eval**, a control
 
 | Cue Class | Category ID | Visual Cue Definition | Bounding Box Extent |
 | :--- | :---: | :--- | :--- |
-| **`phone_use`** | 1 | Driver holding handheld mobile phone to the ear in active call posture | Hand + phone at ear |
-| **`drinking`** | 2 | Driver actively drinking from a bottle, cup, or can brought to the mouth | Hand + bottle together |
-| **`yawning`** | 3 | Visibly active yawning distension / mouth opening | Mouth region only |
-| **`hand_over_mouth`** | 4 | Hand or fingers visibly covering/occluding the mouth region | Full head and face |
+| **`yawning`** | 1 | Visibly active yawning distension / mouth opening | Mouth region only |
+| **`hand_over_mouth`** | 2 | Hand or fingers visibly covering/occluding the mouth region | Full head and face |
+| **`drinking`** | 3 | Driver actively drinking from a bottle, cup, or can brought to the mouth | Hand + bottle together |
+| **`phone_use`** | 4 | Driver holding handheld mobile phone to the ear in active call posture | Hand + phone at ear |
 
 </div>
 

@@ -68,7 +68,7 @@ python scripts/split_annotations_per_subject.py
 ---
 
 ### 4. `balance_splits.py` — Subject-Disjoint Partition Optimizer
-Evaluates all $\binom{14}{8} \times \binom{6}{3} = 60{,}060$ possible 8/3/3 subject partitions to find the globally optimal split that preserves exact class balance, subject disjointness ($S_{\text{train}} \cap S_{\text{val}} = \emptyset$, etc.), and target frame proportions (70.6% Train, 15.0% Val, 14.4% Test).
+Evaluates all $\binom{14}{8} \times \binom{6}{3} = 60{,}060$ possible 8/3/3 subject partitions to find the globally optimal split that preserves exact class balance, subject disjointness ($S_{\text{train}} \cap S_{\text{val}} = \emptyset$, etc.), and matching target frame and cue distributions (57.8% Train, 21.8% Val, 20.4% Test; $\le 5.48\%$ relative divergence).
 
 ```bash
 # Run exhaustive split balance search and verify dataset/splits.json

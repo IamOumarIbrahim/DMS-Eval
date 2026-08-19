@@ -1,3 +1,9 @@
+## [2026-08-19 23:56:00] - Audit repository for cross-documentation consistency
+- Audit all documentation (`docs/README.md`, `docs/quick-start.md`, `docs/annotation-protocol.md`, `docs/training-protocol.md`, `docs/evaluation-protocol.md`, `scripts/README.md`, `assets/README.md`, `dataset/annotations_per_subject_shuffled/README.md`) against the manuscript
+- Correct Category ID ordering in `docs/README.md` to match canonical 1-indexed COCO mappings (1: `yawning`, 2: `hand_over_mouth`, 3: `drinking`, 4: `phone_use`)
+- Correct partition percentages in `scripts/README.md` to match verified benchmark values (57.8% Train, 21.8% Val, 20.4% Test; $\le 5.48\%$ relative divergence)
+- Verify 100% numerical and ontological parity across entire repository
+
 ## [2026-08-19 23:53:00] - Remove social preview image embed from README header
 - Remove `assets/branding/socialpreview.png` header embed from `README.md` while preserving the file in `assets/branding/`
 - Streamline repository landing page presentation
