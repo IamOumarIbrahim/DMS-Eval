@@ -1,3 +1,7 @@
+## [2026-08-19 23:51:00] - Align Acknowledgment section with open-source tool attribution and placeholders
+- Align `\section*{Acknowledgment}` in `manuscript/main.tex` with repository attribution standards: acknowledging the open-source architectures and tools (Ultralytics YOLO11/YOLO26, D-FINE, Label Studio) and placing institutional/grant funding as a standardized `[TO_BE_FILLED]` placeholder
+- Recompile verified 6-page IEEE conference PDF (`manuscript/main.pdf`) with 0 errors and 0 undefined citations/references
+
 ## [2026-08-19 23:45:00] - Streamline manuscript narrative and eliminate unnecessary redundancies
 - Streamline Introduction by removing repetitive low-level implementation lists (crop offsets, bounding box lists, split parameters) that are formalized in Sections III, IV, and V
 - Polish Section II (Related Work) to remove self-referential meta-pointers and strengthen the discussion on subject biometric leakage
