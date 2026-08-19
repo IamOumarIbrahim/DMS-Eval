@@ -171,6 +171,7 @@ Direct manual human annotation of all 15,723 frames is 100% complete and verifie
 
 ---
 
+<a id="behavioral-domains--target-cue-definitions"></a>
 ## Behavioral Domains & Target Cue Definitions
 
 > The benchmark categorizes the 4 warning cues across 2 core driver behavioral domains:
@@ -215,6 +216,7 @@ Direct manual human annotation of all 15,723 frames is 100% complete and verifie
 
 ---
 
+<a id="annotation--data-quality-controls"></a>
 ## Annotation & Data Quality Controls
 
 ### 🧊 Frozen

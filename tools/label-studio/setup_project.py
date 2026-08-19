@@ -51,7 +51,7 @@ def get_or_create_user_and_org():
         org = user.active_organization or Organization.objects.first()
     return user, org
 
-def setup_project(title="DMS-Eval Benchmark Annotation (15k Frames)"):
+def setup_project(title="DMS-Eval Benchmark Annotation (15k Frames)", clean: bool = False):
     user, org = get_or_create_user_and_org()
 
     with open(config_file, 'r', encoding='utf-8') as f:
@@ -69,6 +69,10 @@ def setup_project(title="DMS-Eval Benchmark Annotation (15k Frames)"):
     if not created:
         project.label_config = label_config
         project.save()
+
+    if clean:
+        Task.objects.filter(project=project).delete()
+        print(f"Cleared existing tasks from project '{project.title}'.")
 
     # Configure LocalFilesImportStorage pointing to dataset directory
     dataset_path = str((repo_root / 'dataset').resolve())
@@ -90,5 +94,5 @@ if __name__ == '__main__':
     parser.add_argument("--clean", action="store_true", help="Clean existing tasks before setup")
     args = parser.parse_args()
 
-    project = setup_project()
+    project = setup_project(clean=args.clean)
     print("\nReady for 15,000 image dataset labeling!")

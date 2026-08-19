@@ -48,12 +48,13 @@
 | **Split timing** | Finalized prior to training | Permanent partition freeze |
 
 > [!NOTE]
-> * **Source DMD Session Composition:** The original Driver Monitoring Dataset (DMD) contains three distinct session folders: `distraction`, `drowsiness`, and `gaze`. DMS-Eval incorporates all 81 videos across all three session folders.
+> * **Source DMD Session Composition:** The original Driver Monitoring Dataset (DMD) contains three distinct session folders: `distraction`, `drowsiness`, and `gaze` across 81 video recordings. DMS-Eval incorporates all 68 public driver-facing video sessions across the 14 participants.
 > * **Negative Frame Abundance & Overfitting Prevention:** Retaining the `gaze` session videos alongside safe driving intervals within `distraction` and `drowsiness` provides a large natural corpus of true negative background frames (0 bounding boxes). This rich abundance of negative frames is essential to prevent compact object detectors from overtraining on positive targets, ensuring models maintain low false-positive rates during alert driving and normal gaze/mirror checks.
 > * **Proportional Frame Yield:** Longer videos naturally contribute more sampled frames than shorter videos due to the uniform 1 FPS temporal sampling across full video durations.
 
 ---
 
+<a id="frame-extraction--preprocessing"></a>
 ## Frame Extraction & Preprocessing
 
 ### 🧊 Frozen
@@ -66,7 +67,7 @@
 | :--- | :--- | :--- |
 | **Source RGB Video Resolution** | 1280×720 | Source dimensions before the dataset-wide crop |
 | **Source RGB Video File Type** | MP4 | RGB-face source videos |
-| **Total RGB-Face Videos** | 81 | Dataset-wide source-video count |
+| **Total RGB-Face Videos** | 68 (14 Subjects) / 81 (Full Study) | 68 public face video sessions across the 14 subjects (from 81 total study recordings) |
 | **Camera Framing** | Effectively consistent | Supports one unchanged dataset-wide crop |
 | **Source Video Frame Rate** | 29.76 FPS | Native temporal rate across synchronized streams |
 | **Video Duration Range** | 55.28–519.39 s | Natural session lengths across 14 volunteer participants |

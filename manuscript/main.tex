@@ -70,7 +70,7 @@ To close the identified gap, this paper will make four contributions:
 \begin{itemize}
 \item \textbf{First Cross-Paradigm Nano-Scale DMS Benchmark:} The first controlled comparison between nano-scale CNNs (YOLO11n, YOLO26n) and a nano-scale DETR (D-FINE-N) for in-cabin driver cue detection with spatial bounding box localization.
 \item \textbf{Rigorous Subject-Disjoint Data Curation:} 15,723 frames ($640\times640$) with 100\% manual annotation across 4 warning cues and 80.91\% naturalistic negatives, partitioned via exhaustive combinatorial optimization ($\le 5.48\%$ divergence).
-\item \textbf{Unified Precision--Efficiency Protocol:} Identical hardware (RTX 4060), batch size~1, 220 epochs, FP16 AMP, with detection accuracy and hardware-synchronized latency ($p50$/$p95$/$p99$) reported jointly.
+\item \textbf{Unified Precision--Efficiency Protocol:} Identical hardware (RTX 4060), physical batch size~1 with gradient accumulation across 32 steps, 220 epochs, FP16 AMP, with detection accuracy and hardware-synchronized latency ($p50$/$p95$/$p99$) reported jointly.
 \item \textbf{Open Reproducibility:} Public release of all COCO annotations, partitioning scripts, and evaluation tooling.
 \end{itemize}
 
@@ -196,6 +196,7 @@ Because 1~FPS extraction from continuous driving video introduces temporal corre
 \end{figure*}
 
 \section{Experimental Setup and Evaluation Protocol}
+The overall end-to-end benchmark methodology, spanning dataset ingestion, subject-disjoint partitioning, training controls, validation calibration, and isolated test evaluation, is illustrated in Fig.~\ref{fig_pipeline}.
 
 \subsection{Evaluated Model Architectures}
 We evaluate three state-of-the-art nano-scale real-time object detectors:
@@ -215,7 +216,7 @@ We evaluate three state-of-the-art nano-scale real-time object detectors:
 All models are fine-tuned under strictly locked shared controls:
 \begin{itemize}
 \item \textbf{Fine-Tuning Budget}: Exactly 220 epochs without early stopping.
-\item \textbf{Batch Size}: Batch size = 1 (gradient accumulation disabled) to emulate real-time edge frame ingestion.
+\item \textbf{Batch Size \& Gradient Dynamics}: Physical batch size is strictly locked to 1 to emulate real-time edge frame ingestion, paired with gradient accumulation across 32 steps (nominal batch size 32, \texttt{nbs=32}) to stabilize Batch Normalization running statistics and optimization trajectories on GPU hardware.
 \item \textbf{Deterministic Seed}: Random seed fixed to 13 across PyTorch, CUDA, and CuDNN.
 \item \textbf{Precision}: FP16 Automatic Mixed Precision (AMP).
 \item \textbf{Hardware Platform}: Dedicated NVIDIA GeForce RTX 4060 GPU (8~GB VRAM).
@@ -238,6 +239,7 @@ In accordance with standard edge ML benchmarking guidelines \cite{reddi2020mlper
 where $\text{FP}_{\text{neg}}$ represents false detections triggered on un-cued driving frames.
 
 \section{Benchmark Results Framework}
+The controlled comparative evaluation results across detection accuracy, hardware runtime efficiency, peak memory allocation, and false-alarm suppression on the unseen test split ($S_{\text{test}}$) are reported in Table~\ref{tab_results}. Table~\ref{tab_per_class} details the fine-grained per-class Average Precision breakdown across the four target warning cues.
 
 \begin{table*}[htbp]
 \caption{Controlled Comparative Evaluation Results Framework (RTX 4060, Batch Size 1, FP16)}

@@ -35,19 +35,36 @@ docs/presentation/
 docs/literature/
 docs/dev-ref/
 
-# Dataset Raw Files
+# Dataset Raw Files & Generated Labels
 dataset/DMD
 dataset/images
+dataset/labels/
+# Ignore ad-hoc root-level Label Studio export dumps (canonical exports are tracked under dataset/All_Subjects_annotated/)
 dataset/project-*.json
 dataset/*.zip
 dataset/1-*/
 archive/
 
-# Python cache & temporary files
+# Python virtual environments & build artifacts
+.venv/
+env/
+venv/
 __pycache__/
 *.py[cod]
 *$py.class
 *_tmp.pdf
+
+# Experiment outputs, run logs, and model checkpoints
+runs/
+*.pt
+*.pth
+*.onnx
+*.engine
+weights/pretrained/*.pt
+
+# Dataset cache files
+dataset/labels/**/*.cache
+dataset/labels/*.cache
 
 # Tools & Label Studio local runtime data
 tools/**/.venv/

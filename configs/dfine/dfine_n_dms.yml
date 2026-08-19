@@ -1,0 +1,39 @@
+# DMS-Eval Benchmark D-FINE-N Dataset & Training Configuration
+# ============================================================
+
+task: detection
+
+model:
+  type: DFINE
+  backbone: HGNetv2
+  depth: n
+  num_classes: 4
+  pretrained: weights/pretrained/dfine_n.pt
+
+dataset:
+  type: CocoDetection
+  dataset_dir: dataset
+  image_dir: images
+  train_ann: dataset/coco/instances_train.json
+  val_ann: dataset/coco/instances_val.json
+  test_ann: dataset/coco/instances_test.json
+  remap_mscoco_category: False
+
+# Class Ontology (1-indexed COCO ID to name)
+category_map:
+  1: yawning
+  2: hand_over_mouth
+  3: drinking
+  4: phone_use
+
+training:
+  epochs: 220
+  batch_size: 1
+  grad_accum_steps: 32
+  img_size: [640, 640]
+  seed: 13
+  amp: True
+  optimizer:
+    type: AdamW
+    lr: 0.00025
+    weight_decay: 0.0001

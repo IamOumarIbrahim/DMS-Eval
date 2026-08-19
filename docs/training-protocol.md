@@ -21,6 +21,7 @@
 <details>
 <summary><strong>Show initialization, fine-tuning, and model-specific recipe rules</strong></summary>
 
+<a id="initialization--fine-tuning"></a>
 #### Initialization & Fine-Tuning
 
 * **YOLO11n, D-FINE-N, and YOLO26n start from their official pretrained weights.**
@@ -46,8 +47,8 @@
 | :--- | :--- |
 | **Maximum training epochs** | `220` for all three models |
 | **Early stopping** | Disabled for all three models |
-| **Batch size** | `1` for all three models |
-| **Gradient accumulation** | Disabled; one image produces one weight update before moving to the next image |
+| **Batch size** | Physical batch size = `1` for all three models to emulate streaming edge frame ingestion |
+| **Gradient accumulation** | Accumulated over 32 steps (nominal batch size 32, `nbs=32`) to stabilize Batch Normalization running statistics |
 | **Training runs** | One training run per model; no multi-seed averaging |
 | **Random seed** | `13` for all three models wherever the shared benchmark seed applies |
 | **Training hardware** | NVIDIA RTX 4060 with 8 GB VRAM for all three models |
@@ -65,13 +66,13 @@
 | Parameter Dimension | Shared Controlled Benchmark Policy | YOLO11n / YOLO26n Recipe | D-FINE-N Recipe |
 | :--- | :--- | :--- | :--- |
 | **Fine-Tuning Budget** | **220 Epochs** (Early stopping disabled) | 220 Epochs | 220 Epochs |
-| **Batch Size & Accumulation** | **Batch size = 1**, Gradient accumulation = 0 | Batch size = 1 | Batch size = 1 |
+| **Batch Size & Accumulation** | **Physical Batch size = 1**, Gradient accumulation = 32 (`nbs=32`) | Physical batch = 1 (`nbs=32`) | Physical batch = 1 (`accumulate=32`) |
 | **Random Seed & Hardware** | **Seed = 13**, Dedicated NVIDIA RTX 4060 GPU | Seed = 13, RTX 4060 | Seed = 13, RTX 4060 |
 | **Numerical Precision** | **Automatic Mixed Precision (FP16 AMP)** | PyTorch AMP (Ultralytics) | PyTorch AMP (D-FINE) |
 | **Optimizer Family** | Model-Specific Official Recipe | SGD (`lr0=0.01, momentum=0.937`) | AdamW (`lr=0.00025, weight_decay=0.0001`) |
 | **Learning Rate Schedule** | Model-Specific Official Recipe | Linear / Cosine LR Decay | Step / Cosine Annealing |
 | **Data Augmentation** | Model-Specific Official Recipe | Mosaic, Mixup, HSV, Flips | Multi-scale jitter, Random Crop, Flips |
-| **Model Selection** | **Validation-Only $F_1$ Score Sweep** | Validation $F_1$ Sweep ($\tau^*$) | Validation $F_1$ Sweep ($\tau^*$) |
+| **Model Selection** | **Validation $\text{mAP}@0.5:0.95$ Checkpoint & $F_1$ Sweep** | Validation Checkpoint & $F_1$ Sweep ($\tau^*$) | Validation Checkpoint & $F_1$ Sweep ($\tau^*$) |
 
 ---
 

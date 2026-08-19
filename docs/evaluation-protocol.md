@@ -101,6 +101,7 @@ reported benchmark metrics
 
 ---
 
+<a id="validation--test-usage"></a>
 ### Validation / Test Usage
 
 * The **validation split** is used for model selection, checkpoint selection, and confidence-threshold selection.
@@ -146,13 +147,15 @@ Final checkpoints are selected using validation results from the shared DMS-Eval
 ```mermaid
 flowchart LR
     subgraph Val["Validation Calibration - Zero Test Access"]
-        V1["Val Predictions: 3,423 Frames"] --> V2["Confidence Sweep: tau in 0.01 to 0.99"]
-        V2 --> V3["Select Best tau Maximizing Validation F1"]
-        V3 --> V4["Freeze Optimal Checkpoint and Threshold"]
+        V1["Val Split: 3,423 Frames"] --> V2["Evaluate 220 Epoch Checkpoints (mAP@0.5:0.95)"]
+        V2 --> V3["Select Optimal Checkpoint"]
+        V3 --> V4["Confidence Grid Sweep: tau in [0.01, 0.99]"]
+        V4 --> V5["Select tau* Maximizing Validation F1"]
+        V5 --> V6["Freeze Optimal Checkpoint & tau*"]
     end
 
     subgraph Test["Isolated Test Evaluation - Single Pass"]
-        V4 --> T1["Unseen Test Split: 3,213 Frames"]
+        V6 --> T1["Unseen Test Split: 3,213 Frames"]
         T1 --> T2["Single-Pass Inference: Batch 1, FP16"]
         T2 --> T3["Compute mAP, Precision, Recall, F1"]
         T2 --> T4["CUDA Event Latency: p50, p95, p99, FPS"]
@@ -312,28 +315,27 @@ Exact locally measured checkpoint sizes will be populated after training and val
 
 ### 🧊 Frozen
 
-Candidate confidence thresholds are derived from each model's **actual validation-set prediction confidence scores** rather than from a manually chosen fixed numerical grid.
+Candidate confidence thresholds are evaluated across a **fixed numerical grid sweep** $\tau \in [0.01, 0.99]$ with a step size of $0.01$ (99 candidate values) on the validation split.
 
 For each of YOLO11n, D-FINE-N, and YOLO26n:
 
-1. Generate predictions on the **validation split only**.
-2. Extract the confidence scores produced by that model.
-3. Use those validation prediction scores to define the candidate confidence thresholds evaluated for that model.
-4. Evaluate every candidate threshold using the **same shared DMS-Eval evaluator**.
-5. Select the threshold producing the **highest overall validation F1-score**.
+1. Generate predictions on the **validation split only** using the optimal frozen checkpoint.
+2. Sweep candidate confidence thresholds $\tau \in [0.01, 0.99]$ in increments of $0.01$.
+3. Compute micro-averaged Precision, Recall, and $F_1$-score under COCO one-to-one IoU $\ge 0.50$ matching.
+4. Select the threshold $\tau^*$ producing the **highest overall validation $F_1$-score**.
 
-The exact same threshold-search algorithm, F1 objective, matching rules, and tie-breaking procedure are applied to all three models.
+The exact same threshold-search algorithm, $F_1$ objective, matching rules, and tie-breaking procedure are applied uniformly to all three models.
 
 ### Confidence-Threshold Tie-Breaking
 
-If multiple candidate thresholds produce the same highest validation F1-score:
+If multiple candidate thresholds produce the same highest validation $F_1$-score:
 
 1. Select the threshold with the **higher Precision**.
 2. If Precision is also tied, select the **higher confidence threshold**.
 
-The selected threshold is then frozen for that model and applied unchanged during the final test evaluation.
+The selected threshold $\tau^*$ is then permanently frozen for that model and applied unchanged during the final single-pass test evaluation.
 
 > [!NOTE]
-> The numerical candidate thresholds do not need to be identical across models because they are derived from each model's own validation prediction scores. Fairness is maintained by applying the **same threshold-generation and selection procedure** to every model.
+> The resulting optimal threshold $\tau^*$ is model-specific ($\tau^*_{\text{YOLO11n}}, \tau^*_{\text{D-FINE-N}}, \tau^*_{\text{YOLO26n}}$) as calibrated on each detector's validation score distribution. Fairness is strictly maintained by applying the **identical numerical grid sweep and selection objective** across all models.
 
 </details>

@@ -45,20 +45,22 @@ if projects:
     # Update title and label config
     patch_data = {
         'title': 'DMS-Eval',
-        'description': 'DMS-Eval Benchmark Dataset (15,723 frames across 14 subjects) targeting 6 frozen warning cues.',
+        'description': 'DMS-Eval Benchmark Dataset (15,723 frames across 14 subjects) targeting 4 frozen warning cues.',
         'label_config': label_config
     }
     r_patch = requests.patch(f'{url}/api/projects/{proj_id}', json=patch_data, headers=headers)
-    assert r_patch.status_code == 200, f"Failed to patch project: {r_patch.text}"
+    if r_patch.status_code != 200:
+        raise RuntimeError(f"Failed to patch project {proj_id}: {r_patch.status_code} {r_patch.text}")
     print(f"Updated Project {proj_id} to 'DMS-Eval' via REST API")
 else:
     post_data = {
         'title': 'DMS-Eval',
-        'description': 'DMS-Eval Benchmark Dataset (15,723 frames across 14 subjects) targeting 6 frozen warning cues.',
+        'description': 'DMS-Eval Benchmark Dataset (15,723 frames across 14 subjects) targeting 4 frozen warning cues.',
         'label_config': label_config
     }
     r_post = requests.post(f'{url}/api/projects', json=post_data, headers=headers)
-    assert r_post.status_code == 201, f"Failed to create project: {r_post.text}"
+    if r_post.status_code != 201:
+        raise RuntimeError(f"Failed to create project: {r_post.status_code} {r_post.text}")
     proj_id = r_post.json()['id']
     print(f"Created Project {proj_id} 'DMS-Eval' via REST API")
 

@@ -18,7 +18,7 @@ Duplicates per-subject annotations and creates:
       └── subject_12/
 
 Randomization:
-- Training subjects are shuffled using Python random.Random(13)
+- Training subjects are shuffled using Python random.Random(13 + subj_num) for raw JSON and random.Random(13 + subj_num + 1000) for COCO JSON
 - Validation and Test subjects remain strictly unshuffled
 """
 
@@ -35,6 +35,10 @@ SPLIT_FOLDER_MAP = {
     "validation": "Validation",
     "test": "Test"
 }
+
+def check(cond: bool, msg: str):
+    if not cond:
+        raise ValueError(msg)
 
 def create_shuffled_annotations():
     splits_file = "dataset/splits.json"
@@ -85,25 +89,34 @@ def create_shuffled_annotations():
             orig_boxes_count = len(coco_data["annotations"])
             orig_raw_count = len(raw_data)
 
+            check(orig_imgs_count == orig_raw_count, f"Mismatch between images ({orig_imgs_count}) and raw tasks ({orig_raw_count}) in {subj}")
+
             if is_train:
                 # Deterministic pseudo-random shuffling with seed 13
-                # We use a dedicated Random instance seeded with SEED for reproducibility
-                rng = random.Random(SEED + int(subj.split("_")[1]))
+                # Single permutation order shared across companion files (images and raw tasks)
+                subj_num = int(subj.split("_")[1])
+                rng = random.Random(SEED + subj_num)
 
-                # Deep copy to ensure original references aren't mutated
-                shuffled_images = copy.deepcopy(coco_data["images"])
+                order = list(range(orig_imgs_count))
+                rng.shuffle(order)
+
+                shuffled_images = [copy.deepcopy(coco_data["images"][i]) for i in order]
+                shuffled_raw = [copy.deepcopy(raw_data[i]) for i in order]
+
+                # Annotations reference image_id (not position); shuffle independently
                 shuffled_annotations = copy.deepcopy(coco_data["annotations"])
-                shuffled_raw = copy.deepcopy(raw_data)
-
-                rng.shuffle(shuffled_images)
-                rng.shuffle(shuffled_annotations)
-                rng.shuffle(shuffled_raw)
+                random.Random(SEED + subj_num + 1000).shuffle(shuffled_annotations)
 
                 # Verify that order has changed
                 if orig_imgs_count > 1:
-                    assert [img["id"] for img in shuffled_images] != [img["id"] for img in coco_data["images"]], f"Image shuffle check failed for {subj}"
-                if orig_raw_count > 1:
-                    assert [t["id"] for t in shuffled_raw] != [t["id"] for t in raw_data], f"Raw task shuffle check failed for {subj}"
+                    check([img["id"] for img in shuffled_images] != [img["id"] for img in coco_data["images"]], f"Image shuffle check failed for {subj}")
+                    check([t["id"] for t in shuffled_raw] != [t["id"] for t in raw_data], f"Raw task shuffle check failed for {subj}")
+
+                # Verify 1-to-1 correspondence between shuffled images and shuffled raw tasks
+                for idx_check, (img_item, raw_item) in enumerate(zip(shuffled_images, shuffled_raw)):
+                    img_fname = os.path.basename(img_item["file_name"].replace("\\", "/"))
+                    raw_fname = raw_item.get("data", {}).get("filename") or os.path.basename(raw_item.get("data", {}).get("image", "").replace("\\", "/"))
+                    check(img_fname == raw_fname, f"Shuffle alignment desync at index {idx_check} in {subj}: {img_fname} vs {raw_fname}")
 
                 coco_data["images"] = shuffled_images
                 coco_data["annotations"] = shuffled_annotations
@@ -151,16 +164,16 @@ def create_shuffled_annotations():
     print(f"Total Bounding Boxes : {total_boxes_written} (Expected: 3001)")
     print(f"Total Raw Tasks      : {total_raw_written} (Expected: 15723)")
 
-    assert total_images_written == 15723, f"Image count mismatch: {total_images_written}"
-    assert total_boxes_written == 3001, f"Box count mismatch: {total_boxes_written}"
-    assert total_raw_written == 15723, f"Raw task count mismatch: {total_raw_written}"
+    check(total_images_written == 15723, f"Image count mismatch: {total_images_written}")
+    check(total_boxes_written == 3001, f"Box count mismatch: {total_boxes_written}")
+    check(total_raw_written == 15723, f"Raw task count mismatch: {total_raw_written}")
 
-    assert split_stats["Training"]["images"] == 9087
-    assert split_stats["Training"]["boxes"] == 1748
-    assert split_stats["Validation"]["images"] == 3423
-    assert split_stats["Validation"]["boxes"] == 639
-    assert split_stats["Test"]["images"] == 3213
-    assert split_stats["Test"]["boxes"] == 614
+    check(split_stats["Training"]["images"] == 9087, f"Training images mismatch: {split_stats['Training']['images']}")
+    check(split_stats["Training"]["boxes"] == 1748, f"Training boxes mismatch: {split_stats['Training']['boxes']}")
+    check(split_stats["Validation"]["images"] == 3423, f"Validation images mismatch: {split_stats['Validation']['images']}")
+    check(split_stats["Validation"]["boxes"] == 639, f"Validation boxes mismatch: {split_stats['Validation']['boxes']}")
+    check(split_stats["Test"]["images"] == 3213, f"Test images mismatch: {split_stats['Test']['images']}")
+    check(split_stats["Test"]["boxes"] == 614, f"Test boxes mismatch: {split_stats['Test']['boxes']}")
 
     print("\n[OK] Successfully created and verified dataset/annotations_per_subject_shuffled!")
 

@@ -275,8 +275,15 @@ def crop_dir_worker(task, crop_box, jpeg_quality):
         out_path = os.path.join(out_dir, new_filename)
         img = cv2.imread(in_path)
         if img is None:
+            print(f"  WARNING: Failed to read image {in_path}, skipping")
+            continue
+        if img.shape[0] < y2 or img.shape[1] < x2:
+            print(f"  WARNING: unexpected shape {img.shape[:2]} (smaller than crop bounds {y2}x{x2}) for {in_path}, skipping")
             continue
         cropped = img[y:y2, x:x2]
+        if cropped.shape[0] != h or cropped.shape[1] != w:
+            print(f"  WARNING: crop produced {cropped.shape[:2]} instead of ({h}, {w}) for {in_path}, skipping")
+            continue
         cv2.imwrite(out_path, cropped, [int(cv2.IMWRITE_JPEG_QUALITY), jpeg_quality])
         count += 1
 
@@ -359,16 +366,22 @@ def verify_cropped_dataset(crop_base, workers):
             all_pure_black += pb
             all_scores.extend(sc)
 
+    if not all_scores:
+        print("WARNING: No images could be loaded for quality verification.")
+        return
+
     scores_np = np.array(all_scores)
     very_blurry = int(np.sum(scores_np < 35))
     sharp_frames = int(np.sum(scores_np >= 50))
+    mean_sharpness = np.mean(scores_np)
+    median_sharpness = np.median(scores_np)
 
     print("==========================================")
     print("DATASET VERIFICATION RESULTS")
     print(f"Total frames verified: {total}")
-    print(f"Pure black frames: {all_pure_black} (0.00%)")
-    print(f"Mean Laplacian Sharpness: {np.mean(scores_np):.2f}")
-    print(f"Median Laplacian Sharpness: {np.median(scores_np):.2f}")
+    print(f"Pure black frames: {all_pure_black} ({all_pure_black/total*100:.2f}%)")
+    print(f"Mean Laplacian Sharpness: {mean_sharpness:.2f}")
+    print(f"Median Laplacian Sharpness: {median_sharpness:.2f}")
     print(f"Sharp / Clear frames (Score >= 50): {sharp_frames} ({sharp_frames/total*100:.2f}%)")
     print(f"Noticeably blurry frames (Score < 35): {very_blurry} ({very_blurry/total*100:.2f}%)")
     print("==========================================\n")

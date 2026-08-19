@@ -15,7 +15,9 @@ Verifies:
 """
 
 import os
+import glob
 import json
+import argparse
 from collections import defaultdict, Counter
 
 CATEGORIES = [
@@ -25,10 +27,21 @@ CATEGORIES = [
     {"id": 4, "name": "phone_use", "supercategory": "driver_cue"}
 ]
 
-def split_annotations_per_subject():
-    master_coco_path = "dataset/annotations.json"
-    raw_json_path = "dataset/All_Subjects_annotated/project-1-at-2026-08-19-17-28-a3bbb88e.json"
-    out_base_dir = "dataset/annotations_per_subject"
+def check(cond: bool, msg: str):
+    if not cond:
+        raise ValueError(msg)
+
+def find_latest_export(pattern: str) -> str:
+    matches = sorted(glob.glob(pattern), reverse=True)
+    if not matches:
+        raise FileNotFoundError(f"No export file found matching pattern: {pattern}")
+    return matches[0]
+
+def split_annotations_per_subject(master_coco_path: str = "dataset/annotations.json",
+                                  raw_json_path: str = None,
+                                  out_base_dir: str = "dataset/annotations_per_subject"):
+    if raw_json_path is None:
+        raw_json_path = find_latest_export("dataset/All_Subjects_annotated/project-*.json")
 
     os.makedirs(out_base_dir, exist_ok=True)
 
@@ -42,9 +55,10 @@ def split_annotations_per_subject():
     with open(raw_json_path, 'r', encoding='utf-8') as f:
         raw_tasks = json.load(f)
 
-    # Map image_id -> image object
-    image_by_id = {img['id']: img for img in master_coco['images']}
-    
+    # Verify task count parity between raw export and master COCO
+    check(len(raw_tasks) == len(master_coco['images']),
+          f"Task count mismatch between raw tasks ({len(raw_tasks)}) and COCO images ({len(master_coco['images'])})")
+
     # Map image_id -> subject
     image_id_to_subject = {}
     for img in master_coco['images']:
@@ -87,7 +101,7 @@ def split_annotations_per_subject():
     # All 14 subjects
     subjects = sorted(list(set(list(subject_coco_images.keys()) + list(subject_raw_tasks.keys()))))
     print(f"Discovered {len(subjects)} subjects: {subjects}")
-    assert len(subjects) == 14, f"Expected 14 subjects, got {len(subjects)}"
+    check(len(subjects) == 14, f"Expected 14 subjects, got {len(subjects)}")
 
     total_images_written = 0
     total_boxes_written = 0
@@ -147,15 +161,40 @@ def split_annotations_per_subject():
     print(f"Total Raw Tasks Across 14 Folders: {total_raw_tasks_written} (Expected: 15723)")
     print(f"Global Category Counts (1:Yawn, 2:Hand, 3:Drink, 4:Phone): {dict(global_cue_counts)}")
 
-    assert total_images_written == 15723
-    assert total_boxes_written == 3001
-    assert total_raw_tasks_written == 15723
-    assert global_cue_counts[1] == 159
-    assert global_cue_counts[2] == 141
-    assert global_cue_counts[3] == 264
-    assert global_cue_counts[4] == 2437
+    check(total_images_written == 15723, f"Total images mismatch: {total_images_written}")
+    check(total_boxes_written == 3001, f"Total boxes mismatch: {total_boxes_written}")
+    check(total_raw_tasks_written == 15723, f"Total raw tasks mismatch: {total_raw_tasks_written}")
+    check(global_cue_counts[1] == 159, f"Yawning count mismatch: {global_cue_counts[1]}")
+    check(global_cue_counts[2] == 141, f"Hand over mouth count mismatch: {global_cue_counts[2]}")
+    check(global_cue_counts[3] == 264, f"Drinking count mismatch: {global_cue_counts[3]}")
+    check(global_cue_counts[4] == 2437, f"Phone use count mismatch: {global_cue_counts[4]}")
 
     print("\nSUCCESS: All 14 subject annotation folders generated and verified with 100% integrity!")
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Split Master Annotations and Raw Export Per Subject")
+    parser.add_argument(
+        "--master-coco",
+        type=str,
+        default="dataset/annotations.json",
+        help="Path to master COCO JSON (default: dataset/annotations.json)"
+    )
+    parser.add_argument(
+        "--raw-json",
+        type=str,
+        default=None,
+        help="Path to raw Label Studio export JSON (defaults to newest in dataset/All_Subjects_annotated/)"
+    )
+    parser.add_argument(
+        "--out-dir",
+        type=str,
+        default="dataset/annotations_per_subject",
+        help="Output base directory (default: dataset/annotations_per_subject)"
+    )
+    return parser.parse_args()
+
 if __name__ == "__main__":
-    split_annotations_per_subject()
+    args = parse_args()
+    split_annotations_per_subject(master_coco_path=args.master_coco,
+                                  raw_json_path=args.raw_json,
+                                  out_base_dir=args.out_dir)

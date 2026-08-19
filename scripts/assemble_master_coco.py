@@ -16,8 +16,10 @@ Requirements enforced:
 """
 
 import os
+import glob
 import json
 import zipfile
+import argparse
 from datetime import datetime
 
 # Category Mapping (1-indexed COCO convention)
@@ -34,6 +36,16 @@ CATEGORIES = [
     {"id": 3, "name": "drinking", "supercategory": "driver_cue"},
     {"id": 4, "name": "phone_use", "supercategory": "driver_cue"}
 ]
+
+def check(cond: bool, msg: str):
+    if not cond:
+        raise ValueError(msg)
+
+def find_latest_export(pattern: str) -> str:
+    matches = sorted(glob.glob(pattern), reverse=True)
+    if not matches:
+        raise FileNotFoundError(f"No export file found matching pattern: {pattern}")
+    return matches[0]
 
 def make_relative_path(abs_or_raw_path: str) -> str:
     """Normalize path to relative 'images/subject_XX/video_YY/filename.jpg'."""
@@ -52,10 +64,9 @@ def make_relative_path(abs_or_raw_path: str) -> str:
         return f"images/{subj}/{vid}/{fname}"
     return f"images/{fname}"
 
-def assemble_master_coco():
-    zip_path = r"dataset/All_Subjects_annotated/project-1-at-2026-08-19-17-29-a3bbb88e.zip"
-    json_export_path = r"dataset/All_Subjects_annotated/project-1-at-2026-08-19-17-28-a3bbb88e.json"
-    out_coco_path = r"dataset/annotations.json"
+def assemble_master_coco(zip_path: str = None, out_coco_path: str = "dataset/annotations.json"):
+    if zip_path is None:
+        zip_path = find_latest_export("dataset/All_Subjects_annotated/project-*.zip")
 
     print(f"Reading export from: {zip_path}")
     with zipfile.ZipFile(zip_path, 'r') as z:
@@ -105,22 +116,24 @@ def assemble_master_coco():
         new_cat_id = CATEGORY_MAP[cat_name]
         category_counts[new_cat_id] += 1
 
-        # Validate and clamp bbox [x, y, w, h] within 640x640
+        # Corner-based bounding box clamping to [0, 640]
         x, y, w, h = ann['bbox']
-        
-        # Clamp to [0, 640]
-        x_clamped = max(0.0, min(640.0, float(x)))
-        y_clamped = max(0.0, min(640.0, float(y)))
-        
-        # Ensure w and h don't exceed image bounds
-        w_clamped = max(1.0, min(640.0 - x_clamped, float(w)))
-        h_clamped = max(1.0, min(640.0 - y_clamped, float(h)))
+        x1, y1 = float(x), float(y)
+        x2, y2 = x1 + float(w), y1 + float(h)
 
-        # Round to 2 decimal places for clean formatting
-        x_final = round(x_clamped, 2)
-        y_final = round(y_clamped, 2)
-        w_final = round(w_clamped, 2)
-        h_final = round(h_clamped, 2)
+        x1c = max(0.0, min(640.0, x1))
+        y1c = max(0.0, min(640.0, y1))
+        x2c = max(0.0, min(640.0, x2))
+        y2c = max(0.0, min(640.0, y2))
+
+        w_final = round(x2c - x1c, 2)
+        h_final = round(y2c - y1c, 2)
+
+        if w_final <= 0 or h_final <= 0:
+            raise ValueError(f"Annotation {ann.get('id')} on image {raw_img_id} is entirely off-frame after clamping — inspect it manually.")
+
+        x_final = round(x1c, 2)
+        y_final = round(y1c, 2)
         area_final = round(w_final * h_final, 2)
 
         master_annotations.append({
@@ -140,13 +153,13 @@ def assemble_master_coco():
     print(f"Negative images count: {len(master_images) - len(images_with_boxes)}")
 
     # Verify benchmark invariants
-    assert len(master_images) == 15723, f"Expected 15,723 images, got {len(master_images)}"
-    assert len(master_annotations) == 3001, f"Expected 3,001 annotations, got {len(master_annotations)}"
-    assert category_counts[1] == 159, f"Expected 159 yawning, got {category_counts[1]}"
-    assert category_counts[2] == 141, f"Expected 141 hand_over_mouth, got {category_counts[2]}"
-    assert category_counts[3] == 264, f"Expected 264 drinking, got {category_counts[3]}"
-    assert category_counts[4] == 2437, f"Expected 2,437 phone_use, got {category_counts[4]}"
-    assert len(images_with_boxes) == 3001, "Single annotation policy check failed (duplicate boxes found)"
+    check(len(master_images) == 15723, f"Expected 15,723 images, got {len(master_images)}")
+    check(len(master_annotations) == 3001, f"Expected 3,001 annotations, got {len(master_annotations)}")
+    check(category_counts[1] == 159, f"Expected 159 yawning, got {category_counts[1]}")
+    check(category_counts[2] == 141, f"Expected 141 hand_over_mouth, got {category_counts[2]}")
+    check(category_counts[3] == 264, f"Expected 264 drinking, got {category_counts[3]}")
+    check(category_counts[4] == 2437, f"Expected 2,437 phone_use, got {category_counts[4]}")
+    check(len(images_with_boxes) == 3001, "Single annotation policy check failed (duplicate boxes found)")
 
     master_coco = {
         "info": {
@@ -176,5 +189,22 @@ def assemble_master_coco():
     file_size_mb = os.path.getsize(out_coco_path) / (1024 * 1024)
     print(f"Successfully generated {out_coco_path} ({file_size_mb:.2f} MB)")
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Assemble Master COCO JSON Ground Truth")
+    parser.add_argument(
+        "--export-zip",
+        type=str,
+        default=None,
+        help="Path to Label Studio export ZIP file (defaults to newest in dataset/All_Subjects_annotated/)"
+    )
+    parser.add_argument(
+        "--out-coco",
+        type=str,
+        default="dataset/annotations.json",
+        help="Output path for master COCO JSON (default: dataset/annotations.json)"
+    )
+    return parser.parse_args()
+
 if __name__ == "__main__":
-    assemble_master_coco()
+    args = parse_args()
+    assemble_master_coco(zip_path=args.export_zip, out_coco_path=args.out_coco)

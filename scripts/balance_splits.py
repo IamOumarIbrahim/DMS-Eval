@@ -31,6 +31,10 @@ CLASS_NAMES = {
 
 CLASS_IDS = [4, 3, 1, 2]  # phone_use, drinking, yawning, hand_over_mouth
 
+def check(cond: bool, msg: str):
+    if not cond:
+        raise ValueError(msg)
+
 def extract_subject_from_path(file_name: str) -> str:
     """Extract canonical subject ID (e.g., 'subject_01') from image path."""
     normalized = file_name.replace('\\', '/')
@@ -124,7 +128,7 @@ def run_exhaustive_search(coco_path="dataset/annotations.json"):
     subjects = sorted(per_subject_stats.keys())
     num_subjects = len(subjects)
     print(f"Discovered {num_subjects} subjects: {subjects}")
-    assert num_subjects == 14, f"Expected exactly 14 subjects, got {num_subjects}"
+    check(num_subjects == 14, f"Expected exactly 14 subjects, got {num_subjects}")
 
     # Global Dataset Metrics
     global_metrics = calculate_split_metrics(subjects, per_subject_stats)
@@ -232,7 +236,7 @@ def run_exhaustive_search(coco_path="dataset/annotations.json"):
     print(f"Total Assignments Evaluated: {total_evaluated} (Expected: 60,060)")
     print(f"Total Assignments Rejected:  {total_rejected}")
     print(f"Valid Assignments Evaluated: {total_evaluated - total_rejected}")
-    assert total_evaluated == 60060, f"Expected 60,060 evaluations, got {total_evaluated}"
+    check(total_evaluated == 60060, f"Expected 60,060 evaluations, got {total_evaluated}")
 
     print("\n=== OPTIMAL FROZEN 8/3/3 SPLIT ===")
     print("Train:      ", best_candidate['train'])

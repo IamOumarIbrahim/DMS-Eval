@@ -17,6 +17,9 @@ scripts/
 ├── split_annotations_per_subject.py   # [Stage 3] Partitions ground truth into 14 per-subject folders
 ├── balance_splits.py                  # [Stage 4] Exhaustive 8/3/3 subject-disjoint split optimizer
 ├── create_shuffled_annotations.py     # [Stage 5] Generates Training/Val/Test hierarchy with seed-13 shuffle
+├── convert_coco_to_yolo.py            # [Stage 6] Converts master COCO JSON to YOLO format labels & YAML
+├── prepare_dfine_coco.py              # [Stage 7] Partitions master COCO JSON into D-FINE/DETR split JSONs
+├── train_yolo.py                      # [Stage 8] YOLO training engine with gradient accumulation & telemetry
 │
 ├── charts/                            # [Gitignored] Publication chart & diagram generators
 │   ├── generate_distribution_charts.py
@@ -83,6 +86,39 @@ Duplicates per-subject annotations and reorganizes them into [`dataset/annotatio
 ```bash
 # Generate shuffled per-subject dataset hierarchy
 python scripts/create_shuffled_annotations.py
+```
+
+---
+
+### 6. `convert_coco_to_yolo.py` — COCO to YOLO Label Conversion
+Converts [`dataset/annotations.json`](../dataset/annotations.json) into YOLO format `.txt` label files under [`dataset/labels/`](../dataset/labels/) matching the 0-indexed ontology (`yawning: 0, hand_over_mouth: 1, drinking: 2, phone_use: 3`). Creates empty label files for negative background frames and generates `dataset/yolo/train.txt`, `val.txt`, `test.txt` and `dataset/yolo/dms_eval.yaml`.
+
+```bash
+# Convert master COCO annotations to YOLO label hierarchy & config
+python scripts/convert_coco_to_yolo.py
+```
+
+---
+
+### 7. `prepare_dfine_coco.py` — D-FINE-N / DETR COCO Split Partitioning
+Splits [`dataset/annotations.json`](../dataset/annotations.json) into standalone COCO JSON instances per split (`dataset/coco/instances_train.json`, `instances_val.json`, `instances_test.json`) and writes the D-FINE configuration at `dataset/coco/dfine_dataset.yml`.
+
+```bash
+# Generate partitioned COCO JSON splits for D-FINE-N
+python scripts/prepare_dfine_coco.py
+```
+
+---
+
+### 8. `train_yolo.py` — YOLO Training Engine with Gradient Accumulation
+Configures Ultralytics YOLO training with physical batch size 1, gradient accumulation (effective batch size 16-64), mixed-precision FP16, and CUDA VRAM tracking to mitigate Batch Normalization noise.
+
+```bash
+# Sanity check run (2 epochs on YOLO11n)
+python scripts/train_yolo.py --epochs 2 --model yolo11n.pt --batch 1 --accumulate 32 --device 0
+
+# Full benchmark training run (220 epochs)
+python scripts/train_yolo.py --epochs 220 --model yolo11n.pt --batch 1 --accumulate 32 --device 0
 ```
 
 ---

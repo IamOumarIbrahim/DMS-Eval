@@ -25,6 +25,7 @@
 
 > **Benchmark Mission:** DMS-Eval establishes a standardized evaluation framework comparing real-time nano-scale object detectors (YOLO vs. DETR families) for in-cabin driver state monitoring under single-frame operational constraints.
 
+<a id="controlled-comparison-principle"></a>
 > [!IMPORTANT]
 > **Controlled-comparison principle**
 >
@@ -51,7 +52,7 @@
 | **Input** | 640×640 individual frames | **Sampling** | 1 frame every 1 second |
 | **Split** | 8 / 3 / 3 subjects | **Split unit** | Strictly subject-disjoint |
 | **Annotations** | Direct manual human annotation (Label Studio) → master COCO JSON | **Hardware** | NVIDIA RTX 4060, 8 GB VRAM |
-| **Training batch** | 1, no gradient accumulation | **Runtime batch** | 1 |
+| **Training batch** | 1 (accumulate=32, nbs=32) | **Runtime batch** | 1 |
 | **Primary metric** | mAP@0.5:0.95 | **Input unit** | Single static frame |
 
 </div>
