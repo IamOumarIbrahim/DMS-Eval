@@ -99,6 +99,26 @@
 
 ---
 
+## Dataset & Cue Distribution
+
+The complete benchmark dataset comprises **15,723 frames** with **3,001 bounding box annotations** across all 14 subjects.
+
+<p align="center">
+  <img src="../assets/benchmark_distributions_combined.png" alt="DMS-Eval Dataset Frame Composition and Warning Cue Distribution" width="850"><br>
+  <sub><b>Figure 5.</b> (a) Frame-level dataset composition across 15,723 frames (80.9% negative background frames vs. 19.1% positive cue frames); (b) Proportion of bounding box annotations across the 4 frozen target warning cues (3,001 total boxes).</sub>
+</p>
+
+| Target Category | Domain | Box Count | Percentage Share (%) | Normalized Ratio $(H=1.0)$ |
+| :--- | :--- | :---: | :---: | :---: |
+| **`phone_use`** | Distraction / Inattention | **2,437** | 81.2% | **17.28** |
+| **`drinking`** | Distraction / Inattention | **264** | 8.8% | **1.87** |
+| **`yawning`** | Drowsiness | **159** | 5.3% | **1.13** |
+| **`hand_over_mouth`** | Drowsiness | **141** | 4.7% | **1.00** |
+| **Total Positive Boxes** | — | **3,001** | **100.0%** | — |
+| **Negative Frames ($0$ boxes)** | Alert Driving / Gaze | **12,722** | **80.9% of frames** | — |
+
+---
+
 ## Annotation Workflow
 
 ### 🧊 Frozen Label Studio Organization

@@ -1,3 +1,11 @@
+## [2026-08-19 17:35:00] - Generate and integrate benchmark distribution pie charts
+- Implement `scripts/generate_distribution_charts.py` creating high-resolution publication-quality pie charts:
+  - `assets/dataset_frame_composition_pie.png` (80.9% negative vs 19.1% positive frames)
+  - `assets/cue_class_distribution_pie.png` (81.2% phone_use, 8.8% drinking, 5.3% yawning, 4.7% hand_over_mouth)
+  - `assets/benchmark_distributions_combined.png` (2-panel combined publication figure)
+- Integrate distribution figures across `docs/annotation-protocol.md` (Figure 5), `README.md` (Figure 3), `docs/quick-start.md` (Figure 2), and `manuscript/main.tex` (Figure 3)
+- Recompile LaTeX manuscript PDF
+
 ## [2026-08-19 16:20:00] - Add citations and references for Label Studio and label-studio-converter
 - Add BibTeX entries for `label_studio` and `label_studio_converter` in `manuscript/bib/references.bib`
 - Add formal citations `\cite{label_studio}` and `\cite{label_studio_converter}` and `\bibitem` entries in `manuscript/main.tex`

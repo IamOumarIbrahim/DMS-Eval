@@ -69,6 +69,11 @@ dataset/images/
 > [!IMPORTANT]
 > Annotation uses **Label Studio** (Community Edition) with one project (**DMS-Eval**) and one task per image. Subject, video, filename, and sampled-frame index are retained as task metadata. All 15,723 sampled frames are directly and manually annotated by the human expert annotator under the frozen 4-cue ontology to produce the authoritative master COCO ground truth in `dataset/annotations.json`. See the [annotation protocol](./docs/annotation-protocol.md) and [manual annotation guide (1-page PDF)](./docs/manual-annotation-guide.pdf).
 
+<p align="center">
+  <img src="./assets/benchmark_distributions_combined.png" alt="DMS-Eval Dataset Frame Composition and Warning Cue Distribution" width="850"><br>
+  <sub><b>Figure 3.</b> Benchmark ground-truth distributions: (a) Frame-level dataset composition across all 15,723 frames (80.9% negative background frames vs. 19.1% positive cue frames); (b) Proportion of bounding box annotations across the 4 frozen target warning cues (3,001 total annotations: 81.2% <code>phone_use</code>, 8.8% <code>drinking</code>, 5.3% <code>yawning</code>, 4.7% <code>hand_over_mouth</code>).</sub>
+</p>
+
 ---
 
 ## Documentation
