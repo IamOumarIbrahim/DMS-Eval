@@ -1,3 +1,8 @@
+## [2026-08-19 18:06:00] - Update manuscript title
+- Update paper title in `manuscript/main.tex` to:
+  *Real-Time Driver Behavior Detection Using Lightweight Object Detection Models with Subject-Disjoint Evaluation*
+- Recompile `manuscript/main.pdf`
+
 ## [2026-08-19 17:56:00] - Generate per-subject split annotation directories
 - Implement `scripts/split_annotations_per_subject.py` partitioning annotations into 14 distinct folders under `dataset/Annotations_split/subject_01/` ... `subject_14/`
 - Each subject folder contains both standard `coco_annotations.json` and `raw_annotations.json` (Label Studio task format)
