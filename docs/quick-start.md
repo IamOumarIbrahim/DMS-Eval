@@ -200,7 +200,7 @@ The benchmark split is selected via the authoritative optimization rule:
 4. Filter out any candidate that is not subject-disjoint, does not contain all 14 subjects, or lacks positive samples for any of the 4 classes in any split.
 5. For the global dataset and candidate splits, compute `positive_rate = positive_frames / total_images` and `class_proportion[c] = positive_frames[c] / total_positive_frames`.
 6. Compute absolute relative deviation for five equally weighted quantities per split (15 values total):
-   $$\text{Dev} = \frac{\vert \text{split\_value} - \text{global\_value} \vert}{\text{global\_value}}$$
+   $$\text{Dev}(q, s) = \frac{\lvert V(q, s) - V_{\text{global}}(q) \rvert}{V_{\text{global}}(q)}$$
 7. Select the optimal candidate using the deterministic lexicographic objective:
    1. **Minimum worst absolute relative deviation** across all 15 quantities (Train, Val, Test).
    2. **Minimum overall RMSE** across all 15 relative deviations.
