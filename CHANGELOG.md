@@ -1,3 +1,8 @@
+## [2026-08-19 23:38:00] - Enable clickable hyperlinks in LaTeX manuscript and refine DMD corpus phrasing
+- Configure `hyperref` package in `manuscript/main.tex` with IEEE-standard blue link styling (`colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue`) for citations, figures, tables, and URLs
+- Refine DMD dataset description across Abstract and Section III-A with clear hierarchical phrasing (*"81 driver-facing RGB video recordings comprising 68 behavioral sessions across 14 subjects"*)
+- Recompile camera-ready 6-page IEEE conference PDF (`manuscript/main.pdf`) with 0 errors and 0 undefined citations/references
+
 ## [2026-08-19 23:31:00] - Integrate split cue proportions figure into manuscript Section IV
 - Add Figure 4 (`split_cue_proportions_comparison.png`) to Section IV-C visually proving warning cue distribution fidelity across 8/3/3 subject-disjoint partitions ($\le 5.4812\%$ relative divergence)
 - Unify split frame composition and target cue breakdown tables into a single comprehensive **Table I** (*Dataset Split Composition and Warning Cue Distributions Across Partitions*), saving vertical float space

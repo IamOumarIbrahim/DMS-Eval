@@ -15,6 +15,7 @@
 \usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{url}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
 \setlength{\textfloatsep}{5pt plus 1pt minus 1pt}
 \setlength{\floatsep}{5pt plus 1pt minus 1pt}
 \setlength{\intextsep}{5pt plus 1pt minus 1pt}
@@ -42,7 +43,7 @@ Sharjah, United Arab Emirates \\
 \maketitle
 
 \begin{abstract}
-Driver Monitoring Systems (DMS) are critical safety components of modern Advanced Driver Assistance Systems (ADAS). While commercial systems often employ complex temporal pipelines, automotive edge deployments demand lightweight, low-latency 2D object detectors capable of real-time single-frame inference. This paper presents \textbf{DMS-Eval}, an empirical benchmark comparing compact convolutional detectors (Ultralytics YOLO11n and YOLO26n) against lightweight Real-Time Detection Transformers (D-FINE-N). Formulated on 81 naturalistic in-cabin RGB video sequences from the Driver Monitoring Dataset (DMD) across 14 subjects, our benchmark establishes a standardized dataset of 15,723 frames ($640 \times 640$ crop). Ground truth is constructed via 100\% manual human annotation in Label Studio targeting four visual warning cues: \texttt{phone\_use}, \texttt{drinking}, \texttt{yawning}, and \texttt{hand\_over\_mouth}, incorporating 12,722 naturalistic negative frames (80.91\%) to enforce false-positive suppression. To eliminate identity leakage, we formalize an authoritative 8/3/3 subject-disjoint split via deterministic exhaustive combinatorial search across 60,060 candidate assignments, ensuring all splits preserve identical class proportions ($\le 5.48\%$ relative divergence). Under a strictly controlled comparison on dedicated RTX 4060 hardware at batch size 1 across 220 fine-tuning epochs, candidate models are calibrated via validation-only $F_1$ score maximization prior to single-pass test evaluation. This work provides an open, reproducible framework for edge-deployed in-cabin driver state analysis.
+Driver Monitoring Systems (DMS) are critical safety components of modern Advanced Driver Assistance Systems (ADAS). While commercial systems often employ complex temporal pipelines, automotive edge deployments demand lightweight, low-latency 2D object detectors capable of real-time single-frame inference. This paper presents \textbf{DMS-Eval}, an empirical benchmark comparing compact convolutional detectors (Ultralytics YOLO11n and YOLO26n) against lightweight Real-Time Detection Transformers (D-FINE-N). Formulated on 81 driver-facing RGB video recordings comprising 68 behavioral sessions across 14 subjects from the Driver Monitoring Dataset (DMD), our benchmark establishes a standardized dataset of 15,723 frames ($640 \times 640$ crop). Ground truth is constructed via 100\% manual human annotation in Label Studio targeting four visual warning cues: \texttt{phone\_use}, \texttt{drinking}, \texttt{yawning}, and \texttt{hand\_over\_mouth}, incorporating 12,722 naturalistic negative frames (80.91\%) to enforce false-positive suppression. To eliminate identity leakage, we formalize an authoritative 8/3/3 subject-disjoint split via deterministic exhaustive combinatorial search across 60,060 candidate assignments, ensuring all splits preserve identical class proportions ($\le 5.48\%$ relative divergence). Under a strictly controlled comparison on dedicated RTX 4060 hardware at batch size 1 across 220 fine-tuning epochs, candidate models are calibrated via validation-only $F_1$ score maximization prior to single-pass test evaluation. This work provides an open, reproducible framework for edge-deployed in-cabin driver state analysis.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -107,12 +108,12 @@ Random train/test partitioning across the same human subjects allows models to m
 \section{Dataset Formulation and Annotation Protocol}
 
 \subsection{Source Video Corpus and Spatial Standardization}
-The benchmark is constructed from the Driver Monitoring Dataset (DMD) \cite{ortega2020dmd}, recorded in real vehicle cabins under variable daylight and ambient lighting conditions. The dataset spans 81 driver-facing RGB videos recorded at $\approx 29.76$~FPS across 14 diverse human subjects ($S_1$ through $S_{14}$). 
+The benchmark is constructed from the Driver Monitoring Dataset (DMD) \cite{ortega2020dmd}, recorded in real vehicle cabins under variable daylight and ambient lighting conditions. The dataset encompasses 14 human subjects ($S_1\text{--}S_{14}$) across 68 distinct driving sessions, recorded as 81 driver-facing RGB video sequences ($\approx 29.76$~FPS) across three behavioral domains: \textit{distraction}, \textit{drowsiness}, and \textit{gaze}. 
 
 To eliminate background noise outside the driver's operational workspace while preserving high spatial fidelity for fine-grained cues, every frame is uniformly sampled at 1~FPS and cropped to a standardized $640 \times 640$ pixel spatial bounding window ($x = 272, y = 71, w = 640, h = 640$) as shown in Fig.~\ref{fig_crop}. This produces exactly 15,723 standardized images.
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{640X640.png}}
+\centerline{\includegraphics[width=0.92\columnwidth]{640X640.png}}
 \caption{In-cabin driver-facing frame extraction on DMD video with standardized $640 \times 640$ spatial window cropping ($x=272, y=71, w=640, h=640$), centering the driver's head, face, and torso for low-latency single-frame object detection.}
 \label{fig_crop}
 \end{figure}
@@ -128,10 +129,10 @@ Ground truth is generated through 100\% manual human inspection in Label Studio 
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.46\columnwidth]{yawning_annotation_example.png}\hfill
-\includegraphics[width=0.46\columnwidth]{hand_over_mouth_annotation_example.png}\\[2pt]
-\includegraphics[width=0.46\columnwidth]{drinking_annotation_example.png}\hfill
-\includegraphics[width=0.46\columnwidth]{phone_use_annotation_example.png}
+\includegraphics[width=0.45\columnwidth]{yawning_annotation_example.png}\hfill
+\includegraphics[width=0.45\columnwidth]{hand_over_mouth_annotation_example.png}\\[2pt]
+\includegraphics[width=0.45\columnwidth]{drinking_annotation_example.png}\hfill
+\includegraphics[width=0.45\columnwidth]{phone_use_annotation_example.png}
 \caption{Visual demonstrations of our manual annotations in Label Studio across all 4 frozen target warning cues: (a) \texttt{yawning} (top-left, mouth aperture only), (b) \texttt{hand\_over\_mouth} (top-right, full head enclosing occluding hand), (c) \texttt{drinking} (bottom-left, hand and beverage container in consumption posture), and (d) \texttt{phone\_use} (bottom-right, hand and mobile device held at the ear in calling posture).}
 \label{fig_annotation_examples}
 \end{figure}
@@ -143,10 +144,11 @@ Under our single-frame protocol, each sampled frame contains at most one boundin
 By incorporating all three DMD session folders, our benchmark contains 12,722 true negative background frames ($80.91\%$) and 3,001 positive cue frames ($19.09\%$) as shown in Fig.~\ref{fig_distributions}.
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{benchmark_distributions_combined.png}}
+\centerline{\includegraphics[width=0.92\columnwidth]{benchmark_distributions_combined.png}}
 \caption{DMS-Eval dataset and annotation distributions: (a) frame-level dataset composition; (b) proportion of bounding boxes across the 4 frozen target warning cues.}
 \label{fig_distributions}
 \end{figure}
+
 
 \section{Methodology and Subject-Disjoint Partitioning}
 
@@ -182,7 +184,7 @@ The optimal partition selected by the algorithm is permanently frozen in \texttt
 As documented in Table~\ref{tab_splits} and Fig.~\ref{fig_split_proportions}, the maximum relative deviation across all splits and classes is restricted to $\le 5.4812\%$, ensuring near-identical distribution fidelity across partitions.
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{split_cue_proportions_comparison.png}}
+\centerline{\includegraphics[width=0.92\columnwidth]{split_cue_proportions_comparison.png}}
 \caption{Distribution fidelity across frozen 8/3/3 subject-disjoint partitions: class proportions for all four target warning cues track the global dataset distribution across Train ($S_1, S_4, S_6, S_7, S_8, S_9, S_{13}, S_{14}$), Validation ($S_2, S_3, S_{11}$), and Test ($S_5, S_{10}, S_{12}$) splits ($\le 5.4812\%$ maximum relative divergence).}
 \label{fig_split_proportions}
 \end{figure}
