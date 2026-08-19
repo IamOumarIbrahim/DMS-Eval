@@ -35,7 +35,9 @@
 
 ## Benchmark at a glance
 
-<p align="center"><sub><b>Table 1.</b> Frozen benchmark scope summary.</sub></p>
+<div align="center">
+
+<sub><b>Table 1.</b> Frozen benchmark scope summary.</sub>
 
 | Setting | Frozen value | Setting | Frozen value |
 | :--- | :--- | :--- | :--- |
@@ -46,6 +48,7 @@
 | **Training batch** | 1, no gradient accumulation | **Runtime batch** | 1 |
 | **Primary metric** | mAP@0.5:0.95 | **Input unit** | Single static frame |
 
+</div>
 
 > [!NOTE]
 > **Source DMD Composition & Negative Sample Richness:**
@@ -96,7 +99,9 @@ dataset/images/
 
 ## Evaluated Model Architectures
 
-<p align="center"><sub><b>Table 2.</b> Candidate real-time detector architectures evaluated in DMS-Eval.</sub></p>
+<div align="center">
+
+<sub><b>Table 2.</b> Candidate real-time detector architectures evaluated in DMS-Eval.</sub>
 
 | Model Architecture | Architectural Family | Parameter Scale | GFLOPs ($640\times 640$) | Detection Paradigm / Key Feature | Official Source |
 | :--- | :--- | :---: | :---: | :--- | :--- |
@@ -104,11 +109,15 @@ dataset/images/
 | **Ultralytics YOLO26n** | End-to-End CNN | 2.4 M | 5.8 G | Anchor-free, NMS-free direct bounding box prediction | [Ultralytics](https://github.com/ultralytics/ultralytics) |
 | **D-FINE-N** | Real-Time DETR | 3.8 M | 8.4 G | HGNetv2 backbone with Fine-grained Distribution Refinement (FDR) | [D-FINE](https://github.com/Peterande/D-FINE) |
 
+</div>
+
 ---
 
 ## Documentation
 
-<p align="center"><sub><b>Table 3.</b> Detailed protocol documentation and execution resources.</sub></p>
+<div align="center">
+
+<sub><b>Table 3.</b> Detailed protocol documentation and execution resources.</sub>
 
 | Document | What it contains | Status covered |
 | :--- | :--- | :--- |
@@ -119,6 +128,8 @@ dataset/images/
 | [**Evaluation protocol**](./docs/evaluation-protocol.md) | Metrics, evaluator, test isolation, thresholding, checkpoint selection, runtime, and unresolved choices | Frozen + resolve later |
 | [**Execution checklist & roadmap**](./docs/execution-checklist.md) | Step-by-step 7-module implementation roadmap, dependencies, quality controls, and deliverables | Actionable checklist |
 
+</div>
+
 > [!TIP]
 > Start with [**Benchmark scope, data & splits**](./docs/quick-start.md), then use the annotation, training, and evaluation documents as the source for implementation details. Refer to the [**Execution checklist & roadmap**](./docs/execution-checklist.md) for current implementation progress.
 
@@ -126,12 +137,16 @@ dataset/images/
 
 ## Frozen target cues
 
-<p align="center"><sub><b>Table 3.</b> Single-frame warning-cue ontology.</sub></p>
+<div align="center">
+
+<sub><b>Table 4.</b> Single-frame warning-cue ontology.</sub>
 
 | Drowsiness Cue | Distraction / Inattention Cue |
-| :--- | :--- |
+| :---: | :---: |
 | `yawning` | `drinking` |
 | `hand_over_mouth` | `phone_use` *(calling)* |
+
+</div>
 
 <p align="center">
   <img src="./assets/yawning_annotation_example.png" alt="An example of our annotation of yawning in Label Studio" width="160">
