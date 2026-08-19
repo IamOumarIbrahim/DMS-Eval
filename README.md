@@ -15,6 +15,16 @@
   <img src="./assets/socialpreview.png" alt="DMS-Eval social preview" width="820">
 </p>
 
+<p align="center">
+  <a href="./manuscript/main.pdf">
+    <img src="https://img.shields.io/badge/📄_Full_Manuscript-Read_PDF_here-e02424?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Read PDF here">
+  </a>
+</p>
+
+<p align="center">
+  👉 <strong><a href="./manuscript/main.pdf">Read PDF here</a></strong> <em>(IEEE Conference Manuscript · 6-Page Camera-Ready PDF)</em> 👈
+</p>
+
 **DMS-Eval** is a planned benchmark framework currently in development for evaluating nano-scale (lightweight) object detection architectures for detecting visual cues associated with driver drowsiness and distraction in real time across diverse cabin operating conditions.
 
 > **Benchmark Mission:** DMS-Eval establishes a standardized evaluation framework comparing real-time nano-scale object detectors (YOLO vs. DETR families) for in-cabin driver state monitoring under single-frame operational constraints.
