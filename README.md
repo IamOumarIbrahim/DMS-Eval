@@ -12,10 +12,6 @@
 </p>
 
 <p align="center">
-  <img src="./assets/branding/socialpreview.png" alt="DMS-Eval social preview" width="820">
-</p>
-
-<p align="center">
   <a href="https://raw.githubusercontent.com/IamOumarIbrahim/DMS-Eval/main/manuscript/main.pdf" download="DMS-Eval-Manuscript.pdf">
     <img src="https://img.shields.io/badge/📄_Full_Manuscript-Read_PDF_here-e02424?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Read PDF here">
   </a>

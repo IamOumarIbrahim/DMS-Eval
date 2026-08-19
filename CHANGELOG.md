@@ -1,3 +1,7 @@
+## [2026-08-19 23:53:00] - Remove social preview image embed from README header
+- Remove `assets/branding/socialpreview.png` header embed from `README.md` while preserving the file in `assets/branding/`
+- Streamline repository landing page presentation
+
 ## [2026-08-19 23:51:00] - Align Acknowledgment section with open-source tool attribution and placeholders
 - Align `\section*{Acknowledgment}` in `manuscript/main.tex` with repository attribution standards: acknowledging the open-source architectures and tools (Ultralytics YOLO11/YOLO26, D-FINE, Label Studio) and placing institutional/grant funding as a standardized `[TO_BE_FILLED]` placeholder
 - Recompile verified 6-page IEEE conference PDF (`manuscript/main.pdf`) with 0 errors and 0 undefined citations/references
