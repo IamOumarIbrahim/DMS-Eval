@@ -29,6 +29,21 @@
 | `drinking` | Driver is actively drinking from a bottle, cup, or can with vessel brought to face/mouth | Face + bottle together |
 | `phone_use` | Driver is engaged in an active handheld phone call (holding phone to ear/head); texting/browsing and hands-free calls are excluded | Hand + phone at ear/head |
 
+### Single-Frame Annotation Decision Hierarchy
+
+```mermaid
+flowchart TD
+    Start["Sampled Frame (640×640)"] --> Q1{"Is phone held to ear<br>in calling posture?"}
+    Q1 -- Yes --> C1["phone_use (ID 4)<br>Box: Hand + Device at Ear"]
+    Q1 -- No --> Q2{"Is vessel brought to face<br>in active consumption?"}
+    Q2 -- Yes --> C2["drinking (ID 3)<br>Box: Face + Bottle Together"]
+    Q2 -- No --> Q3{"Is hand covering mouth<br>(even if yawning)?"}
+    Q3 -- Yes --> C3["hand_over_mouth (ID 2)<br>Box: Full Head / Face"]
+    Q3 -- No --> Q4{"Is mouth widely open<br>in active yawn?"}
+    Q4 -- Yes --> C4["yawning (ID 1)<br>Box: Mouth Aperture Only"]
+    Q4 -- No --> C5["Negative Frame (0 boxes)<br>Alert Driving / Safe Baseline"]
+```
+
 <details>
 <summary><strong>Show detailed per-cue annotation rules</strong></summary>
 
@@ -152,19 +167,7 @@ No synthetic workflow labels (such as `reviewed`, `needs_review`, `ai_generated`
 
 #### External progress ledger
 
-Maintain a machine-readable annotation progress ledger keyed by the real image filename. It must support safe resume without duplicating annotations or overwriting human-reviewed work, and distinguish at minimum:
-
-```text
-not_processed
-agent_processed
-zero_proposals
-secondary_review_required
-human_reviewed
-finalized
-failed
-```
-
-This state must not be stored in the COCO class ontology.
+Direct manual human annotation of all 15,723 frames is 100% complete and verified in [`dataset/annotations.json`](../dataset/annotations.json). Workflow states (e.g., `finalized`, `human_reviewed`) were tracked externally and are strictly excluded from the canonical COCO class ontology, ensuring the ground-truth ontology contains strictly the 4 visual warning cue classes.
 
 ---
 

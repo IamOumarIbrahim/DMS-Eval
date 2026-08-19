@@ -12,11 +12,11 @@
 
 - [x] Dataset, model set, input resolution, sampling policy, annotation format, and 8/3/3 subject allocation are frozen.
 - [x] The split unit is strictly subject-disjoint.
-- [x] All four target cues must occur in every split with roughly similar proportional representation based on per-subject frame counts.
+- [x] All four target cues occur in every split with balanced proportional representation matching the complete dataset distribution.
 - [x] The dataset-wide 640×640 crop is frozen at `x = 272`, `y = 71`, `width = 640`, `height = 640`.
 - [x] The frame-extraction pipeline is implemented under `scripts/`; generated images are not committed to Git.
-- [ ] Exact train, validation, and test subject IDs remain unresolved.
-- [ ] The exact method used to choose the best 8/3/3 assignment remains unresolved.
+- [x] Exact train, validation, and test subject IDs are frozen in `dataset/splits.json`.
+- [x] The exact exhaustive proportion-matching selection algorithm is implemented and frozen in `scripts/balance_splits.py`.
 - [ ] The exact mapping from “1 frame every 1 second” to source frames at non-integer source FPS remains unresolved.
 
 </details>
@@ -170,68 +170,68 @@ Bottom-right: (912, 711)
 
 ### 🧊 Frozen
 
-> Subject-disjoint partition across **14 unique subjects**:
+> Subject-disjoint partition across **14 unique subjects** (8 Train / 3 Validation / 3 Test):
 
 <p align="center"><sub><b>Table 3.</b> Subject-disjoint train, validation, and test allocation.</sub></p>
 
-| Split | Subjects | Approx. proportion |
-| :--- | ---: | ---: |
-| Training | 8 | 57.1% |
-| Validation | 3 | 21.4% |
-| Test | 3 | 21.4% |
+| Split | Subjects | Approx. proportion | Frozen Subject IDs |
+| :--- | ---: | ---: | :--- |
+| **Training** | 8 | 57.1% | `subject_01`, `subject_04`, `subject_06`, `subject_07`, `subject_08`, `subject_09`, `subject_13`, `subject_14` |
+| **Validation** | 3 | 21.4% | `subject_02`, `subject_03`, `subject_11` |
+| **Test** | 3 | 21.4% | `subject_05`, `subject_10`, `subject_12` |
 
 > [!WARNING]
 > **Strict Subject-Disjoint Protocol:**
 > * The split unit is the **individual/subject**, not individual frames or videos.
-> * A participant may appear in **only one** split across all their videos and sampled frames to prevent identity leakage.
-> * Subject assignments must be **finalized in `splits.json` before any model training begins** and must never be altered based on validation or benchmark performance.
+> * A participant appears in **only one** split across all their videos and sampled frames to prevent identity leakage ($S_{\text{train}} \cap S_{\text{val}} = \emptyset$, $S_{\text{train}} \cap S_{\text{test}} = \emptyset$, $S_{\text{val}} \cap S_{\text{test}} = \emptyset$).
+> * Subject assignments are **permanently frozen in `dataset/splits.json`** prior to any model fine-tuning and are never modified based on validation or benchmark performance.
 
-> [!IMPORTANT]
-> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All four target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
+---
 
-<details>
-<summary><strong>Show subject-assignment policy and split manifest</strong></summary>
+### Authoritative Split-Selection Rule & Algorithm
 
-### Subject Assignment Policy
+The benchmark split is selected via the authoritative optimization rule:
+> **Select the 8/3/3 subject split whose negative/positive frame proportion and four class proportions most closely match the complete dataset distribution.**
 
-* The 14 subjects are **not assigned purely at random**.
-* Use the **annotated sampled frames** to determine each subject's target-cue distribution.
-* Measure cue distribution using **frame counts per cue**, not bounding-box counts.
-* If one sampled frame contains multiple target cues, count that frame **once toward each cue present**.
-* Keep the four target cues **roughly proportionally similar across training, validation, and test**.
-* **All four target cues must appear in all three splits:** training, validation, and test.
-* Do **not** additionally balance the total number of sampled frames between splits.
-* Select and freeze the exact subject IDs only after annotation is complete and per-subject cue counts are available.
+#### Selection Algorithm (Implemented in [`scripts/balance_splits.py`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/scripts/balance_splits.py)):
+1. Read master annotations from `dataset/annotations.json` and derive subject IDs from relative image paths.
+2. For each subject, compute total frames, negative frames ($0$ boxes), positive frames ($\ge 1$ box), and class-specific positive frames for `phone_use`, `drinking`, `yawning`, and `hand_over_mouth`.
+3. Exhaustively evaluate all $\binom{14}{8} \times \binom{6}{3} = 3003 \times 20 = 60,060$ ordered 8/3/3 subject assignments.
+4. Filter out any candidate that is not subject-disjoint, does not contain all 14 subjects, or lacks positive samples for any of the 4 classes in any split.
+5. For the global dataset and candidate splits, compute `positive_rate = positive_frames / total_images` and `class_proportion[c] = positive_frames[c] / total_positive_frames`.
+6. Compute absolute relative deviation for five equally weighted quantities per split (15 values total):
+   $$\text{Dev} = \frac{\vert \text{split\_value} - \text{global\_value} \vert}{\text{global\_value}}$$
+7. Select the optimal candidate using the deterministic lexicographic objective:
+   1. **Minimum worst absolute relative deviation** across all 15 quantities (Train, Val, Test).
+   2. **Minimum overall RMSE** across all 15 relative deviations.
+   3. **Minimum test-split worst relative deviation** across 5 test quantities.
+   4. **Minimum test-split RMSE** across 5 test quantities.
+   5. **Lexicographically smallest subject-ID assignment**.
 
-### Split Manifest
+---
 
-> The final exact split partition will be frozen in:
+### Verified Dataset Split Statistics
 
-```text
-splits.json
-```
+<p align="center"><sub><b>Table 4.</b> Frame-level composition across benchmark splits.</sub></p>
 
-The file will list subject IDs under:
+| Split | Images | Negative (0 boxes) | Positive (1 box) | Positive Rate (%) |
+| :--- | ---: | ---: | ---: | ---: |
+| **Global** | **15,723** | **12,722** | **3,001** | **19.0867%** |
+| **Train** | 9,087 | 7,339 | 1,748 | 19.2363% |
+| **Validation** | 3,423 | 2,784 | 639 | 18.6678% |
+| **Test** | 3,213 | 2,599 | 614 | 19.1099% |
 
-```json
-{
-  "train": [],
-  "validation": [],
-  "test": []
-}
-```
+<p align="center"><sub><b>Table 5.</b> Target warning cue counts and proportional distribution across benchmark splits.</sub></p>
 
-> **Source of Truth:** Once finalized, the saved `splits.json` file permanently defines the benchmark splits without reliance on runtime random seeds.
+| Split | `phone_use` | `drinking` | `yawning` | `hand_over_mouth` | Total Boxes |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Global** | **2,437 (81.2063%)** | **264 (8.7971%)** | **159 (5.2982%)** | **141 (4.6984%)** | **3,001 (100.0%)** |
+| **Train** | 1,417 (81.0641%) | 154 (8.8101%) | 94 (5.3776%) | 83 (4.7483%) | 1,748 (100.0%) |
+| **Validation** | 523 (81.8466%) | 54 (8.4507%) | 32 (5.0078%) | 30 (4.6948%) | 639 (100.0%) |
+| **Test** | 497 (80.9446%) | 56 (9.1205%) | 33 (5.3746%) | 28 (4.5603%) | 614 (100.0%) |
 
-#### ⚠️ Resolve Later
-
-* The exact train, validation, and test subject IDs.
-* The exact algorithm/method used to choose the best 8/3/3 subject assignment from the annotated cue distributions.
-
-> [!CAUTION]
-> No optimization function, exhaustive-search procedure, tolerance, distance metric, weighting rule, random-search method, or numerical balancing threshold is currently frozen.
-
-</details>
+* Maximum absolute relative deviation across all 15 split quantities: **5.4812%** (5.48%).
+* Detailed selection audit log saved at [`dataset/split_selection_report.json`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/split_selection_report.json).
 
 ---
 

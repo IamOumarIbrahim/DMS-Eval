@@ -24,6 +24,35 @@
 >
 > All models receive the same training/test data, subject-disjoint test split, image resolution, evaluation annotations, metric implementation, hardware, numerical precision, batch size, inference timing protocol, and test-set access policy. Shared training-budget controls—such as maximum epochs, early stopping policy, batch size, gradient accumulation, number of runs, and checkpoint-selection procedure—are kept consistent across models. Architecture-specific optimization settings—such as optimizer, learning rate, scheduler, weight decay, augmentation, and other model-specific recipe choices—follow each architecture’s official training recipe and are documented rather than artificially forced to be identical.
 
+## Benchmark Evaluation Lifecycle
+
+```mermaid
+flowchart TD
+    subgraph Data["1. Dataset Formulation & Ground Truth"]
+        A["DMD Video Corpus<br>(81 Videos, 14 Subjects)"] -->|1 FPS Sampling| B["15,723 Frames<br>640×640 Crop (x=272, y=71)"]
+        B -->|Label Studio Export| C["Master COCO Ground Truth<br>(3,001 BBoxes, 12,722 Negatives)"]
+    end
+
+    subgraph Split["2. Authoritative 8/3/3 Subject Split"]
+        C -->|Exhaustive Search (60,060)| S["splits.json (≤5.48% Rel. Dev.)<br>Train: 8 Subj | Val: 3 Subj | Test: 3 Subj"]
+    end
+
+    subgraph Models["3. Controlled Training (RTX 4060, Seed 13, Batch 1, FP16)"]
+        S -->|Train Split| M1["YOLO11n (2.6M)"]
+        S -->|Train Split| M2["YOLO26n (2.4M)"]
+        S -->|Train Split| M3["D-FINE-N (3.8M)"]
+    end
+
+    subgraph Calib["4. Validation Calibration"]
+        M1 & M2 & M3 -->|Val Split Predictions| V["F1 Score Threshold Sweep (τ ∈ [0.01, 0.99])<br>Select Optimal τ* per Model"]
+    end
+
+    subgraph Eval["5. Test Evaluation & Latency Profiling"]
+        V -->|Frozen Checkpoint & τ*| T["Isolated Single-Pass Test Evaluation<br>(3,213 Test Frames, Zero Leakage)"]
+        T --> R["Benchmark Results Matrix<br>mAP, Precision, Recall, F1, Latency, FPS, GFLOPs"]
+    end
+```
+
 ---
 
 ## Benchmark at a glance
@@ -45,7 +74,13 @@
 > The original DMD dataset is organized into three behavioral session folders: `distraction`, `drowsiness`, and `gaze`. DMS-Eval incorporates all 81 videos across all three folders. Retaining the `gaze` sessions alongside non-cue driving periods in `distraction` and `drowsiness` supplies a substantial volume of naturalistic negative frames (0 bounding boxes), preventing lightweight object detectors from overtraining on positive cues and training them to suppress false alarms during alert driving. Longer videos naturally contribute proportionally more sampled frames under the uniform 1 FPS policy.
 
 > [!IMPORTANT]
-> **14 subjects are partitioned into 8 training, 3 validation, and 3 test subjects with strict subject disjointness. All four target cues must be represented in every split, and their cue distributions should be kept roughly proportionally similar across the three splits. Final subject IDs are selected only after annotation provides per-subject cue counts.**
+> **Frozen 8/3/3 Subject-Disjoint Split:**
+> The 14 participants are partitioned into **8 training**, **3 validation**, and **3 test** subjects with strict subject disjointness ($S_{\text{train}} \cap S_{\text{val}} = \emptyset, S_{\text{train}} \cap S_{\text{test}} = \emptyset, S_{\text{val}} \cap S_{\text{test}} = \emptyset$) using the authoritative exhaustive proportion-matching algorithm ([`scripts/balance_splits.py`](./scripts/balance_splits.py)).
+> * **Train (8 subjects, 9,087 frames, 1,748 boxes):** `subject_01`, `subject_04`, `subject_06`, `subject_07`, `subject_08`, `subject_09`, `subject_13`, `subject_14`
+> * **Validation (3 subjects, 3,423 frames, 639 boxes):** `subject_02`, `subject_03`, `subject_11`
+> * **Test (3 subjects, 3,213 frames, 614 boxes):** `subject_05`, `subject_10`, `subject_12`
+>
+> Permanently frozen in [`dataset/splits.json`](./dataset/splits.json). All four target cues are represented across all splits with $\le 5.48\%$ relative divergence from the global dataset distribution.
 
 ---
 
@@ -74,11 +109,28 @@ dataset/images/
   <sub><b>Figure 3.</b> Benchmark ground-truth distributions: (a) Frame-level dataset composition across all 15,723 frames (80.9% negative background frames vs. 19.1% positive cue frames); (b) Proportion of bounding box annotations across the 4 frozen target warning cues (3,001 total annotations: 81.2% <code>phone_use</code>, 8.8% <code>drinking</code>, 5.3% <code>yawning</code>, 4.7% <code>hand_over_mouth</code>).</sub>
 </p>
 
+<p align="center">
+  <img src="./assets/split_cue_proportions_comparison.png" alt="Split Cue Proportions Comparison" width="850"><br>
+  <sub><b>Figure 4.</b> Target warning cue distribution across 8/3/3 subject-disjoint partitions: showing balanced proportional alignment ($\le 5.48\%$ relative divergence) across Training, Validation, and Testing splits.</sub>
+</p>
+
+---
+
+## Evaluated Model Architectures
+
+<p align="center"><sub><b>Table 2.</b> Candidate real-time detector architectures evaluated in DMS-Eval.</sub></p>
+
+| Model Architecture | Architectural Family | Parameter Scale | GFLOPs ($640\times 640$) | Detection Paradigm / Key Feature | Official Source |
+| :--- | :--- | :---: | :---: | :--- | :--- |
+| **Ultralytics YOLO11n** | Single-Stage CNN | 2.6 M | 6.5 G | C3k2 feature extractors & SPPF modules | [Ultralytics](https://github.com/ultralytics/ultralytics) |
+| **Ultralytics YOLO26n** | End-to-End CNN | 2.4 M | 5.8 G | Anchor-free, NMS-free direct bounding box prediction | [Ultralytics](https://github.com/ultralytics/ultralytics) |
+| **D-FINE-N** | Real-Time DETR | 3.8 M | 8.4 G | HGNetv2 backbone with Fine-grained Distribution Refinement (FDR) | [D-FINE](https://github.com/Peterande/D-FINE) |
+
 ---
 
 ## Documentation
 
-<p align="center"><sub><b>Table 2.</b> Detailed protocol documentation and execution resources.</sub></p>
+<p align="center"><sub><b>Table 3.</b> Detailed protocol documentation and execution resources.</sub></p>
 
 | Document | What it contains | Status covered |
 | :--- | :--- | :--- |
@@ -130,8 +182,6 @@ dataset/images/
 <details>
 <summary><strong>Show the resolve-later checklist</strong></summary>
 
-- [ ] Exact train, validation, and test subject IDs in `splits.json`
-- [ ] Exact algorithm/method used to choose the best 8/3/3 subject assignment from annotated per-subject cue distributions
 - [ ] Exact numerical validation-selected confidence threshold for each model
 - [ ] CUDA, PyTorch, model-framework versions/commits, NVIDIA GPU-driver, and THOP versions from the actual environment
 - [ ] Handling of unsupported/custom operators if THOP does not count them correctly

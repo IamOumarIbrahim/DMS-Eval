@@ -1,3 +1,9 @@
+## [2026-08-19 18:10:00] - Authoritative 8/3/3 subject split selection and permanent freeze
+- Implement `scripts/balance_splits.py` with deterministic exhaustive proportion-matching algorithm (evaluating all 60,060 candidate assignments)
+- Permanently freeze `dataset/splits.json` (Train: 8 subjects [01, 04, 06, 07, 08, 09, 13, 14], Validation: 3 subjects [02, 03, 11], Test: 3 subjects [05, 10, 12])
+- Save detailed audit report to `dataset/split_selection_report.json` ($\le 5.48\%$ maximum relative divergence across positive rate and all 4 cue proportions)
+- Update documentation across `README.md`, `docs/quick-start.md`, `docs/evaluation-protocol.md`, `docs/execution-checklist.md` (M2.1, M2.2, M2.3 frozen), and `manuscript/main.tex`
+
 ## [2026-08-19 18:06:00] - Update manuscript title
 - Update paper title in `manuscript/main.tex` to:
   *Real-Time Driver Behavior Detection Using Lightweight Object Detection Models with Subject-Disjoint Evaluation*

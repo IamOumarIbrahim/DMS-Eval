@@ -131,6 +131,24 @@ Final checkpoints are selected using validation results from the shared DMS-Eval
 2. If tied, choose the checkpoint with the **higher validation `mAP@0.5`**.
 3. If still tied, choose the checkpoint from the **later epoch**.
 
+### Validation Calibration & Test Isolation Lifecycle
+
+```mermaid
+flowchart LR
+    subgraph Val["Validation Calibration (Zero Test Access)"]
+        V1["Val Predictions (3,423 Frames)"] --> V2["F1 Sweep: τ ∈ [0.01, 0.99]"]
+        V2 --> V3["Select τ* = argmax F1(τ)"]
+        V3 --> V4["Freeze Optimal Checkpoint & τ*"]
+    end
+
+    subgraph Test["Isolated Test Evaluation (Single Pass)"]
+        V4 -->|Frozen Parameters| T1["Unseen Test Split (3,213 Frames)"]
+        T1 --> T2["Single-Pass Inference (Batch 1, FP16)"]
+        T2 --> T3["Compute mAP@0.5:0.95, P, R, F1"]
+        T2 --> T4["CUDA Event Latency (p50, p95, p99, FPS)"]
+    end
+```
+
 <a id="runtime-profiling"></a>
 
 ### Runtime Profiling — 🧊 Frozen
@@ -337,11 +355,13 @@ The selected threshold is then frozen for that model and applied unchanged durin
 
 | Color | Still unresolved | What must be finalized | Claim affected |
 | ----- | ---------------- | ---------------------- | -------------- |
-| 🔴 | **Exact subject IDs / `splits.json`** | Freeze the exact 8 train / 3 validation / 3 test subjects only after annotation provides per-subject frame counts for all four target cues; keep every subject strictly within one split. | **same training/test data**, **subject-disjoint test split** |
-| 🟠 | **Exact 8/3/3 subject-assignment algorithm/method** | Determine later how to choose the best assignment from annotated per-subject cue distributions without assuming an optimization function, search procedure, tolerance, distance metric, weighting rule, or numerical threshold. | Split reproducibility |
 | 🟠 | **CUDA / PyTorch / model-framework versions or commits / NVIDIA GPU-driver / THOP versions** | Record the exact software environment actually used for training, evaluation, and local FLOPs calculation. | Supports reproducibility, the **same inference timing protocol**, and the common FLOPs procedure |
 | 🟢 | **Exact validation-selected confidence thresholds** | Record the numerical threshold selected for YOLO11n, D-FINE-N, and YOLO26n using the frozen validation-only procedure. | Evaluation reporting; the shared selection procedure is already frozen |
 | 🟠 | **Unsupported/custom operators in THOP** | If THOP does not count an operator correctly, determine how that case must be handled before accepting the corresponding FLOPs value. | Local computational-workload comparability |
+
+> [!NOTE]
+> **Dataset Split & Selection Algorithm are Frozen:**
+> The exact 8/3/3 subject assignment and the exhaustive proportion-matching selection algorithm are permanently frozen in [`dataset/splits.json`](../dataset/splits.json) and [`scripts/balance_splits.py`](../scripts/balance_splits.py).
 
 **🔴 = must get right for the paragraph to remain literally true**
 **🟠 = important protocol definition**

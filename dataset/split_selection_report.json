@@ -1,0 +1,329 @@
+{
+  "algorithm": {
+    "name": "DMS-Eval Exhaustive Proportion-Matching 8/3/3 Subject-Disjoint Split Selection",
+    "version": "1.0",
+    "total_candidates_evaluated": 60060,
+    "total_candidates_rejected": 0,
+    "valid_candidates_scored": 60060,
+    "quantities_scored_per_split": [
+      "positive_rate",
+      "phone_use_proportion",
+      "drinking_proportion",
+      "yawning_proportion",
+      "hand_over_mouth_proportion"
+    ],
+    "tiebreak_hierarchy": [
+      "1. Minimum worst absolute relative deviation across all splits and quantities (15 values)",
+      "2. Minimum overall RMSE of all 15 relative deviations",
+      "3. Minimum test-split worst relative deviation (5 values)",
+      "4. Minimum test-split RMSE (5 values)",
+      "5. Lexicographically smallest subject-ID assignment"
+    ]
+  },
+  "score_results": {
+    "worst_relative_deviation_overall": 0.054812452633340156,
+    "rmse_overall": 0.023005456136527873,
+    "worst_relative_deviation_test": 0.03676833481393747,
+    "rmse_test": 0.022074092318326837
+  },
+  "frozen_split": {
+    "train": [
+      "subject_01",
+      "subject_04",
+      "subject_06",
+      "subject_07",
+      "subject_08",
+      "subject_09",
+      "subject_13",
+      "subject_14"
+    ],
+    "validation": [
+      "subject_02",
+      "subject_03",
+      "subject_11"
+    ],
+    "test": [
+      "subject_05",
+      "subject_10",
+      "subject_12"
+    ]
+  },
+  "global_statistics": {
+    "total_images": 15723,
+    "negative_frames": 12722,
+    "positive_frames": 3001,
+    "positive_rate": 0.19086688291038606,
+    "positive_rate_percent": "19.0867%",
+    "class_counts": {
+      "phone_use": 2437,
+      "drinking": 264,
+      "yawning": 159,
+      "hand_over_mouth": 141
+    },
+    "class_proportions": {
+      "phone_use": 0.8120626457847384,
+      "drinking": 0.08797067644118627,
+      "yawning": 0.05298233922025991,
+      "hand_over_mouth": 0.0469843385538154
+    },
+    "class_proportions_percent": {
+      "phone_use": "81.2063%",
+      "drinking": "8.7971%",
+      "yawning": "5.2982%",
+      "hand_over_mouth": "4.6984%"
+    }
+  },
+  "per_subject_statistics": {
+    "subject_01": {
+      "total_images": 1114,
+      "negative_frames": 899,
+      "positive_frames": 215,
+      "class_counts": {
+        "phone_use": 169,
+        "drinking": 22,
+        "yawning": 11,
+        "hand_over_mouth": 13
+      }
+    },
+    "subject_02": {
+      "total_images": 1095,
+      "negative_frames": 938,
+      "positive_frames": 157,
+      "class_counts": {
+        "phone_use": 131,
+        "drinking": 12,
+        "yawning": 8,
+        "hand_over_mouth": 6
+      }
+    },
+    "subject_03": {
+      "total_images": 1173,
+      "negative_frames": 925,
+      "positive_frames": 248,
+      "class_counts": {
+        "phone_use": 206,
+        "drinking": 19,
+        "yawning": 15,
+        "hand_over_mouth": 8
+      }
+    },
+    "subject_04": {
+      "total_images": 1113,
+      "negative_frames": 913,
+      "positive_frames": 200,
+      "class_counts": {
+        "phone_use": 162,
+        "drinking": 13,
+        "yawning": 14,
+        "hand_over_mouth": 11
+      }
+    },
+    "subject_05": {
+      "total_images": 1080,
+      "negative_frames": 902,
+      "positive_frames": 178,
+      "class_counts": {
+        "phone_use": 148,
+        "drinking": 16,
+        "yawning": 8,
+        "hand_over_mouth": 6
+      }
+    },
+    "subject_06": {
+      "total_images": 1195,
+      "negative_frames": 891,
+      "positive_frames": 304,
+      "class_counts": {
+        "phone_use": 252,
+        "drinking": 24,
+        "yawning": 13,
+        "hand_over_mouth": 15
+      }
+    },
+    "subject_07": {
+      "total_images": 1082,
+      "negative_frames": 938,
+      "positive_frames": 144,
+      "class_counts": {
+        "phone_use": 121,
+        "drinking": 7,
+        "yawning": 11,
+        "hand_over_mouth": 5
+      }
+    },
+    "subject_08": {
+      "total_images": 1105,
+      "negative_frames": 910,
+      "positive_frames": 195,
+      "class_counts": {
+        "phone_use": 157,
+        "drinking": 26,
+        "yawning": 4,
+        "hand_over_mouth": 8
+      }
+    },
+    "subject_09": {
+      "total_images": 1200,
+      "negative_frames": 961,
+      "positive_frames": 239,
+      "class_counts": {
+        "phone_use": 164,
+        "drinking": 30,
+        "yawning": 25,
+        "hand_over_mouth": 20
+      }
+    },
+    "subject_10": {
+      "total_images": 920,
+      "negative_frames": 737,
+      "positive_frames": 183,
+      "class_counts": {
+        "phone_use": 160,
+        "drinking": 22,
+        "yawning": 1,
+        "hand_over_mouth": 0
+      }
+    },
+    "subject_11": {
+      "total_images": 1155,
+      "negative_frames": 921,
+      "positive_frames": 234,
+      "class_counts": {
+        "phone_use": 186,
+        "drinking": 23,
+        "yawning": 9,
+        "hand_over_mouth": 16
+      }
+    },
+    "subject_12": {
+      "total_images": 1213,
+      "negative_frames": 960,
+      "positive_frames": 253,
+      "class_counts": {
+        "phone_use": 189,
+        "drinking": 18,
+        "yawning": 24,
+        "hand_over_mouth": 22
+      }
+    },
+    "subject_13": {
+      "total_images": 1189,
+      "negative_frames": 941,
+      "positive_frames": 248,
+      "class_counts": {
+        "phone_use": 217,
+        "drinking": 16,
+        "yawning": 9,
+        "hand_over_mouth": 6
+      }
+    },
+    "subject_14": {
+      "total_images": 1089,
+      "negative_frames": 886,
+      "positive_frames": 203,
+      "class_counts": {
+        "phone_use": 175,
+        "drinking": 16,
+        "yawning": 7,
+        "hand_over_mouth": 5
+      }
+    }
+  },
+  "split_statistics": {
+    "train": {
+      "subjects": [
+        "subject_01",
+        "subject_04",
+        "subject_06",
+        "subject_07",
+        "subject_08",
+        "subject_09",
+        "subject_13",
+        "subject_14"
+      ],
+      "total_images": 9087,
+      "negative_frames": 7339,
+      "positive_frames": 1748,
+      "positive_rate": 0.1923627159678662,
+      "positive_rate_percent": "19.2363%",
+      "class_counts": {
+        "phone_use": 1417,
+        "drinking": 154,
+        "yawning": 94,
+        "hand_over_mouth": 83
+      },
+      "class_proportions": {
+        "phone_use": 0.8106407322654462,
+        "drinking": 0.08810068649885583,
+        "yawning": 0.05377574370709382,
+        "hand_over_mouth": 0.04748283752860412
+      },
+      "class_proportions_percent": {
+        "phone_use": "81.0641%",
+        "drinking": "8.8101%",
+        "yawning": "5.3776%",
+        "hand_over_mouth": "4.7483%"
+      }
+    },
+    "validation": {
+      "subjects": [
+        "subject_02",
+        "subject_03",
+        "subject_11"
+      ],
+      "total_images": 3423,
+      "negative_frames": 2784,
+      "positive_frames": 639,
+      "positive_rate": 0.1866783523225241,
+      "positive_rate_percent": "18.6678%",
+      "class_counts": {
+        "phone_use": 523,
+        "drinking": 54,
+        "yawning": 32,
+        "hand_over_mouth": 30
+      },
+      "class_proportions": {
+        "phone_use": 0.8184663536776213,
+        "drinking": 0.08450704225352113,
+        "yawning": 0.050078247261345854,
+        "hand_over_mouth": 0.046948356807511735
+      },
+      "class_proportions_percent": {
+        "phone_use": "81.8466%",
+        "drinking": "8.4507%",
+        "yawning": "5.0078%",
+        "hand_over_mouth": "4.6948%"
+      }
+    },
+    "test": {
+      "subjects": [
+        "subject_05",
+        "subject_10",
+        "subject_12"
+      ],
+      "total_images": 3213,
+      "negative_frames": 2599,
+      "positive_frames": 614,
+      "positive_rate": 0.191098661686897,
+      "positive_rate_percent": "19.1099%",
+      "class_counts": {
+        "phone_use": 497,
+        "drinking": 56,
+        "yawning": 33,
+        "hand_over_mouth": 28
+      },
+      "class_proportions": {
+        "phone_use": 0.8094462540716613,
+        "drinking": 0.09120521172638436,
+        "yawning": 0.05374592833876222,
+        "hand_over_mouth": 0.04560260586319218
+      },
+      "class_proportions_percent": {
+        "phone_use": "80.9446%",
+        "drinking": "9.1205%",
+        "yawning": "5.3746%",
+        "hand_over_mouth": "4.5603%"
+      }
+    }
+  }
+}

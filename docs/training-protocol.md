@@ -60,6 +60,19 @@
 > [!NOTE]
 > The shared AMP training precision policy does not imply that every operation is literally executed in FP16. Each model uses its framework's official AMP implementation. Full-model fine-tuning and architecture-specific training recipes remain unchanged.
 
+<p align="center"><sub><b>Table 2.</b> Controlled benchmark budget vs. architecture-specific training recipes.</sub></p>
+
+| Parameter Dimension | Shared Controlled Benchmark Policy | YOLO11n / YOLO26n Recipe | D-FINE-N Recipe |
+| :--- | :--- | :--- | :--- |
+| **Fine-Tuning Budget** | **220 Epochs** (Early stopping disabled) | 220 Epochs | 220 Epochs |
+| **Batch Size & Accumulation** | **Batch size = 1**, Gradient accumulation = 0 | Batch size = 1 | Batch size = 1 |
+| **Random Seed & Hardware** | **Seed = 13**, Dedicated NVIDIA RTX 4060 GPU | Seed = 13, RTX 4060 | Seed = 13, RTX 4060 |
+| **Numerical Precision** | **Automatic Mixed Precision (FP16 AMP)** | PyTorch AMP (Ultralytics) | PyTorch AMP (D-FINE) |
+| **Optimizer Family** | Model-Specific Official Recipe | SGD (`lr0=0.01, momentum=0.937`) | AdamW (`lr=0.00025, weight_decay=0.0001`) |
+| **Learning Rate Schedule** | Model-Specific Official Recipe | Linear / Cosine LR Decay | Step / Cosine Annealing |
+| **Data Augmentation** | Model-Specific Official Recipe | Mosaic, Mixup, HSV, Flips | Multi-scale jitter, Random Crop, Flips |
+| **Model Selection** | **Validation-Only $F_1$ Score Sweep** | Validation $F_1$ Sweep ($\tau^*$) | Validation $F_1$ Sweep ($\tau^*$) |
+
 ---
 
 <details>
