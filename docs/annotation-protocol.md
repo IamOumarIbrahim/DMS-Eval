@@ -33,15 +33,15 @@
 
 ```mermaid
 flowchart TD
-    Start["Sampled Frame (640×640)"] --> Q1{"Is phone held to ear<br>in calling posture?"}
-    Q1 -- Yes --> C1["phone_use (ID 4)<br>Box: Hand + Device at Ear"]
-    Q1 -- No --> Q2{"Is vessel brought to face<br>in active consumption?"}
-    Q2 -- Yes --> C2["drinking (ID 3)<br>Box: Face + Bottle Together"]
-    Q2 -- No --> Q3{"Is hand covering mouth<br>(even if yawning)?"}
-    Q3 -- Yes --> C3["hand_over_mouth (ID 2)<br>Box: Full Head / Face"]
-    Q3 -- No --> Q4{"Is mouth widely open<br>in active yawn?"}
-    Q4 -- Yes --> C4["yawning (ID 1)<br>Box: Mouth Aperture Only"]
-    Q4 -- No --> C5["Negative Frame (0 boxes)<br>Alert Driving / Safe Baseline"]
+    Start["Sampled Frame 640x640"] --> Q1{"Is phone held to ear in calling posture?"}
+    Q1 -- Yes --> C1["phone_use - Class 4<br>Box: Hand and Device at Ear"]
+    Q1 -- No --> Q2{"Is vessel brought to face in active consumption?"}
+    Q2 -- Yes --> C2["drinking - Class 3<br>Box: Face and Bottle Together"]
+    Q2 -- No --> Q3{"Is hand covering mouth even if yawning?"}
+    Q3 -- Yes --> C3["hand_over_mouth - Class 2<br>Box: Full Head and Face"]
+    Q3 -- No --> Q4{"Is mouth widely open in active yawn?"}
+    Q4 -- Yes --> C4["yawning - Class 1<br>Box: Mouth Aperture Only"]
+    Q4 -- No --> C5["Negative Frame with 0 boxes<br>Alert Driving and Safe Baseline"]
 ```
 
 <details>

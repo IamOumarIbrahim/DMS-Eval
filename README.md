@@ -26,32 +26,10 @@
 
 ## Benchmark Evaluation Lifecycle
 
-```mermaid
-flowchart TD
-    subgraph Data["1. Dataset Formulation & Ground Truth"]
-        A["DMD Video Corpus<br>(81 Videos, 14 Subjects)"] -->|1 FPS Sampling| B["15,723 Frames<br>640×640 Crop (x=272, y=71)"]
-        B -->|Label Studio Export| C["Master COCO Ground Truth<br>(3,001 BBoxes, 12,722 Negatives)"]
-    end
-
-    subgraph Split["2. Authoritative 8/3/3 Subject Split"]
-        C -->|Exhaustive Search (60,060)| S["splits.json (≤5.48% Rel. Dev.)<br>Train: 8 Subj | Val: 3 Subj | Test: 3 Subj"]
-    end
-
-    subgraph Models["3. Controlled Training (RTX 4060, Seed 13, Batch 1, FP16)"]
-        S -->|Train Split| M1["YOLO11n (2.6M)"]
-        S -->|Train Split| M2["YOLO26n (2.4M)"]
-        S -->|Train Split| M3["D-FINE-N (3.8M)"]
-    end
-
-    subgraph Calib["4. Validation Calibration"]
-        M1 & M2 & M3 -->|Val Split Predictions| V["F1 Score Threshold Sweep (τ ∈ [0.01, 0.99])<br>Select Optimal τ* per Model"]
-    end
-
-    subgraph Eval["5. Test Evaluation & Latency Profiling"]
-        V -->|Frozen Checkpoint & τ*| T["Isolated Single-Pass Test Evaluation<br>(3,213 Test Frames, Zero Leakage)"]
-        T --> R["Benchmark Results Matrix<br>mAP, Precision, Recall, F1, Latency, FPS, GFLOPs"]
-    end
-```
+<p align="center">
+  <img src="./assets/dms_eval_pipeline.png" alt="DMS-Eval Benchmark Evaluation Lifecycle" width="850"><br>
+  <sub><b>Figure 1.</b> DMS-Eval end-to-end benchmark framework: from naturalistic DMD video extraction and authoritative Label Studio annotation through deterministic 8/3/3 subject-disjoint partitioning, controlled model training, and validation-calibrated test evaluation.</sub>
+</p>
 
 ---
 

@@ -135,17 +135,17 @@ Final checkpoints are selected using validation results from the shared DMS-Eval
 
 ```mermaid
 flowchart LR
-    subgraph Val["Validation Calibration (Zero Test Access)"]
-        V1["Val Predictions (3,423 Frames)"] --> V2["F1 Sweep: τ ∈ [0.01, 0.99]"]
-        V2 --> V3["Select τ* = argmax F1(τ)"]
-        V3 --> V4["Freeze Optimal Checkpoint & τ*"]
+    subgraph Val["Validation Calibration - Zero Test Access"]
+        V1["Val Predictions: 3,423 Frames"] --> V2["Confidence Sweep: tau in 0.01 to 0.99"]
+        V2 --> V3["Select Best tau Maximizing Validation F1"]
+        V3 --> V4["Freeze Optimal Checkpoint and Threshold"]
     end
 
-    subgraph Test["Isolated Test Evaluation (Single Pass)"]
-        V4 -->|Frozen Parameters| T1["Unseen Test Split (3,213 Frames)"]
-        T1 --> T2["Single-Pass Inference (Batch 1, FP16)"]
-        T2 --> T3["Compute mAP@0.5:0.95, P, R, F1"]
-        T2 --> T4["CUDA Event Latency (p50, p95, p99, FPS)"]
+    subgraph Test["Isolated Test Evaluation - Single Pass"]
+        V4 --> T1["Unseen Test Split: 3,213 Frames"]
+        T1 --> T2["Single-Pass Inference: Batch 1, FP16"]
+        T2 --> T3["Compute mAP, Precision, Recall, F1"]
+        T2 --> T4["CUDA Event Latency: p50, p95, p99, FPS"]
     end
 ```
 
