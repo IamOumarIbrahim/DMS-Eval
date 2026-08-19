@@ -247,9 +247,11 @@ dataset/
 │   │   ├── video_01/
 │   │   └── ...
 │   └── ...
-├── annotations.json
-├── splits.json
-└── preprocessing.json
+├── annotations_per_subject/                  # 14 baseline per-subject folders (COCO + Raw JSON)
+├── annotations_per_subject_shuffled/         # Split hierarchy (Training/ [Seed 13], Validation/, Test/)
+├── annotations.json                          # Authoritative master COCO annotations
+├── splits.json                               # Frozen 8/3/3 subject-disjoint partitions
+└── preprocessing.json                        # Preprocessing & spatial crop parameters
 ```
 
 The master COCO annotation file stores:

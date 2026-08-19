@@ -51,6 +51,14 @@
 * **Per-class reporting:** `mAP@0.5:0.95` and `mAP@0.5` only.
 * Per-class Precision, Recall, and F1-score are not currently included.
 
+<p align="center"><sub><b>Table 2.</b> Benchmark comparative evaluation matrix (NVIDIA RTX 4060, Batch Size 1, FP16).</sub></p>
+
+| Model Architecture | Params (M) | FLOPs (G) | Calibrated $\tau^*$ | Latency $p50$ (ms) | Throughput (FPS) | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Ultralytics YOLO11n** | 2.6M | 6.5G | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` |
+| **Ultralytics YOLO26n** | 2.4M | 5.8G | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` |
+| **D-FINE-N** | 3.8M | 8.4G | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` |
+
 </details>
 
 ### Shared Evaluation Harness

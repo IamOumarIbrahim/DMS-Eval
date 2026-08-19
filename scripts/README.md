@@ -16,6 +16,7 @@ scripts/
 ├── assemble_master_coco.py            # [Stage 2] Assembles Label Studio exports into master COCO JSON
 ├── split_annotations_per_subject.py   # [Stage 3] Partitions ground truth into 14 per-subject folders
 ├── balance_splits.py                  # [Stage 4] Exhaustive 8/3/3 subject-disjoint split optimizer
+├── create_shuffled_annotations.py     # [Stage 5] Generates Training/Val/Test hierarchy with seed-13 shuffle
 │
 ├── charts/                            # [Gitignored] Publication chart & diagram generators
 │   ├── generate_distribution_charts.py
@@ -72,6 +73,16 @@ Evaluates all $\binom{14}{8} \times \binom{6}{3} = 60{,}060$ possible 8/3/3 subj
 ```bash
 # Run exhaustive split balance search and verify dataset/splits.json
 python scripts/balance_splits.py
+```
+
+---
+
+### 5. `create_shuffled_annotations.py` — Shuffled Split Hierarchy Generator
+Duplicates per-subject annotations and reorganizes them into [`dataset/annotations_per_subject_shuffled/`](../dataset/annotations_per_subject_shuffled/) (`Training/`, `Validation/`, `Test/`). Applies deterministic pseudo-random shuffling (seed 13) strictly to the 8 training subjects while keeping validation and test splits in sequential order.
+
+```bash
+# Generate shuffled per-subject dataset hierarchy
+python scripts/create_shuffled_annotations.py
 ```
 
 ---

@@ -45,11 +45,11 @@ driver monitoring systems, driver drowsiness detection, driver distraction detec
 \end{IEEEkeywords}
 
 \section{Introduction}
-In-cabin Driver Monitoring Systems (DMS) constitute a vital component of modern Advanced Driver Assistance Systems (ADAS) and autonomous vehicle safety suites, aiming to prevent roadway collisions through early visual detection of driver drowsiness and inattention. While high-level driver state assessment often leverages temporal recurrent or multi-frame sequence models, automotive edge deployments impose severe compute, memory, and latency constraints. Consequently, there is an urgent practical demand for lightweight, nano-scale 2D object detectors capable of executing real-time single-frame inference on embedded in-cabin hardware.
+In-cabin Driver Monitoring Systems (DMS) constitute a vital component of modern Advanced Driver Assistance Systems (ADAS) and autonomous vehicle safety suites, aiming to prevent roadway collisions through early visual detection of driver drowsiness and inattention \cite{rong2021artificial,ramzan2019survey}. While high-level driver state assessment often leverages temporal recurrent or multi-frame sequence models, automotive edge deployments impose severe compute, memory, and latency constraints. Consequently, there is an urgent practical demand for lightweight, nano-scale 2D object detectors capable of executing real-time single-frame inference on embedded in-cabin hardware.
 
 To systematically evaluate modern compact detector paradigms under strictly controlled single-frame constraints, this paper introduces \textbf{DMS-Eval}, an empirical benchmark comparing real-time nano-scale object detectors. We evaluate leading single-stage convolutional detectors (Ultralytics YOLO11n \cite{yolo11_ultralytics} and Ultralytics YOLO26n \cite{yolo26_ultralytics}) against modern end-to-end Real-Time Detection Transformers (D-FINE-N \cite{peng2024dfine}).
 
-The benchmark is developed on real-cabin RGB video from the Driver Monitoring Dataset (DMD) \cite{ortega2020dmd}, incorporating all three original dataset session categories: \textit{distraction}, \textit{drowsiness}, and \textit{gaze}. Across 81 driver-facing videos from 14 volunteer participants, frames are sampled uniformly at 1~FPS and cropped to a frozen $640 \times 640$ spatial window ($x = 272, y = 71, w = 640, h = 640$) as illustrated in Fig.~\ref{fig_crop}, yielding a standardized dataset of 15,723 frames. Retaining all three session folders—particularly the \textit{gaze} recordings and non-cue intervals—provides an abundant volume of naturalistic negative background frames ($0$ bounding boxes), preventing compact detectors from overtraining on positive targets and enforcing realistic false-positive suppression during routine driving (illustrated in Fig.~\ref{fig_distributions}a). Ground truth is constructed through 100\% direct manual expert annotation in Label Studio \cite{label_studio} with format exports structured via \texttt{label-studio-converter} \cite{label_studio_converter} targeting 4 frozen visual warning cues (exemplified in Fig.~\ref{fig_annotation_examples} and quantified in Fig.~\ref{fig_distributions}b):
+The benchmark is developed on real-cabin RGB video from the Driver Monitoring Dataset (DMD) \cite{ortega2020dmd}, incorporating all three original dataset session categories: \textit{distraction}, \textit{drowsiness}, and \textit{gaze}. Across 81 driver-facing videos from 14 volunteer participants, frames are sampled uniformly at 1~FPS and cropped to a frozen $640 \times 640$ spatial window ($x = 272, y = 71, w = 640, h = 640$) as illustrated in Fig.~\ref{fig_crop}, yielding a standardized dataset of 15,723 frames. Retaining all three session folders—particularly the \textit{gaze} recordings and non-cue intervals—provides an abundant volume of naturalistic negative background frames ($0$ bounding boxes), preventing compact detectors from overtraining on positive targets and enforcing realistic false-positive suppression during routine driving (illustrated in Fig.~\ref{fig_distributions}a). Ground truth is constructed through 100\% direct manual expert annotation in Label Studio \cite{label_studio} with format exports structured via \texttt{label-studio-converter} \cite{label_studio_converter} under the Microsoft COCO format \cite{lin2014microsoft} targeting 4 frozen visual warning cues (exemplified in Fig.~\ref{fig_annotation_examples} and quantified in Fig.~\ref{fig_distributions}b):
 \begin{enumerate}
 \item \texttt{yawning}: mouth region only (wide oral opening/distension);
 \item \texttt{hand\_over\_mouth}: full head/face enclosing the occluding hand;
@@ -57,31 +57,47 @@ The benchmark is developed on real-cabin RGB video from the Driver Monitoring Da
 \item \texttt{phone\_use}: handheld phone and interacting hand held to ear/head in calling posture.
 \end{enumerate}
 
-Under our single-frame annotation protocol, each sampled image contains at most one visual warning cue annotation (0 or 1 bounding box per image). In particular, \texttt{yawning} and \texttt{hand\_over\_mouth} are mutually exclusive and are never labeled twice in the same image; if a driver yawns while a hand visibly covers or occludes the mouth, the instance is uniquely labeled as \texttt{hand\_over\_mouth} (full head/face), ensuring clear, non-overlapping ground-truth targets.
+Under our single-frame annotation protocol, each sampled image contains at most one visual warning cue annotation (0 or 1 bounding box per image). In particular, \texttt{yawning} and \texttt{hand\_over\_mouth} are mutually exclusive; if a driver yawns while a hand visibly occludes the mouth, the instance is uniquely labeled as \texttt{hand\_over\_mouth}, ensuring non-overlapping ground-truth targets.
 
-Under the controlled-comparison principle, all models are evaluated using identical data partitions under a strict 8 / 3 / 3 subject-disjoint split (8 Train, 3 Validation, 3 Test subjects) to prevent identity leakage ($S_{\text{train}} \cap S_{\text{val}} = \emptyset, S_{\text{train}} \cap S_{\text{test}} = \emptyset, S_{\text{val}} \cap S_{\text{test}} = \emptyset$). The subject partition is established via an exhaustive combinatorial search across all $\binom{14}{8} \times \binom{6}{3} = 60,060$ candidate assignments, selecting the partition that minimizes the absolute relative deviation of positive frame rates and the four warning cue proportions relative to the global dataset distribution ($\le 5.48\%$ maximum divergence): Training ($S_1, S_4, S_6, S_7, S_8, S_9, S_{13}, S_{14}$; 9,087 frames, 1,748 positive cues), Validation ($S_2, S_3, S_{11}$; 3,423 frames, 639 positive cues), and Test ($S_5, S_{10}, S_{12}$; 3,213 frames, 614 positive cues). Training is executed under identical hardware (NVIDIA RTX 4060, 8~GB VRAM), batch size 1, 220 fine-tuning epochs without early stopping, fixed random seed (13), and FP16 automatic mixed precision. Optimal checkpoints and confidence thresholds ($\tau$) are selected strictly on the validation split prior to an isolated, single-pass test evaluation.
+All models are evaluated under a strict 8/3/3 subject-disjoint split ($S_{\text{train}} \cap S_{\text{val}} = \emptyset,\; S_{\text{train}} \cap S_{\text{test}} = \emptyset,\; S_{\text{val}} \cap S_{\text{test}} = \emptyset$) selected via exhaustive combinatorial search across 60,060 candidate assignments ($\le 5.48\%$ maximum distribution divergence). Training is executed under identical hardware (NVIDIA RTX 4060), batch size 1, 220 epochs, FP16 AMP, with optimal thresholds selected strictly on the validation split prior to isolated test evaluation.
+
+\subsection{Research Gap}
+Despite substantial progress in driver monitoring, a critical methodological gap persists: \textbf{no existing study provides a controlled, head-to-head comparison between nano-scale convolutional detectors and nano-scale Real-Time Detection Transformers for in-cabin driver cue localization under identical hardware, data, and training constraints.} Existing work leaves this gap unaddressed along four axes:
+
+\textit{(i)~Classification without spatial localization.} The AUC benchmark \cite{eraqi2019driver} and ICK-PANet \cite{qin2026ickpanet} classify full images into posture categories but produce no bounding boxes localizing the specific objects or facial cues. For edge deployment, spatial localization is essential to support downstream tracking and alert subsystems.
+\textit{(ii)~Multi-stage pipelines with compounding latency.} Recent DMD studies \cite{zhang2024fatigue} chain YOLO11, AlphaPose, and LSTM networks, introducing multi-model penalties that preclude real-time edge execution. Video-sequence benchmarks \cite{Martin_2019_ICCV,ghoddoosian2019realistic} require frame buffers and recurrent state unsuitable for single-frame inference.
+\textit{(iii)~Single-family evaluations.} Lightweight CNN detectors \cite{wang2024yolov10,tian2025yolov12} and real-time DETRs \cite{zhao2024detrs,peng2024dfine} are benchmarked exclusively on COCO \cite{lin2014microsoft} and never compared against each other within the in-cabin DMS domain.
+\textit{(iv)~Absent evaluation rigor.} Most YOLO-based DMS studies use random frame-level splits, enabling identity leakage, and report inference speed as theoretical GFLOPs or large-batch throughput rather than the batch-size-1 latency that governs edge responsiveness \cite{reddi2020mlperf,shafi2021demystifying}.
+
+All three candidates evaluated here operate below 5M parameters (YOLO11n: 2.6M, YOLO26n: 2.4M, D-FINE-N: 3.8M), fitting within the on-chip SRAM envelope of automotive-grade microcontrollers \cite{Jacob_2018_CVPR}. Because GFLOPs diverge from measured latency due to memory-bound attention, non-fused depthwise convolutions, and NMS overhead \cite{shafi2021demystifying}, this benchmark will measure wall-clock latency via CUDA event synchronization at batch size~1 following MLPerf guidelines \cite{reddi2020mlperf}.
+
+\subsection{Key Contributions}
+To close the identified gap, this paper will make four contributions:
+\begin{itemize}
+\item \textbf{First Cross-Paradigm Nano-Scale DMS Benchmark:} The first controlled comparison between nano-scale CNNs (YOLO11n, YOLO26n) and a nano-scale DETR (D-FINE-N) for in-cabin driver cue detection with spatial bounding box localization.
+\item \textbf{Rigorous Subject-Disjoint Data Curation:} 15,723 frames ($640\times640$) with 100\% manual annotation across 4 warning cues and 80.91\% naturalistic negatives, partitioned via exhaustive combinatorial optimization ($\le 5.48\%$ divergence).
+\item \textbf{Unified Precision--Efficiency Protocol:} Identical hardware (RTX 4060), batch size~1, 220 epochs, FP16 AMP, with detection accuracy and hardware-synchronized latency ($p50$/$p95$/$p99$) reported jointly.
+\item \textbf{Open Reproducibility:} Public release of all COCO annotations, partitioning scripts, and evaluation tooling.
+\end{itemize}
 
 \subsection{Research Question and Scope}
-This study is limited to \textbf{frame-level observable cues of driver drowsiness and distraction}, rather than temporal driver-state inference. Head orientation behaviors (e.g., turning away or looking toward side and rearview mirrors) are intentionally excluded from the static 2D detection ontology. Drivers routinely perform frequent mirror checks and visual scanning as part of safe driving; in isolated 1~FPS static frames without continuous temporal video context or 3D gaze tracking, there is no consistent or objective boundary to distinguish safe, brief mirror glances from dangerous, prolonged inattention. To eliminate subjective label noise from split datasets, the benchmark focuses strictly on the four unambiguous, self-contained visual warning cues.
+This study targets \textbf{frame-level observable cues of driver drowsiness and distraction}. Head orientation behaviors are excluded: in isolated 1~FPS frames without temporal context, safe mirror glances cannot be distinguished from dangerous inattention. The benchmark focuses on four unambiguous visual warning cues.
 
 \begin{quote}
-\textbf{RQ:} \textit{Under a controlled, compute-constrained evaluation, how do lightweight object detectors compare in detection accuracy, inference efficiency, and robustness when identifying visual cues associated with driver distraction and drowsiness on automotive edge hardware?}
+\textbf{RQ:} \textit{Under a controlled, compute-constrained evaluation, how do sub-5M-parameter detectors from fundamentally different paradigms---convolutional single-stage detectors versus Real-Time Detection Transformers---compare in detection accuracy, inference latency, and false-alarm suppression when identifying spatial visual cues of driver distraction and drowsiness on edge hardware?}
 \end{quote}
+
 
 \section{Related Work}
 
 \subsection{Vision-Based Driver Monitoring Systems}
-Early driver monitoring literature primarily focused on geometric facial landmark analysis, calculating heuristic indicators such as Eye Aspect Ratio (EAR) for blink duration, PERCLOS (percentage of eyelid closure over time), and Mouth Aspect Ratio (MAR) for yawn frequency. While computationally lightweight, landmark-based techniques degrade significantly under severe facial occlusions, head pose variations, rapid illumination shifts, and active behaviors such as hand-over-mouth yawns or phone calling. 
-
-To overcome landmark sensitivity, recent works utilize deep convolutional neural networks and spatio-temporal architectures (e.g., 3D-CNNs, ConvLSTM, and SlowFast networks) for driver action recognition. However, multi-frame sequence networks require continuous frame buffering, incur substantial computational overhead, and struggle to satisfy the strict microsecond latency budgets of low-power in-cabin edge processors. Consequently, single-frame 2D object detection provides an attractive paradigm by predicting precise spatial bounding boxes and class probabilities with minimal memory footprint.
+Early DMS literature focused on geometric facial landmark analysis using heuristic indicators such as Eye Aspect Ratio (EAR), PERCLOS, and Mouth Aspect Ratio (MAR) \cite{ramzan2019survey}. In-cabin distraction benchmarks---including the AUC Distracted Driver dataset \cite{eraqi2019driver}, Drive\&Act \cite{Martin_2019_ICCV}, and UTA-RLDD \cite{ghoddoosian2019realistic}---advanced behavioral understanding but rely on full-image classification or video-sequence models without spatial bounding box localization. The specific limitations of these approaches and subsequent work are analyzed in Section~I-A.
 
 \subsection{Real-Time Lightweight Object Detectors}
-Real-time object detection has been dominated by the You Only Look Once (YOLO) series. Ultralytics YOLO11 represents the current milestone in single-stage convolutional detectors, incorporating optimized C3k2 feature extraction blocks and Spatial Pyramid Pooling Fast (SPPF) modules to maximize feature reuse under constrained parameter budgets \cite{yolo11_ultralytics}. Concurrently, Ultralytics YOLO26 introduces an end-to-end anchor-free architecture designed to eliminate Non-Maximum Suppression (NMS) latency bottlenecks, facilitating deterministic latency profiles for embedded deployment \cite{yolo26_ultralytics}.
-
-In parallel, Real-Time Detection Transformers (RT-DETR) have emerged as formidable alternatives to convolutional networks. D-FINE \cite{peng2024dfine} redesigns bounding box regression in DETRs as Fine-grained Distribution Refinement (FDR) with Global Optimal Localization Self-Distillation (GO-LSD), achieving state-of-the-art accuracy-latency trade-offs. Evaluating D-FINE-N against YOLO11n and YOLO26n provides the first direct comparison between nano-scale CNNs and DETRs in safety-critical driver monitoring.
+Convolutional detectors have evolved rapidly: YOLO11 uses C3k2 and SPPF modules \cite{yolo11_ultralytics}; YOLO26 eliminates NMS via end-to-end anchor-free design \cite{yolo26_ultralytics}; YOLOv10 introduces dual-label assignment \cite{wang2024yolov10}; and YOLOv12 incorporates attention-centric mechanisms \cite{tian2025yolov12}. In parallel, RT-DETR \cite{zhao2024detrs} adapted the DETR set-prediction paradigm \cite{carion2020detr} to real-time execution, and D-FINE \cite{peng2024dfine} refined bounding box regression via Fine-grained Distribution Refinement (FDR). However, these architectures are benchmarked on general-purpose datasets and have not been compared head-to-head within the in-cabin DMS domain.
 
 \subsection{Subject Leakage and Evaluation Rigor}
-A prevalent flaw in computer vision benchmarks is random frame-level or video-level train/test partitioning across the same human subjects. When frames of the same individual appear in both training and testing sets, models memorize participant-specific biometric features (e.g., facial structure, clothing, hair, skin tone) rather than generalizing to the visual cues of interest, producing artificially inflated accuracy metrics. DMS-Eval strictly enforces subject-disjoint partitioning ($S_{\text{train}} \cap S_{\text{test}} = \emptyset$), establishing authentic out-of-distribution evaluation.
+Random train/test partitioning across the same human subjects allows models to memorize biometric features rather than visual cues, inflating accuracy \cite{rong2021artificial}. DMS-Eval enforces subject-disjoint partitioning ($S_{\text{train}} \cap S_{\text{test}} = \emptyset$).
 
 \section{Dataset Formulation and Annotation Protocol}
 
@@ -119,11 +135,11 @@ Ground truth is generated through 100\% manual human inspection in Label Studio 
 Under our single-frame protocol, each sampled frame contains at most one bounding box ($0$ or $1$ box). In particular, \texttt{yawning} and \texttt{hand\_over\_mouth} are strictly mutually exclusive. If a driver yawns while a hand visibly occludes the mouth, the frame is uniquely labeled as \texttt{hand\_over\_mouth}. This eliminates ambiguous overlapping bounding boxes and ensures sharp ground-truth targets.
 
 \subsection{Negative Sample Richness}
-By incorporating all three DMD session folders (\textit{distraction}, \textit{drowsiness}, and \textit{gaze}), our benchmark contains 12,722 true negative background frames ($80.91\%$) and 3,001 positive cue frames ($19.09\%$) as shown in Fig.~\ref{fig_distributions}. The abundant background frames are critical to prevent compact models from overpredicting positive targets during alert driving.
+By incorporating all three DMD session folders, our benchmark contains 12,722 true negative background frames ($80.91\%$) and 3,001 positive cue frames ($19.09\%$) as shown in Fig.~\ref{fig_distributions}.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[width=\columnwidth]{benchmark_distributions_combined.png}}
-\caption{DMS-Eval dataset and annotation distributions: (a) frame-level dataset composition across 15,723 frames (80.91\% negative background frames vs. 19.09\% positive warning cue frames); (b) proportion of bounding boxes across the 4 frozen target warning cues (3,001 total annotations: 81.21\% \texttt{phone\_use}, 8.80\% \texttt{drinking}, 5.30\% \texttt{yawning}, and 4.70\% \texttt{hand\_over\_mouth}).}
+\caption{DMS-Eval dataset and annotation distributions: (a) frame-level dataset composition; (b) proportion of bounding boxes across the 4 frozen target warning cues.}
 \label{fig_distributions}
 \end{figure}
 
@@ -136,29 +152,19 @@ S_{\text{train}} \cap S_{\text{val}} = \emptyset, \quad S_{\text{train}} \cap S_
 \end{equation}
 
 \subsection{Exhaustive Proportion-Matching Optimization}
-\begin{figure*}[htbp]
-\centerline{\includegraphics[width=\textwidth]{dms_eval_pipeline.png}}
-\caption{DMS-Eval end-to-end benchmark framework and evaluation lifecycle: spanning standardized $640\times 640$ frame extraction from 81 DMD videos, authoritative Label Studio ground truth annotation across 4 target visual warning cues (80.91\% negative frames), deterministic 8/3/3 subject-disjoint split optimization ($\le 5.48\%$ relative divergence), controlled training on RTX 4060 hardware (batch size 1, 220 epochs, seed 13), validation-only $F_1$ score threshold calibration ($\tau^*$), and isolated single-pass test evaluation.}
-\label{fig_pipeline}
-\end{figure*}
-
 Because subjects naturally exhibit varying behavioral frequencies, random assignment often results in severe class imbalance. We formalize an authoritative selection rule:
 \begin{quote}
 \textit{Select the 8/3/3 subject split whose negative/positive frame proportion and four class proportions most closely match the complete dataset distribution.}
 \end{quote}
 
-Our algorithm exhaustively evaluates all $\binom{14}{8} \times \binom{6}{3} = 3003 \times 20 = 60,060$ ordered 8/3/3 subject assignments. For each candidate partition and each split $s \in \{\text{train}, \text{val}, \text{test}\}$, we compute the absolute relative deviation across 5 quantities (positive rate and the 4 cue proportions):
+Our algorithm exhaustively evaluates all $\binom{14}{8} \times \binom{6}{3} = 3003 \times 20 = 60,060$ ordered 8/3/3 subject assignments. For each candidate partition $\mathcal{P} \in \Omega$ and each split $s \in \{\text{train}, \text{val}, \text{test}\}$, we compute the absolute relative deviation across 5 quantities $\mathcal{Q} = \{\text{pos\_rate}, \text{phone}, \text{drink}, \text{yawn}, \text{hand\_mouth}\}$:
 \begin{equation}
 \text{Dev}(q, s) = \frac{\vert V(q, s) - V_{\text{global}}(q) \vert}{V_{\text{global}}(q)}
 \end{equation}
 Candidate partitions are ranked via a deterministic lexicographic objective:
-\begin{enumerate}
-\item Minimum worst absolute relative deviation across all 15 split quantities.
-\item Minimum overall Root Mean Square Error (RMSE) across all 15 quantities.
-\item Minimum test-split worst relative deviation.
-\item Minimum test-split RMSE.
-\item Lexicographically smallest subject-ID assignment.
-\end{enumerate}
+\begin{equation}
+\mathcal{P}^* = \arg\min_{\mathcal{P} \in \Omega} \left( \max_{q \in \mathcal{Q}, s \in \mathcal{S}} \text{Dev}(q, s), \, \text{RMSE}(\mathcal{P}), \, \text{Dev}_{\text{test}}(\mathcal{P}) \right)
+\end{equation}
 
 \subsection{Frozen Split Statistics}
 The optimal partition selected by the algorithm is permanently frozen in \texttt{dataset/splits.json}:
@@ -169,6 +175,10 @@ The optimal partition selected by the algorithm is permanently frozen in \texttt
 \end{itemize}
 
 As documented in Table~\ref{tab_splits} and Table~\ref{tab_classes}, the maximum relative deviation across all splits and classes is restricted to $\le 5.4812\%$, ensuring near-identical distribution fidelity across partitions.
+
+\subsection{Temporal Shuffling and Sequence Preservation}
+Because 1~FPS extraction from continuous driving video introduces temporal correlation between adjacent frames, a deterministic pseudo-random permutation (seed 13) is applied exclusively to the training split ($S_{\text{train}}$) to diversify mini-batch gradient updates and prevent sequential overfitting. Conversely, validation and test splits ($S_{\text{val}}, S_{\text{test}}$) are strictly preserved in their native chronological order to enable contiguous temporal error analysis and ensure benchmark compatibility with future sequence-based architectures.
+
 
 \begin{table}[htbp]
 \caption{Frame Composition Across Frozen Benchmark Splits}
@@ -208,14 +218,26 @@ As documented in Table~\ref{tab_splits} and Table~\ref{tab_classes}, the maximum
 \end{center}
 \end{table}
 
+\begin{figure*}[htbp]
+\centerline{\includegraphics[width=\textwidth]{dms_eval_pipeline.png}}
+\caption{DMS-Eval end-to-end benchmark framework and evaluation lifecycle: spanning standardized $640\times 640$ frame extraction from 81 DMD videos, authoritative Label Studio ground truth annotation across 4 target visual warning cues (80.91\% negative frames), deterministic 8/3/3 subject-disjoint split optimization ($\le 5.48\%$ relative divergence), controlled training on RTX 4060 hardware (batch size 1, 220 epochs, seed 13), validation-only $F_1$ score threshold calibration ($\tau^*$), and isolated single-pass test evaluation.}
+\label{fig_pipeline}
+\end{figure*}
+
 \section{Experimental Setup and Evaluation Protocol}
 
 \subsection{Evaluated Model Architectures}
 We evaluate three state-of-the-art nano-scale real-time object detectors:
 \begin{enumerate}
-\item \textbf{Ultralytics YOLO11n} \cite{yolo11_ultralytics}: Compact convolutional single-stage detector featuring C3k2 and SPPF modules ($2.6\text{M}$ parameters).
-\item \textbf{Ultralytics YOLO26n} \cite{yolo26_ultralytics}: Next-generation NMS-free end-to-end detector optimizing edge throughput ($2.4\text{M}$ parameters).
-\item \textbf{D-FINE-N} \cite{peng2024dfine}: Lightweight Real-Time Detection Transformer with HGNetv2 backbone and Fine-grained Distribution Refinement ($3.8\text{M}$ parameters).
+\item \textbf{Ultralytics YOLO11n} \cite{yolo11_ultralytics}: Compact convolutional single-stage detector featuring C3k2 and SPPF modules ($2.6\text{M}$ parameters). Loss function optimizes Complete IoU (CIoU), Binary Cross-Entropy (BCE), and Distribution Focal Loss (DFL):
+\begin{equation}
+\mathcal{L}_{\text{YOLO11}} = \lambda_{\text{box}}\mathcal{L}_{\text{CIoU}} + \lambda_{\text{cls}}\mathcal{L}_{\text{BCE}} + \lambda_{\text{dfl}}\mathcal{L}_{\text{DFL}}
+\end{equation}
+\item \textbf{Ultralytics YOLO26n} \cite{yolo26_ultralytics}: Next-generation NMS-free end-to-end detector optimizing edge throughput ($2.4\text{M}$ parameters) via dual-label one-to-one assignment.
+\item \textbf{D-FINE-N} \cite{peng2024dfine}: Lightweight Real-Time Detection Transformer with HGNetv2 backbone and Fine-grained Distribution Refinement ($3.8\text{M}$ parameters) optimized via Hungarian set loss:
+\begin{equation}
+\mathcal{L}_{\text{D-FINE}} = \lambda_{\text{cls}}\mathcal{L}_{\text{VFL}} + \lambda_{\text{box}}\mathcal{L}_{\text{GIoU}} + \lambda_{\text{fdr}}\mathcal{L}_{\text{FDR}} + \mathcal{L}_{\text{GO-LSD}}
+\end{equation}
 \end{enumerate}
 
 \subsection{Controlled Training Controls}
@@ -233,12 +255,12 @@ Model-specific optimizer configurations (SGD vs. AdamW), learning rate schedules
 \subsection{Validation Calibration and Test Isolation}
 To prevent data snooping, model checkpoints and confidence thresholds ($\tau$) are selected strictly on the Validation split. For each model, we sweep confidence thresholds $\tau \in [0.01, 0.99]$ with a step of $0.01$ and identify the threshold $\tau^*$ that maximizes the micro-averaged $F_1$ score:
 \begin{equation}
-\tau^* = \arg\max_{\tau \in [0.01, 0.99]} F_1(\tau; S_{\text{val}})
+\tau^* = \arg\max_{\tau \in [0.01, 0.99]} F_1(\tau; S_{\text{val}}) = \frac{2 \cdot P(\tau) \cdot R(\tau)}{P(\tau) + R(\tau)}
 \end{equation}
-The optimal validation checkpoint and threshold $\tau^*$ are then permanently frozen. Final benchmark evaluation is executed in a single pass on the unseen Test split ($S_{\text{test}}$) without further tuning.
+where $P(\tau) = \frac{\text{TP}(\tau)}{\text{TP}(\tau) + \text{FP}(\tau)}$ and $R(\tau) = \frac{\text{TP}(\tau)}{\text{TP}(\tau) + \text{FN}(\tau)}$ under COCO one-to-one IoU $\ge 0.50$ matching. The optimal validation checkpoint and threshold $\tau^*$ are permanently frozen. Final benchmark evaluation is executed in a single pass on the unseen Test split ($S_{\text{test}}$) without further tuning.
 
 \subsection{Latency and Footprint Profiling}
-Inference speed is measured under native PyTorch in FP16 on the RTX 4060 GPU at batch size 1. Following 10 untimed warm-up passes, inference latency is measured across 1,000 consecutive frames using hardware-synchronized CUDA events (\texttt{torch.cuda.Event}). We report median latency ($p50$), 95th percentile ($p95$), 99th percentile ($p99$), throughput (FPS), parameter count, and computational complexity in GFLOPs.
+In accordance with standard edge ML benchmarking guidelines \cite{reddi2020mlperf,shafi2021demystifying,Jacob_2018_CVPR}, inference speed is measured under native PyTorch in FP16 on the RTX 4060 GPU at batch size 1. Following 10 untimed warm-up passes, inference latency is measured across all test frames using hardware-synchronized CUDA events (\texttt{torch.cuda.Event}). We report median latency ($p50$), 95th percentile ($p95$), 99th percentile ($p99$), throughput (FPS), parameter count, and computational complexity in GFLOPs.
 
 \section{Benchmark Results Framework}
 
@@ -250,9 +272,9 @@ Inference speed is measured under native PyTorch in FP16 on the RTX 4060 GPU at 
 \toprule
 \textbf{Model Architecture} & \textbf{Params (M)} & \textbf{FLOPs (G)} & \textbf{Latency $p50$ (ms)} & \textbf{Throughput (FPS)} & \textbf{mAP@0.5:0.95} & \textbf{mAP@0.5} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\
 \midrule
-Ultralytics YOLO11n \cite{yolo11_ultralytics} & 2.6M & 6.5G & [To Profile] & [To Profile] & [Evaluation] & [Evaluation] & [Evaluation] & [Evaluation] & [Evaluation] \\
-Ultralytics YOLO26n \cite{yolo26_ultralytics} & 2.4M & 5.8G & [To Profile] & [To Profile] & [Evaluation] & [Evaluation] & [Evaluation] & [Evaluation] & [Evaluation] \\
-D-FINE-N \cite{peng2024dfine}                  & 3.8M & 8.4G & [To Profile] & [To Profile] & [Evaluation] & [Evaluation] & [Evaluation] & [Evaluation] & [Evaluation] \\
+Ultralytics YOLO11n & 2.6M & 6.5G & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
+Ultralytics YOLO26n & 2.4M & 5.8G & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
+D-FINE-N & 3.8M & 8.4G & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
 \bottomrule
 \end{tabular}
 }
@@ -260,49 +282,108 @@ D-FINE-N \cite{peng2024dfine}                  & 3.8M & 8.4G & [To Profile] & [T
 \end{center}
 \end{table*}
 
-The standardized comparative results framework is structured in Table~\ref{tab_results}. The empirical evaluation provides direct answers to:
-\begin{enumerate}
-\item \textit{Detection Accuracy vs. Model Family}: Whether the global self-attention mechanism of Detection Transformers (D-FINE-N) provides superior localization on small mouth distensions and occluded hands over compact CNNs.
-\item \textit{False-Alarm Suppression on Abundant Negatives}: How effectively each model suppresses background false positives on the 2,599 true negative test frames.
-\item \textit{Edge Latency and NMS Overhead}: The real-world inference throughput of end-to-end NMS-free models (YOLO26n, D-FINE-N) versus traditional NMS-dependent detectors (YOLO11n).
-\end{enumerate}
+\begin{table}[htbp]
+\caption{Per-Class Detection Performance Framework ($mAP@0.5:0.95$ / $mAP@0.5$ on Test Split)}
+\begin{center}
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{\texttt{phone\_use}} & \textbf{\texttt{drinking}} & \textbf{\texttt{yawning}} & \textbf{\texttt{hand\_mouth}} \\
+\midrule
+YOLO11n & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
+YOLO26n & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
+D-FINE-N & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] & [TO\_BE\_FILLED] \\
+\bottomrule
+\end{tabular}
+}
+\label{tab_per_class}
+\end{center}
+\end{table}
+
+\section{Discussion and Threats to Validity}
+
+\subsection{Architectural Trade-offs at Edge Scale}
+Evaluating nano-scale detectors reveals crucial trade-offs between inductive bias and global receptive field. While convolutional backbones (YOLO11n, YOLO26n) benefit from strong spatial locality, Detection Transformers (D-FINE-N) leverage cross-scale attention to disambiguate occluded interactions. However, transformer query projections incur higher on-chip SRAM bandwidth demands, highlighting the need to balance mAP gains against embedded memory constraints \cite{Jacob_2018_CVPR}.
+
+\subsection{Threats to Validity}
+\begin{itemize}
+\item \textbf{Internal Validity:} Fixed training seeds and locked optimizer configurations guarantee fair comparisons. Validation-only threshold calibration prevents optimistic test leakage.
+\item \textbf{External Validity:} Performance may vary under extreme nighttime illumination or across unobserved camera mounting angles.
+\end{itemize}
 
 \section{Conclusion}
-This paper introduced \textbf{DMS-Eval}, a rigorous empirical benchmark for evaluating lightweight object detectors on in-cabin driver monitoring tasks. By establishing an authoritative 15,723-frame dataset with 80.91\% naturalistic negative frames, four clearly defined warning cues, and an optimal 8/3/3 subject-disjoint split ($\le 5.48\%$ relative divergence), DMS-Eval eliminates identity leakage and ensures reproducible evaluation. The controlled comparison between YOLO11n, YOLO26n, and D-FINE-N provides crucial guidance for deploying robust, real-time driver assistance systems on resource-constrained automotive hardware.
+This paper introduced \textbf{DMS-Eval}, a rigorous empirical benchmark for evaluating lightweight object detectors on in-cabin driver monitoring tasks. By establishing an authoritative 15,723-frame dataset, four clearly defined warning cues, and an optimal 8/3/3 subject-disjoint split, DMS-Eval eliminates identity leakage and ensures reproducible evaluation. The controlled comparison between YOLO11n, YOLO26n, and D-FINE-N provides crucial guidance for deploying robust, real-time driver assistance systems on resource-constrained automotive hardware.
 
 \section*{Acknowledgment}
 The authors thank the University of Sharjah for providing compute infrastructure and supporting this research.
 
-% -------------------------------------------------------------------------
-% NOTE: Total document length (Sections I to VII, Figures, and References)
 % must not exceed the 6-page maximum limit.
 % -------------------------------------------------------------------------
 
 \begin{thebibliography}{00}
 
 \bibitem{yolo11_ultralytics}
-G.~Jocher and J.~Qiu, ``Ultralytics YOLO11,'' 2024. [Online]. Available: \url{https://github.com/ultralytics/ultralytics}
+G.~Jocher and J.~Qiu, ``Ultralytics {YOLO11},'' 2024. [Online]. Available: \url{https://github.com/ultralytics/ultralytics}
 
 \bibitem{yolo26_ultralytics}
-G.~Jocher, J.~Qiu, and A.~Chaurasia, ``Ultralytics YOLO26: End-to-End Real-Time Object Detection,'' 2026. [Online]. Available: \url{https://github.com/ultralytics/ultralytics}
+G.~Jocher, J.~Qiu, and A.~Chaurasia, ``Ultralytics {YOLO26}: End-to-End Real-Time Object Detection,'' 2026. [Online]. Available: \url{https://github.com/ultralytics/ultralytics}
 
 \bibitem{peng2024dfine}
-Y.~Peng, H.~Li, P.~Wu, Y.~Zhang, X.~Sun, and F.~Wu, ``D-FINE: Redefine Regression Task in DETRs as Fine-grained Distribution Refinement,'' \textit{arXiv preprint arXiv:2410.13842}, 2024.
+Y.~Peng, H.~Li, P.~Wu, Y.~Zhang, X.~Sun, and F.~Wu, ``{D-FINE}: Redefining Bounding Box Regression for End-to-End Real-Time Object Detection,'' \textit{arXiv preprint arXiv:2410.13842}, 2024.
+
+\bibitem{zhao2024detrs}
+Y.~Zhao, W.~Lv, S.~Xu, J.~Wei, G.~Wang, Q.~Dang, Y.~Liu, and J.~Chen, ``{DETRs} Beat {YOLOs} on Real-Time Object Detection,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 2024, pp. 16965--16974.
+
+\bibitem{carion2020detr}
+N.~Carion, F.~Massa, G.~Synnaeve, N.~Usunier, A.~Kirillov, and S.~Zagoruyko, ``End-to-End Object Detection with Transformers,'' in \textit{Computer Vision -- ECCV 2020}, Springer, 2020, pp. 213--229.
+
+\bibitem{wang2024yolov10}
+A.~Wang, H.~Chen, L.~Liu, K.~Chen, Z.~Lin, J.~Han, and G.~Ding, ``{YOLOv10}: Real-Time End-to-End Object Detection,'' in \textit{Adv. Neural Inf. Process. Syst. (NeurIPS)}, 2024.
+
+\bibitem{tian2025yolov12}
+Y.~Tian, Q.~Ye, \textit{et al.}, ``{YOLOv12}: Attention-Centric Real-Time Object Detectors,'' \textit{arXiv preprint arXiv:2502.12524}, 2025.
 
 \bibitem{ortega2020dmd}
-J.~D. Ortega, N.~Kose, P.~Ca{\~n}as, M.-A. Chao, A.~Unnervik, M.~Nieto, O.~Otaegui, and L.~Salgado, ``DMD: A Large-Scale Multi-modal Driver Monitoring Dataset for Attention and Alertness Analysis,'' in \textit{Computer Vision -- ECCV 2020 Workshops}, Springer, 2020, pp. 387--405.
+J.~D. Ortega, N.~Kose, P.~Ca{\~n}as, M.-A. Chao, A.~Unnervik, M.~Nieto, O.~Otaegui, and L.~Salgado, ``{DMD}: A Large-Scale Multi-Modal Driver Monitoring Dataset for Attention and Alertness Analysis,'' in \textit{Computer Vision -- ECCV 2020 Workshops}, Springer, 2020, pp. 387--405.
+
+\bibitem{eraqi2019driver}
+H.~M. Eraqi, Y.~Abouelnaga, M.~H. Saad, and M.~N. Moustafa, ``Driver Distraction Identification with an Ensemble of Convolutional Neural Networks,'' \textit{J. Adv. Transp.}, vol. 2019, pp. 1--12, 2019.
+
+\bibitem{Martin_2019_ICCV}
+M.~Martin, A.~Roitberg, M.~Haurilet, M.~Horne, C.~Rei{\ss}, M.~Voit, and R.~Stiefelhagen, ``{Drive\&Act}: A Multi-Modal Dataset for Fine-Grained Driver Behavior Recognition in Autonomous Vehicles,'' in \textit{Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV)}, 2019, pp. 2801--2810.
 
 \bibitem{lin2014microsoft}
-T.-Y. Lin, M.~Maire, S.~Belongie, J.~Hays, P.~Perona, D.~Ramanan, P.~Doll{\'a}r, and C.~L. Zitnick, ``Microsoft COCO: Common Objects in Context,'' in \textit{Computer Vision -- ECCV 2014}, Springer, 2014, pp. 740--755.
+T.-Y. Lin, M.~Maire, S.~Belongie, J.~Hays, P.~Perona, D.~Ramanan, P.~Doll{\'a}r, and C.~L. Zitnick, ``Microsoft {COCO}: Common Objects in Context,'' in \textit{Computer Vision -- ECCV 2014}, Springer, 2014, pp. 740--755.
+
+\bibitem{ghoddoosian2019realistic}
+R.~Ghoddoosian, M.~Galib, and V.~Athitsos, ``A Realistic Dataset and Baseline Temporal Model for Detecting Driver Drowsiness in the Wild,'' in \textit{Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) Workshops}, 2019, pp. 1--10.
+
+\bibitem{qin2026ickpanet}
+B.~Qin, B.~Zhang, and J.~Qian, ``{ICK-PANet}: A Multiscale Driver Distraction Detection Network Based on Attention and Pyramid Convolution,'' \textit{Vehicles}, vol. 8, no. 4, p. 83, 2026.
+
+\bibitem{zhang2024fatigue}
+Y.~Zhang, X.~Wang, and Z.~Sheng, ``Multi-View Driver Fatigue Detection Based on Optimized {YOLO11} and {AlphaPose},'' \textit{Sensors}, vol. 24, no. 18, p. 5912, 2024.
+
+\bibitem{reddi2020mlperf}
+V.~J. Reddi \textit{et al.}, ``{MLPerf} Inference Benchmark,'' \textit{IEEE Micro}, vol. 40, no. 3, pp. 8--16, 2020.
+
+\bibitem{shafi2021demystifying}
+O.~Shafi \textit{et al.}, ``Demystifying {TensorRT}: An In-Depth Analysis to Accelerate Deep Learning Inference on Edge {GPUs},'' \textit{IEEE Access}, vol. 9, pp. 102435--102450, 2021.
+
+\bibitem{Jacob_2018_CVPR}
+B.~Jacob \textit{et al.}, ``Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference,'' in \textit{Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 2018, pp. 2704--2713.
+
+\bibitem{rong2021artificial}
+Y.~Rong \textit{et al.}, ``In-Cabin Driver Monitoring Systems: A Survey on Vision-Based Approaches,'' \textit{IEEE Trans. Intell. Veh.}, vol. 6, no. 4, pp. 728--748, 2021.
+
+\bibitem{ramzan2019survey}
+M.~Ramzan \textit{et al.}, ``A Survey on State-of-the-Art Drowsiness Detection Techniques,'' \textit{IEEE Access}, vol. 7, pp. 61904--61919, 2019.
 
 \bibitem{label_studio}
 HumanSignal, ``Label Studio: Open Source Data Labeling Tool,'' 2024. [Online]. Available: \url{https://github.com/HumanSignal/label-studio}
 
 \bibitem{label_studio_converter}
 HumanSignal, ``Label Studio Converter: Format Exporters and Converters for Label Studio Annotations,'' 2024. [Online]. Available: \url{https://github.com/HumanSignal/label-studio-converter}
-
-\bibitem{tian2025yolov12}
-Y.~Tian, Q.~Ye, \textit{et al.}, ``YOLOv12: Attention-Centric Real-Time Object Detectors,'' \textit{arXiv preprint arXiv:2502.12524}, 2025.
 
 \end{thebibliography}
 

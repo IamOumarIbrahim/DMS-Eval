@@ -1,3 +1,10 @@
+## [2026-08-19 22:50:00] - Generate split-grouped per-subject dataset with seed-13 shuffled training sets
+- Create [`dataset/annotations_per_subject_shuffled/`](dataset/annotations_per_subject_shuffled/) organizing per-subject annotations into `Training/` (8 subjects), `Validation/` (3 subjects), and `Test/` (3 subjects) folders
+- Implement deterministic pseudo-random shuffling (seed 13) strictly for the 8 training subjects across `coco_annotations.json` and `raw_annotations.json` to break 1 FPS sequence correlations during model training
+- Maintain `Validation/` and `Test/` splits in exact sequential/index order for temporal analysis and deterministic evaluation
+- Create [`scripts/create_shuffled_annotations.py`](scripts/create_shuffled_annotations.py) to reproducibly generate and verify the partition hierarchy with 100% data integrity (15,723 frames, 3,001 bboxes)
+- Create [`dataset/annotations_per_subject_shuffled/README.md`](dataset/annotations_per_subject_shuffled/README.md) and update documentation in [`docs/quick-start.md`](docs/quick-start.md), [`docs/annotation-protocol.md`](docs/annotation-protocol.md), and [`scripts/README.md`](scripts/README.md)
+
 ## [2026-08-19 22:45:00] - Reorganize assets directory into categorized subdirectories
 - Categorize all visual assets into 4 semantic subfolders under `assets/`:
   - `assets/branding/`: `socialpreview.png` (820 px repository social card and header banner)
