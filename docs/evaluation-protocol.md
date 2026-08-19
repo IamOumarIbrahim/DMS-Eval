@@ -33,11 +33,13 @@
 | | Precision | Full Test Set | Evaluated at validation-optimal F1 confidence threshold using IoU = 0.50 |
 | | Recall | Full Test Set | Evaluated at validation-optimal F1 confidence threshold using IoU = 0.50 |
 | | F1-Score | Full Test Set | Primary criterion for per-model validation confidence-threshold selection |
-| **Runtime Efficiency** | Inference Latency (ms/image) | Full Test Set | Median model-inference latency; batch size 1; PyTorch CUDA events |
-| | FPS / Throughput | Full Test Set | Report latency-derived FPS and separately measured continuous-test-set throughput |
-| **Deployment Profile** | Parameters (M) | Architectural | Use official published model parameter counts |
-| | Model File Size (MB) | Final Validation-Selected Checkpoint | Locally measure the actual checkpoint artifact using one common procedure |
-| | Computational Workload (GFLOPs) | Architectural | Locally calculate with THOP at `1 × 3 × 640 × 640` using `1 MAC = 2 FLOPs` |
+| | False Alarm Rate (FAR %) | Full Test Set (Negative Frames) | Quantifies false alarms on background frames: $\text{FAR} = (\text{FP}_{\text{neg}} / N_{\text{neg}}) \times 100\%$ |
+| **Runtime Efficiency** | Latency Percentiles (ms) | Full Test Set | Median ($p50$), 95th ($p95$), and 99th ($p99$) latency; batch size 1; PyTorch CUDA events |
+| | Sustained Throughput (FPS) | Full Test Set | Measured continuously across all 3,213 test frames at batch size 1 |
+| **Deployment Profile** | Parameters (M) | Architectural | Official published parameter count |
+| | Computational Workload (GFLOPs) | Architectural | Calculated with THOP at `1 × 3 × 640 × 640` using `1 MAC = 2 FLOPs` |
+| | Peak GPU Memory (MB) | Full Test Set | Measured via `torch.cuda.max_memory_allocated()` at batch size 1 |
+| | Model File Size (MB) | Final Selected Checkpoint | Locally measured weight artifact on disk |
 
 > [!NOTE]
 > DMS-Eval uses **mAP as the benchmark's detection-accuracy measure**. A separate generic classification `Accuracy` metric is not included.
@@ -47,17 +49,17 @@
 
 ### Reporting Structure
 
-* **Overall test-set reporting:** `mAP@0.5:0.95`, `mAP@0.5`, Precision, Recall, F1-score, inference latency, FPS, Parameters, model file size, and FLOPs.
-* **Per-class reporting:** `mAP@0.5:0.95` and `mAP@0.5` only.
+* **Overall test-set reporting:** `mAP@0.5:0.95`, `mAP@0.5`, Precision, Recall, F1-score, Latency ($p50, p95, p99$), sustained FPS, Parameters (M), GFLOPs, Peak VRAM (MB), checkpoint file size (MB), and Background False Alarm Rate (FAR %).
+* **Per-class reporting:** `mAP@0.5:0.95` and `mAP@0.5` across all 4 target warning cues.
 * Per-class Precision, Recall, and F1-score are not currently included.
 
 <p align="center"><sub><b>Table 2.</b> Benchmark comparative evaluation matrix (NVIDIA RTX 4060, Batch Size 1, FP16).</sub></p>
 
-| Model Architecture | Params (M) | FLOPs (G) | Calibrated $\tau^*$ | Latency $p50$ (ms) | Throughput (FPS) | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Ultralytics YOLO11n** | 2.6M | 6.5G | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` |
-| **Ultralytics YOLO26n** | 2.4M | 5.8G | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` |
-| **D-FINE-N** | 3.8M | 8.4G | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` |
+| Model Architecture | Params (M) | FLOPs (G) | Peak VRAM (MB) | Latency $p50$ (ms) | Latency $p95$ (ms) | Latency $p99$ (ms) | Throughput (FPS) | FAR (%) | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Ultralytics YOLO11n** | 2.6M | 6.5G | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` |
+| **Ultralytics YOLO26n** | 2.4M | 5.8G | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` |
+| **D-FINE-N** | 3.8M | 8.4G | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` | `[TO_BE_FILLED]` |
 
 </details>
 

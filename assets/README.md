@@ -22,7 +22,9 @@ assets/
 │   ├── benchmark_distributions_combined.png  # 2-panel figure: frame composition & warning cue share
 │   ├── cue_class_distribution_pie.png        # Pie chart of 4 target warning cues (3,001 boxes)
 │   ├── dataset_frame_composition_pie.png     # Donut chart of negative vs positive frames (15,723 frames)
-│   └── split_cue_proportions_comparison.png  # Grouped bar chart across 8/3/3 subject-disjoint partitions
+│   ├── split_cue_proportions_comparison.png  # Grouped bar chart across 8/3/3 subject-disjoint partitions
+│   ├── pareto_efficiency_frontier.png        # 2D scatter plot: mAP@0.5:0.95 vs. latency/throughput
+│   └── qualitative_activation_heatmaps.png   # 2x4 activation grid: Grad-CAM vs. cross-scale attention
 │
 └── examples/                                 # Annotation & spatial cropping visual examples
     ├── 640X640.png                           # In-cabin DMD video crop geometry (x=272, y=71, 640x640)
@@ -41,11 +43,13 @@ assets/
 | Subfolder | File | Description | Target Usage |
 | :--- | :--- | :--- | :--- |
 | **`branding/`** | [`socialpreview.png`](./branding/socialpreview.png) | High-contrast header social card for GitHub repository preview | README header, OpenGraph |
-| **`diagrams/`** | [`dms_eval_pipeline.png`](./diagrams/dms_eval_pipeline.png) | 6-module architecture flowchart from video ingestion to test evaluation | README, Manuscript (Fig. 1) |
+| **`diagrams/`** | [`dms_eval_pipeline.png`](./diagrams/dms_eval_pipeline.png) | 6-module architecture flowchart from video ingestion to test evaluation | README, Manuscript (Fig. 3) |
 | **`charts/`** | [`benchmark_distributions_combined.png`](./charts/benchmark_distributions_combined.png) | 2-panel publication figure: (a) frame composition & (b) cue distribution | README, Docs, Manuscript |
 | **`charts/`** | [`cue_class_distribution_pie.png`](./charts/cue_class_distribution_pie.png) | Class distribution across 4 cues: `phone_use`, `drinking`, `yawning`, `hand_over_mouth` | Technical documentation |
 | **`charts/`** | [`dataset_frame_composition_pie.png`](./charts/dataset_frame_composition_pie.png) | Negative background (80.9%) vs. positive cue (19.1%) frame proportions | Technical documentation |
-| **`charts/`** | [`split_cue_proportions_comparison.png`](./charts/split_cue_proportions_comparison.png) | Class proportion preservation ($\le 5.48\%$ relative divergence) across splits | README, Quick-Start |
+| **`charts/`** | [`split_cue_proportions_comparison.png`](./charts/split_cue_proportions_comparison.png) | Class proportion preservation ($\le 5.48\%$ relative divergence) across splits | README, Quick-Start, Manuscript |
+| **`charts/`** | [`pareto_efficiency_frontier.png`](./charts/pareto_efficiency_frontier.png) | 2-panel Pareto scatter plot: accuracy vs. latency ($p50$) and throughput (FPS) | Technical documentation, Results |
+| **`charts/`** | [`qualitative_activation_heatmaps.png`](./charts/qualitative_activation_heatmaps.png) | $2\times 4$ qualitative activation grid: CNN Grad-CAM vs. Transformer attention | Technical documentation, Results |
 | **`examples/`** | [`640X640.png`](./examples/640X640.png) | DMD in-cabin video frame spatial crop centering driver face/head | Annotation protocol, Manuscript |
 | **`examples/`** | [`yawning_annotation_example.png`](./examples/yawning_annotation_example.png) | Ground truth annotation example enclosing mouth region during yawning | README, Annotation protocol |
 | **`examples/`** | [`hand_over_mouth_annotation_example.png`](./examples/hand_over_mouth_annotation_example.png) | Ground truth annotation example enclosing head and occluding hand | README, Annotation protocol |

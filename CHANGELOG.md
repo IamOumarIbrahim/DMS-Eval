@@ -1,3 +1,9 @@
+## [2026-08-20 00:19:00] - Converge documentation suite and internal ledgers on unified metrics and asset catalogs
+- Synchronize Table 1 and Table 2 in `docs/evaluation-protocol.md` with manuscript Table II ($p50, p95, p99$ latency, sustained FPS, Peak VRAM, and Background False Alarm Rate)
+- Update `docs/internal/resolve_later.md` Table E with latency percentiles, Peak VRAM, and FAR tracking
+- Expand `assets/README.md` catalog with newly scaffolded Pareto efficiency frontier and qualitative activation heatmap assets
+- Verify 100% single-truth convergence across manuscript and entire documentation suite
+
 ## [2026-08-20 00:17:00] - Reconcile metric parity, consolidate figures, formalize false-alarm rate, and scaffold visualizations
 - Reconcile Section V-D latency percentiles and edge metrics with Table II, adding columns for $p50, p95, p99$ latency, sustained FPS, Peak VRAM (MB), and Background False Alarm Rate (FAR)
 - Consolidate Section III & IV figures into multi-panel composite figures (`fig_spatial_and_annotations` and `fig_distributions_and_splits`), reclaiming ~1.5 columns of float space within the strict 6-page IEEE budget
