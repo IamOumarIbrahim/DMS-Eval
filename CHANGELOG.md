@@ -1,3 +1,15 @@
+## [2026-08-19 23:31:00] - Integrate split cue proportions figure into manuscript Section IV
+- Add Figure 4 (`split_cue_proportions_comparison.png`) to Section IV-C visually proving warning cue distribution fidelity across 8/3/3 subject-disjoint partitions ($\le 5.4812\%$ relative divergence)
+- Unify split frame composition and target cue breakdown tables into a single comprehensive **Table I** (*Dataset Split Composition and Warning Cue Distributions Across Partitions*), saving vertical float space
+- Recompile and verify clean 6-page IEEE conference PDF (`manuscript/main.pdf`) with 0 errors and 0 undefined references
+
+## [2026-08-19 23:25:00] - Enhance manuscript with PI-aligned research gap, edge justification, and temporal shuffling strategy
+- Restructure Introduction with a dedicated 4-axis **Research Gap** subsection (Section I-A) explicitly contrasting sub-5M parameter single-stage detectors against classification-only baselines (AUC, ICK-PANet) and high-latency multi-stage pipelines (Zhang et al. YOLO11+AlphaPose+LSTM, Drive&Act, UTA-RLDD)
+- Integrate automotive edge deployment engineering rationale highlighting on-chip SRAM constraints ($4\text{--}8\,\text{MB}$), divergence between theoretical GFLOPs and wall-clock latency, and MLPerf-aligned batch-1 CUDA-event profiling
+- Formalize **Subsection IV-D** (*Temporal Shuffling and Sequence Preservation*) detailing deterministic seed-13 permutation on $S_{\text{train}}$ for gradient decorrelation alongside chronological preservation on $S_{\text{val}}$ and $S_{\text{test}}$ for contiguous event error analysis
+- Refine research question and contributions in the future tense per research-in-progress requirements
+- Recompile LaTeX source to maintain strict 6-page maximum IEEE conference limit
+
 ## [2026-08-19 22:50:00] - Generate split-grouped per-subject dataset with seed-13 shuffled training sets
 - Create [`dataset/annotations_per_subject_shuffled/`](dataset/annotations_per_subject_shuffled/) organizing per-subject annotations into `Training/` (8 subjects), `Validation/` (3 subjects), and `Test/` (3 subjects) folders
 - Implement deterministic pseudo-random shuffling (seed 13) strictly for the 8 training subjects across `coco_annotations.json` and `raw_annotations.json` to break 1 FPS sequence correlations during model training
