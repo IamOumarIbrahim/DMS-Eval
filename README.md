@@ -16,13 +16,13 @@
 </p>
 
 <p align="center">
-  <a href="./manuscript/main.pdf">
+  <a href="https://raw.githubusercontent.com/IamOumarIbrahim/DMS-Eval/main/manuscript/main.pdf" download="DMS-Eval-Manuscript.pdf">
     <img src="https://img.shields.io/badge/📄_Full_Manuscript-Read_PDF_here-e02424?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Read PDF here">
   </a>
 </p>
 
 <p align="center">
-  👉 <strong><a href="./manuscript/main.pdf">Read PDF here</a></strong> <em>(IEEE Conference Manuscript · 6-Page Camera-Ready PDF)</em> 👈
+  👉 <strong><a href="https://raw.githubusercontent.com/IamOumarIbrahim/DMS-Eval/main/manuscript/main.pdf" download="DMS-Eval-Manuscript.pdf">Read PDF here</a></strong> <em>(Click to Download · IEEE Conference Manuscript · 6-Page Camera-Ready PDF)</em> 👈
 </p>
 
 **DMS-Eval** is a planned benchmark framework currently in development for evaluating nano-scale (lightweight) object detection architectures for detecting visual cues associated with driver drowsiness and distraction in real time across diverse cabin operating conditions.
