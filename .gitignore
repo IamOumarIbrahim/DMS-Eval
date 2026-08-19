@@ -48,5 +48,8 @@ __pycache__/
 *$py.class
 *_tmp.pdf
 
-# Tools & Label Studio
-tools/
+# Tools & Label Studio local runtime data
+tools/**/.venv/
+tools/**/.env
+tools/**/data/
+tools/**/media/
