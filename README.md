@@ -151,9 +151,9 @@ See [Benchmark scope, data & splits](./docs/quick-start.md) and the [evaluation 
 <details>
 <summary><strong>Acknowledgments and submission note</strong></summary>
 
-This benchmark builds upon the excellent work of the teams behind [YOLO11](https://docs.ultralytics.com/models/yolo11/), [D-FINE](https://github.com/Peterande/D-FINE), and [YOLO26](https://docs.ultralytics.com/models/yolo26/).
+This benchmark builds upon the excellent work of the teams behind [YOLO11](https://docs.ultralytics.com/models/yolo11/), [D-FINE](https://github.com/Peterande/D-FINE), [YOLO26](https://docs.ultralytics.com/models/yolo26/), [Label Studio](https://github.com/HumanSignal/label-studio), and [`label-studio-converter`](https://github.com/HumanSignal/label-studio-converter).
 
-We sincerely thank their authors, contributors, and maintainers for making these architectures and their implementations available to the research community. Their work makes comparative studies such as **DMS-Eval** possible.
+We sincerely thank their authors, contributors, and maintainers for making these architectures, labeling tools, and format converters available to the research community. Their work makes comparative studies such as **DMS-Eval** possible.
 
 > [!NOTE]
 > This research and codebase are prepared for submission to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026), held November 25–27, 2026.

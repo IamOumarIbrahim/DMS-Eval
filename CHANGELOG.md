@@ -1,3 +1,9 @@
+## [2026-08-19 16:20:00] - Add citations and references for Label Studio and label-studio-converter
+- Add BibTeX entries for `label_studio` and `label_studio_converter` in `manuscript/bib/references.bib`
+- Add formal citations `\cite{label_studio}` and `\cite{label_studio_converter}` and `\bibitem` entries in `manuscript/main.tex`
+- Reference `label-studio-converter` repository across `docs/annotation-protocol.md`, `docs/quick-start.md`, `docs/execution-checklist.md`, and `README.md`
+- Recompile LaTeX manuscript PDF
+
 ## [2026-08-18 23:26:00] - Add drinking manual annotation visual example to documentation and manuscript
 - Save `drinking_annotation_example.png` visual asset illustrating Label Studio face + beverage container bounding box
 - Document `drinking` annotation example as Figure 3 in `docs/annotation-protocol.md` and update figure numbering

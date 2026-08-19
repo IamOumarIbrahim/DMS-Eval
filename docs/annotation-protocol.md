@@ -103,7 +103,8 @@
 
 ### 🧊 Frozen Label Studio Organization
 
-* **Annotation tool:** Label Studio (Community Edition, local pip installation)
+* **Annotation tool:** [Label Studio](https://github.com/HumanSignal/label-studio) (Community Edition, local pip installation)
+* **Export & format converter:** [`label-studio-converter`](https://github.com/HumanSignal/label-studio-converter) (HumanSignal)
 * **Project structure:** One Label Studio project (`DMS-Eval`)
 * **Task structure:** One Label Studio task per image (15,723 tasks total)
 * **Task metadata:** Subject, video, filename, and sampled-frame index are retained as task metadata to allow filtering and processing by subject.
@@ -117,7 +118,7 @@ The human expert annotator directly annotates all 15,723 frames to construct the
 2. **Definitive Ground Truth:** All annotations created and submitted in Label Studio are saved directly into the local database as authoritative human annotations.
 3. **No Intermediate Workflow Fields in JSON:** There is no need for intermediate review flags or "human check needed" variables in the dataset schema. Submitted annotations represent finalized ground truth.
 4. **Zero-Cue Frames & DMD Source Composition:** Source frames are extracted from all three original DMD behavioral folders (`distraction`, `drowsiness`, and `gaze`). Normal alert driving periods, mirror checks, and entire `gaze` session frames containing none of the 4 cues are submitted with zero bounding boxes. This supplies a large, realistic negative sample distribution essential to prevent models from overtraining on positive cues.
-5. **Authoritative Export:** Completed annotations are exported from Label Studio directly into the master COCO file at [`dataset/annotations.json`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/annotations.json).
+5. **Authoritative Export:** Completed annotations are exported from Label Studio directly into the master COCO file at [`dataset/annotations.json`](file:///c:/Dev/repos/Public%20repos/DMS-Eval/dataset/annotations.json) using the standard COCO exporter specification from [`label-studio-converter`](https://github.com/HumanSignal/label-studio-converter).
 
 ### Detection Ontology Integrity
 

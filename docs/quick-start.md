@@ -270,7 +270,7 @@ The master COCO annotation file stores:
 
 > [!TIP]
 > **Single Source of Truth:**
-> Authoritative annotations exported from direct manual human annotation in Label Studio construct `dataset/annotations.json`. Model-specific format converters (e.g., YOLO TXT or DETR formats) derive their inputs directly from this master file and `splits.json`. See the [annotation protocol](./annotation-protocol.md) and [manual annotation guide (1-page PDF)](./manual-annotation-guide.pdf) for the complete workflow.
+> Authoritative annotations exported from direct manual human annotation in [Label Studio](https://github.com/HumanSignal/label-studio) via [`label-studio-converter`](https://github.com/HumanSignal/label-studio-converter) construct `dataset/annotations.json`. Model-specific format converters (e.g., YOLO TXT or DETR formats) derive their inputs directly from this master file and `splits.json`. See the [annotation protocol](./annotation-protocol.md) and [manual annotation guide (1-page PDF)](./manual-annotation-guide.pdf) for the complete workflow.
 
 <details>
 <summary><strong>Show frame-naming convention</strong></summary>
