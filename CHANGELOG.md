@@ -1,3 +1,8 @@
+## [2026-08-19 17:45:00] - Commit 14-subject annotation source and generate master COCO ground truth
+- Commit full 14-subject annotation source export in `dataset/All_Subjects_annotated/` (15,723 tasks, 3,001 bounding boxes, 12,722 negative frames)
+- Implement `scripts/assemble_master_coco.py` to assemble and validate canonical `dataset/annotations.json`
+- Enforce relative image paths (`images/subject_XX/video_YY/...`), standardized 1-indexed category IDs (1: `yawning`, 2: `hand_over_mouth`, 3: `drinking`, 4: `phone_use`), and validated $640 \times 640$ bounding boxes
+
 ## [2026-08-19 17:35:00] - Generate and integrate benchmark distribution pie charts
 - Implement `scripts/generate_distribution_charts.py` creating high-resolution publication-quality pie charts:
   - `assets/dataset_frame_composition_pie.png` (80.9% negative vs 19.1% positive frames)
