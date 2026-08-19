@@ -278,3 +278,19 @@ exclusion_reason
 > * **Strict Logging:** Any excluded frame must be logged with a concrete reason in `excluded_frames.csv` to ensure auditable dataset curation.
 
 </details>
+
+---
+
+## ⚠️ Resolve Later Checklist
+
+<div align="center">
+
+| Status | Item / Open Decision | Protocol Role | Target Resolution Milestone |
+| :---: | :--- | :--- | :--- |
+| [ ] | **Validation Confidence Thresholds ($\tau^*$)** | Numerical threshold values $(\tau_{\text{YOLO11n}}, \tau_{\text{D-FINE-N}}, \tau_{\text{YOLO26n}})$ selected via validation $F_1$ sweep | [Module 4.3](./execution-checklist.md#module-4-shared-evaluation-harness--validation-model-selection) |
+| [ ] | **Host Environment Manifest Pinning** | Exact pinned versions for CUDA, cuDNN, PyTorch, Ultralytics commit, D-FINE commit, and THOP | [Module 3.1](./execution-checklist.md#module-3-environment-configuration--controlled-model-training) |
+| [ ] | **Custom / Unsupported Operator Profiling** | Local operator handler audit for THOP GFLOPs computation ($1 \times 3 \times 640 \times 640$) | [Module 5.2](./execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
+| [ ] | **Non-Integer FPS Frame Mapping** | Exact frame-index rounding rule for source video extraction at non-integer framerates | [Module 1.1](./execution-checklist.md#module-1-data-pipeline--annotation-integrity) |
+| [ ] | **Checkpoint Storage Measurement** | Uniform disk footprint measurement protocol (MB) for final selected model weights | [Module 5.3](./execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
+
+</div>

@@ -89,3 +89,19 @@ Because `LABEL_STUDIO_LOCAL_FILES_SERVING_ENABLED` is enabled:
 ## Labeling Templates (`config/`)
 
 Tracked XML configuration templates for Label Studio labeling interfaces are located in [`config/`](config/). You can paste the contents of these XML files into **Project Settings > Labeling Interface > Code**.
+
+---
+
+## ⚠️ Resolve Later Checklist
+
+<div align="center">
+
+| Status | Item / Open Decision | Protocol Role | Target Resolution Milestone |
+| :---: | :--- | :--- | :--- |
+| [ ] | **Validation Confidence Thresholds ($\tau^*$)** | Numerical threshold values $(\tau_{\text{YOLO11n}}, \tau_{\text{D-FINE-N}}, \tau_{\text{YOLO26n}})$ selected via validation $F_1$ sweep | [Module 4.3](../../docs/execution-checklist.md#module-4-shared-evaluation-harness--validation-model-selection) |
+| [ ] | **Host Environment Manifest Pinning** | Exact pinned versions for CUDA, cuDNN, PyTorch, Ultralytics commit, D-FINE commit, and THOP | [Module 3.1](../../docs/execution-checklist.md#module-3-environment-configuration--controlled-model-training) |
+| [ ] | **Custom / Unsupported Operator Profiling** | Local operator handler audit for THOP GFLOPs computation ($1 \times 3 \times 640 \times 640$) | [Module 5.2](../../docs/execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
+| [ ] | **Non-Integer FPS Frame Mapping** | Exact frame-index rounding rule for source video extraction at non-integer framerates | [Module 1.1](../../docs/execution-checklist.md#module-1-data-pipeline--annotation-integrity) |
+| [ ] | **Checkpoint Storage Measurement** | Uniform disk footprint measurement protocol (MB) for final selected model weights | [Module 5.3](../../docs/execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
+
+</div>
