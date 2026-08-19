@@ -51,21 +51,9 @@ driver monitoring systems, driver drowsiness detection, driver distraction detec
 \end{IEEEkeywords}
 
 \section{Introduction}
-In-cabin Driver Monitoring Systems (DMS) constitute a vital component of modern Advanced Driver Assistance Systems (ADAS) and autonomous vehicle safety suites, aiming to prevent roadway collisions through early visual detection of driver drowsiness and inattention \cite{rong2021artificial,ramzan2019survey}. While high-level driver state assessment often leverages temporal recurrent or multi-frame sequence models, automotive edge deployments impose severe compute, memory, and latency constraints. Consequently, there is an urgent practical demand for lightweight, nano-scale 2D object detectors capable of executing real-time single-frame inference on embedded in-cabin hardware.
+In-cabin Driver Monitoring Systems (DMS) constitute a vital component of modern Advanced Driver Assistance Systems (ADAS), aiming to prevent roadway collisions through early visual detection of driver drowsiness and inattention \cite{rong2021artificial,ramzan2019survey}. While high-level driver state assessment frequently leverages complex multi-frame temporal models, automotive edge deployments impose strict constraints on compute, on-chip SRAM, and per-frame latency. Consequently, there is an urgent practical demand for lightweight 2D object detectors capable of real-time single-frame inference on embedded automotive hardware.
 
-To systematically evaluate modern compact detector paradigms under strictly controlled single-frame constraints, this paper introduces \textbf{DMS-Eval}, an empirical benchmark comparing real-time nano-scale object detectors. We evaluate leading single-stage convolutional detectors (Ultralytics YOLO11n \cite{yolo11_ultralytics} and Ultralytics YOLO26n \cite{yolo26_ultralytics}) against modern end-to-end Real-Time Detection Transformers (D-FINE-N \cite{peng2024dfine}).
-
-The benchmark is developed on real-cabin RGB video from the Driver Monitoring Dataset (DMD) \cite{ortega2020dmd}, incorporating all three original dataset session categories: \textit{distraction}, \textit{drowsiness}, and \textit{gaze}. Across 81 driver-facing videos from 14 volunteer participants, frames are sampled uniformly at 1~FPS and cropped to a frozen $640 \times 640$ spatial window ($x = 272, y = 71, w = 640, h = 640$) as illustrated in Fig.~\ref{fig_crop}, yielding a standardized dataset of 15,723 frames. Retaining all three session folders—particularly the \textit{gaze} recordings and non-cue intervals—provides an abundant volume of naturalistic negative background frames ($0$ bounding boxes), preventing compact detectors from overtraining on positive targets and enforcing realistic false-positive suppression during routine driving (illustrated in Fig.~\ref{fig_distributions}a). Ground truth is constructed through 100\% direct manual expert annotation in Label Studio \cite{label_studio} with format exports structured via \texttt{label-studio-converter} \cite{label_studio_converter} under the Microsoft COCO format \cite{lin2014microsoft} targeting 4 frozen visual warning cues (exemplified in Fig.~\ref{fig_annotation_examples} and quantified in Fig.~\ref{fig_distributions}b):
-\begin{enumerate}
-\item \texttt{yawning}: mouth region only (wide oral opening/distension);
-\item \texttt{hand\_over\_mouth}: full head/face enclosing the occluding hand;
-\item \texttt{drinking}: interacting hand and beverage container together in active consumption posture;
-\item \texttt{phone\_use}: handheld phone and interacting hand held to ear/head in calling posture.
-\end{enumerate}
-
-Under our single-frame annotation protocol, each sampled image contains at most one visual warning cue annotation (0 or 1 bounding box per image). In particular, \texttt{yawning} and \texttt{hand\_over\_mouth} are mutually exclusive; if a driver yawns while a hand visibly occludes the mouth, the instance is uniquely labeled as \texttt{hand\_over\_mouth}, ensuring non-overlapping ground-truth targets.
-
-All models are evaluated under a strict 8/3/3 subject-disjoint split ($S_{\text{train}} \cap S_{\text{val}} = \emptyset,\; S_{\text{train}} \cap S_{\text{test}} = \emptyset,\; S_{\text{val}} \cap S_{\text{test}} = \emptyset$) selected via exhaustive combinatorial search across 60,060 candidate assignments ($\le 5.48\%$ maximum distribution divergence). Training is executed under identical hardware (NVIDIA RTX 4060), batch size 1, 220 epochs, FP16 AMP, with optimal thresholds selected strictly on the validation split prior to isolated test evaluation.
+To systematically evaluate modern compact detector paradigms under controlled single-frame constraints, this paper introduces \textbf{DMS-Eval}, an empirical benchmark comparing real-time nano-scale object detectors. We evaluate leading single-stage convolutional detectors (Ultralytics YOLO11n \cite{yolo11_ultralytics} and YOLO26n \cite{yolo26_ultralytics}) against modern end-to-end Real-Time Detection Transformers (D-FINE-N \cite{peng2024dfine}). The benchmark establishes an authoritative 15,723-frame dataset ($640\times 640$) curated from the Driver Monitoring Dataset (DMD) \cite{ortega2020dmd}, featuring 100\% manual expert ground truth across four visual warning cues (\texttt{phone\_use}, \texttt{drinking}, \texttt{yawning}, \texttt{hand\_over\_mouth}) and a naturalistic 80.91\% background negative proportion to enforce false-positive suppression. To eliminate identity leakage, candidate models are evaluated on an optimal 8/3/3 subject-disjoint partition under standardized hardware and batch-1 inference profiling.
 
 \subsection{Research Gap}
 Despite substantial progress in driver monitoring, a critical methodological gap persists: \textbf{no existing study provides a controlled, head-to-head comparison between nano-scale convolutional detectors and nano-scale Real-Time Detection Transformers for in-cabin driver cue localization under identical hardware, data, and training constraints.} Existing work leaves this gap unaddressed along four axes:
@@ -97,13 +85,13 @@ This study targets \textbf{frame-level observable cues of driver drowsiness and 
 \section{Related Work}
 
 \subsection{Vision-Based Driver Monitoring Systems}
-Early DMS literature focused on geometric facial landmark analysis using heuristic indicators such as Eye Aspect Ratio (EAR), PERCLOS, and Mouth Aspect Ratio (MAR) \cite{ramzan2019survey}. In-cabin distraction benchmarks---including the AUC Distracted Driver dataset \cite{eraqi2019driver}, Drive\&Act \cite{Martin_2019_ICCV}, and UTA-RLDD \cite{ghoddoosian2019realistic}---advanced behavioral understanding but rely on full-image classification or video-sequence models without spatial bounding box localization. The specific limitations of these approaches and subsequent work are analyzed in Section~I-A.
+Early DMS literature focused on geometric facial landmark analysis using heuristic indicators such as Eye Aspect Ratio (EAR), PERCLOS, and Mouth Aspect Ratio (MAR) \cite{ramzan2019survey}. In-cabin distraction benchmarks---including the AUC Distracted Driver dataset \cite{eraqi2019driver}, Drive\&Act \cite{Martin_2019_ICCV}, and UTA-RLDD \cite{ghoddoosian2019realistic}---advanced behavioral understanding. However, these benchmarks rely primarily on whole-frame classification or video-sequence models without spatial bounding box localization, precluding low-latency single-frame edge deployment.
 
 \subsection{Real-Time Lightweight Object Detectors}
 Convolutional detectors have evolved rapidly: YOLO11 uses C3k2 and SPPF modules \cite{yolo11_ultralytics}; YOLO26 eliminates NMS via end-to-end anchor-free design \cite{yolo26_ultralytics}; YOLOv10 introduces dual-label assignment \cite{wang2024yolov10}; and YOLOv12 incorporates attention-centric mechanisms \cite{tian2025yolov12}. In parallel, RT-DETR \cite{zhao2024detrs} adapted the DETR set-prediction paradigm \cite{carion2020detr} to real-time execution, and D-FINE \cite{peng2024dfine} refined bounding box regression via Fine-grained Distribution Refinement (FDR). However, these architectures are benchmarked on general-purpose datasets and have not been compared head-to-head within the in-cabin DMS domain.
 
 \subsection{Subject Leakage and Evaluation Rigor}
-Random train/test partitioning across the same human subjects allows models to memorize biometric features rather than visual cues, inflating accuracy \cite{rong2021artificial}. DMS-Eval enforces subject-disjoint partitioning ($S_{\text{train}} \cap S_{\text{test}} = \emptyset$).
+Random train/test partitioning across identical subjects allows models to exploit driver-specific biometric features (e.g., facial morphology, clothing, seating posture) rather than generalizable behavioral semantics, artificially inflating detection accuracy \cite{rong2021artificial}. DMS-Eval strictly enforces subject-disjoint partitioning to evaluate true behavioral generalization across unseen individuals.
 
 \section{Dataset Formulation and Annotation Protocol}
 
@@ -234,7 +222,7 @@ We evaluate three state-of-the-art nano-scale real-time object detectors:
 \end{equation}
 \end{enumerate}
 
-\subsection{Controlled Training Controls}
+\subsection{Standardized Training Protocol}
 All models are fine-tuned under strictly locked shared controls:
 \begin{itemize}
 \item \textbf{Fine-Tuning Budget}: Exactly 220 epochs without early stopping.

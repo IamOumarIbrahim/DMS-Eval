@@ -1,3 +1,9 @@
+## [2026-08-19 23:45:00] - Streamline manuscript narrative and eliminate unnecessary redundancies
+- Streamline Introduction by removing repetitive low-level implementation lists (crop offsets, bounding box lists, split parameters) that are formalized in Sections III, IV, and V
+- Polish Section II (Related Work) to remove self-referential meta-pointers and strengthen the discussion on subject biometric leakage
+- Rename Section V-B from tautological *Controlled Training Controls* to *Standardized Training Protocol*
+- Recompile camera-ready 6-page IEEE conference PDF (`manuscript/main.pdf`) with 0 errors and 0 undefined citations/references
+
 ## [2026-08-19 23:38:00] - Enable clickable hyperlinks in LaTeX manuscript and refine DMD corpus phrasing
 - Configure `hyperref` package in `manuscript/main.tex` with IEEE-standard blue link styling (`colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue`) for citations, figures, tables, and URLs
 - Refine DMD dataset description across Abstract and Section III-A with clear hierarchical phrasing (*"81 driver-facing RGB video recordings comprising 68 behavioral sessions across 14 subjects"*)
