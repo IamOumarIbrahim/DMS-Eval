@@ -5,7 +5,7 @@ A lightweight, zero-dependency global macro for Label Studio / annotation.
 
 Behavior:
   - Trigger: Click the Scroll Wheel (Middle Mouse Button).
-  - Toggle ON:  Sends Ctrl+Enter every 2.0 seconds continuously.
+  - Toggle ON:  Sends Ctrl+Enter every 1.0 second continuously.
   - Toggle OFF: Pauses immediately and goes idle.
   - Works globally across all Windows applications.
   - Audio feedback: High beep (1000 Hz) on toggle ON, Low beep (500 Hz) on toggle OFF.
@@ -30,7 +30,7 @@ KEYEVENTF_KEYUP = 0x0002
 user32 = ctypes.windll.user32
 
 # Configurable Interval (seconds)
-SUBMIT_INTERVAL_SEC = 2.0
+SUBMIT_INTERVAL_SEC = 1.0
 
 # Global state
 macro_running = False

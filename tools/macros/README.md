@@ -9,7 +9,7 @@ A lightweight, zero-dependency global background macro designed for fast single-
 | Action | Control |
 | :--- | :--- |
 | **Toggle ON / OFF** | **Click Scroll Wheel** *(Middle Mouse Button)* |
-| **Active State (ON)** | Sends `Ctrl + Enter` continuously every **2.0 seconds** |
+| **Active State (ON)** | Sends `Ctrl + Enter` continuously every **1.0 second** |
 | **Inactive State (OFF)** | Pauses immediately and goes idle (consumes ~0% CPU) |
 | **Scope** | Works **globally** across all active Windows applications |
 | **Audio Feedback** | 🔊 **High Beep (1000 Hz):** Toggled ON<br>🔈 **Low Beep (500 Hz):** Toggled OFF |
@@ -33,5 +33,5 @@ Double-click [`run_macro.bat`](./run_macro.bat).
 ## Label Studio Usage Workflow
 1. Open Label Studio and navigate to your dataset project.
 2. Launch the macro in the background.
-3. When navigating sequences of negative frames (no warning cues), **click the scroll wheel once** to start auto-advancing through frames every 2.0 seconds.
+3. When navigating sequences of negative frames (no warning cues), **click the scroll wheel once** to start auto-advancing through frames every 1.0 second.
 4. When you encounter an active warning cue to annotate, **click the scroll wheel again** to instantly pause the macro, draw your bounding box, and resume whenever ready.
