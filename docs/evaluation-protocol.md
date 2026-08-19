@@ -1,11 +1,11 @@
 # Evaluation Protocol
 
-[← Back to the DMS-Eval landing page](../README.md) · [Execution Checklist](./execution-checklist.md)
+[← Back to the DMS-Eval landing page](../README.md)
 
 > [!NOTE]
 > This document contains protocol information extracted from the DMS-Eval README. Frozen decisions and unresolved values retain their original status.
 
-> **Jump to:** [Metrics](#frozen-metrics) · [Shared evaluator](#shared-evaluation-harness) · [Test usage](#validation--test-usage) · [Thresholding](#confidence-threshold-selection) · [Runtime](#runtime-profiling) · [Unresolved choices](#unresolved-choices)
+> **Jump to:** [Metrics](#frozen-metrics) · [Shared evaluator](#shared-evaluation-harness) · [Test usage](#validation--test-usage) · [Thresholding](#confidence-threshold-selection) · [Runtime](#runtime-profiling)
 
 - [x] Metrics, reporting granularity, shared evaluator, matching rules, and checkpoint selection are frozen.
 - [x] Validation/test isolation and one final test pass are frozen.
@@ -275,12 +275,6 @@ GFLOPs = (2 × THOP MACs) / 10^9
 
 The exact same tool, input, scope, and conversion convention are applied to all three architectures. Numerical locally calculated GFLOPs values will be populated after measurement; they are future results rather than unresolved protocol decisions.
 
-##### ⚠️ Resolve Later — Unsupported / Custom Operators
-
-> If THOP fails to count or correctly handle an unsupported/custom operator in one or more architectures, determine later how that case must be handled before accepting the corresponding FLOPs value.
-
-No policy is currently frozen for adding custom THOP handlers, using another profiler, estimating missing computation, or invalidating the result.
-
 #### DMS-Eval Locally Measured Model File Size — 🧊 Frozen
 
 * Measure the actual **final validation-selected checkpoint artifact** for each model.
@@ -332,55 +326,4 @@ The selected threshold is then frozen for that model and applied unchanged durin
 > [!NOTE]
 > The numerical candidate thresholds do not need to be identical across models because they are derived from each model's own validation prediction scores. Fairness is maintained by applying the **same threshold-generation and selection procedure** to every model.
 
-### ⚠️ Resolve Later
-
-* Exact numerical confidence threshold selected for YOLO11n.
-* Exact numerical confidence threshold selected for D-FINE-N.
-* Exact numerical confidence threshold selected for YOLO26n.
-
 </details>
-
----
-
-<details>
-<summary><strong>Show the complete unresolved-protocol table</strong></summary>
-
-<a id="unresolved-choices"></a>
-
-## ⚠️ Resolve Later / Unresolved
-
-> The following choices are intentionally **not frozen yet**. They must not be silently assumed during implementation.
-
-<p align="center"><sub><b>Table 2.</b> Unresolved protocol choices and the claims they affect.</sub></p>
-
-| Color | Still unresolved | What must be finalized | Claim affected |
-| ----- | ---------------- | ---------------------- | -------------- |
-| 🟠 | **CUDA / PyTorch / model-framework versions or commits / NVIDIA GPU-driver / THOP versions** | Record the exact software environment actually used for training, evaluation, and local FLOPs calculation. | Supports reproducibility, the **same inference timing protocol**, and the common FLOPs procedure |
-| 🟢 | **Exact validation-selected confidence thresholds** | Record the numerical threshold selected for YOLO11n, D-FINE-N, and YOLO26n using the frozen validation-only procedure. | Evaluation reporting; the shared selection procedure is already frozen |
-| 🟠 | **Unsupported/custom operators in THOP** | If THOP does not count an operator correctly, determine how that case must be handled before accepting the corresponding FLOPs value. | Local computational-workload comparability |
-
-> [!NOTE]
-> **Dataset Split & Selection Algorithm are Frozen:**
-> The exact 8/3/3 subject assignment and the exhaustive proportion-matching selection algorithm are permanently frozen in [`dataset/splits.json`](../dataset/splits.json) and [`scripts/balance_splits.py`](../scripts/balance_splits.py).
-
-**🔴 = must get right for the paragraph to remain literally true**
-**🟠 = important protocol definition**
-**🟢 = reproducibility/reporting; does not currently threaten the core fairness claim**
-
-</details>
-
----
-
-## ⚠️ Resolve Later Checklist
-
-<div align="center">
-
-| Status | Item / Open Decision | Protocol Role | Target Resolution Milestone |
-| :---: | :--- | :--- | :--- |
-| [ ] | **Validation Confidence Thresholds ($\tau^*$)** | Numerical threshold values $(\tau_{\text{YOLO11n}}, \tau_{\text{D-FINE-N}}, \tau_{\text{YOLO26n}})$ selected via validation $F_1$ sweep | [Module 4.3](./execution-checklist.md#module-4-shared-evaluation-harness--validation-model-selection) |
-| [ ] | **Host Environment Manifest Pinning** | Exact pinned versions for CUDA, cuDNN, PyTorch, Ultralytics commit, D-FINE commit, and THOP | [Module 3.1](./execution-checklist.md#module-3-environment-configuration--controlled-model-training) |
-| [ ] | **Custom / Unsupported Operator Profiling** | Local operator handler audit for THOP GFLOPs computation ($1 \times 3 \times 640 \times 640$) | [Module 5.2](./execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
-| [ ] | **Non-Integer FPS Frame Mapping** | Exact frame-index rounding rule for source video extraction at non-integer framerates | [Module 1.1](./execution-checklist.md#module-1-data-pipeline--annotation-integrity) |
-| [ ] | **Checkpoint Storage Measurement** | Uniform disk footprint measurement protocol (MB) for final selected model weights | [Module 5.3](./execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
-
-</div>

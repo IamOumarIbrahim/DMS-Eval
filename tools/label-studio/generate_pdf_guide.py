@@ -147,7 +147,7 @@ def build_pdf(target_path: str):
         [
             Paragraph("<font color='#3182CE'><b>3</b></font>", body_bold),
             Paragraph("<code>drinking</code>", body_code),
-            Paragraph("<b>Face + bottle together</b>", body_bold),
+            Paragraph("<b>Hand + bottle together</b>", body_bold),
             Paragraph("<b>Ctrl + Drag</b>", body_bold),
             Paragraph("Pan Canvas while Zoomed", body_text)
         ],
@@ -204,7 +204,7 @@ def build_pdf(target_path: str):
         [
             Paragraph("<font color='#2B6CB0'><b>[3] drinking</b></font>", body_bold),
             Paragraph("Active drinking with bottle, cup, or can at mouth/face.", body_text),
-            Paragraph("<b>Face + bottle together</b>.<br/>Enclose face and beverage container.", body_bold),
+            Paragraph("<b>Hand + bottle together</b>.<br/>Enclose hand and beverage container.", body_bold),
             Paragraph("• Passive bottles in cup holders are NOT drinking.<br/>• Must depict active consumption posture.", body_text)
         ],
         [
@@ -254,7 +254,7 @@ def build_pdf(target_path: str):
         [
             Paragraph("Driver drinking water/beverage from bottle at lips", body_bold),
             Paragraph("<font color='#2B6CB0'><b>drinking</b></font>", body_bold),
-            Paragraph("Annotate <code>drinking</code> around face + bottle together (active consumption).", body_text)
+            Paragraph("Annotate <code>drinking</code> around hand + bottle together (active consumption).", body_text)
         ],
         [
             Paragraph("Closed eyes / blinking during normal driving", body_bold),

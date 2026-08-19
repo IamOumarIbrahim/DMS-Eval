@@ -53,7 +53,7 @@ The benchmark is developed on real-cabin RGB video from the Driver Monitoring Da
 \begin{enumerate}
 \item \texttt{yawning}: mouth region only (wide oral opening/distension);
 \item \texttt{hand\_over\_mouth}: full head/face enclosing the occluding hand;
-\item \texttt{drinking}: driver face and beverage container together in active consumption posture;
+\item \texttt{drinking}: interacting hand and beverage container together in active consumption posture;
 \item \texttt{phone\_use}: handheld phone and interacting hand held to ear/head in calling posture.
 \end{enumerate}
 
@@ -101,7 +101,7 @@ Ground truth is generated through 100\% manual human inspection in Label Studio 
 \begin{itemize}
 \item \textbf{\texttt{yawning}} (ID 1): Encloses only the active mouth aperture during wide distension. Head and cheeks are excluded to prevent confusing normal open-mouth speech with yawning.
 \item \textbf{\texttt{hand\_over\_mouth}} (ID 2): Encloses the full head and face including the occluding hand when placed over the mouth area.
-\item \textbf{\texttt{drinking}} (ID 3): Encloses the driver's face and the beverage container together during active consumption posture.
+\item \textbf{\texttt{drinking}} (ID 3): Encloses the interacting hand and the beverage container together during active consumption posture.
 \item \textbf{\texttt{phone\_use}} (ID 4): Encloses the handheld device and interacting hand held to the ear/head in calling posture.
 \end{itemize}
 
@@ -111,7 +111,7 @@ Ground truth is generated through 100\% manual human inspection in Label Studio 
 \includegraphics[width=0.48\columnwidth]{hand_over_mouth_annotation_example.png}\\[4pt]
 \includegraphics[width=0.48\columnwidth]{drinking_annotation_example.png}\hfill
 \includegraphics[width=0.48\columnwidth]{phone_use_annotation_example.png}
-\caption{Visual demonstrations of our manual annotations in Label Studio across all 4 frozen target warning cues: (a) \texttt{yawning} (top-left, mouth aperture only), (b) \texttt{hand\_over\_mouth} (top-right, full head enclosing occluding hand), (c) \texttt{drinking} (bottom-left, face and beverage container in consumption posture), and (d) \texttt{phone\_use} (bottom-right, hand and mobile device held at the ear in calling posture).}
+\caption{Visual demonstrations of our manual annotations in Label Studio across all 4 frozen target warning cues: (a) \texttt{yawning} (top-left, mouth aperture only), (b) \texttt{hand\_over\_mouth} (top-right, full head enclosing occluding hand), (c) \texttt{drinking} (bottom-left, hand and beverage container in consumption posture), and (d) \texttt{phone\_use} (bottom-right, hand and mobile device held at the ear in calling posture).}
 \label{fig_annotation_examples}
 \end{figure}
 

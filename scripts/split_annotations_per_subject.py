@@ -1,12 +1,12 @@
 """
 Split Master Annotations and Raw Export Per Subject
 ===================================================
-Generates 14 per-subject folders under `dataset/Annotations_split/`:
-  dataset/Annotations_split/subject_01/
+Generates 14 per-subject folders under `dataset/annotations_per_subject/`:
+  dataset/annotations_per_subject/subject_01/
     ├── coco_annotations.json   (Standard COCO format for subject_01)
     └── raw_annotations.json    (Raw Label Studio task records for subject_01)
   ...
-  dataset/Annotations_split/subject_14/
+  dataset/annotations_per_subject/subject_14/
 
 Verifies:
 - 14 distinct folders.
@@ -28,7 +28,7 @@ CATEGORIES = [
 def split_annotations_per_subject():
     master_coco_path = "dataset/annotations.json"
     raw_json_path = "dataset/All_Subjects_annotated/project-1-at-2026-08-19-17-28-a3bbb88e.json"
-    out_base_dir = "dataset/Annotations_split"
+    out_base_dir = "dataset/annotations_per_subject"
 
     os.makedirs(out_base_dir, exist_ok=True)
 

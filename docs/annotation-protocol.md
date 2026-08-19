@@ -1,11 +1,11 @@
 # Annotation Protocol & Cue Ontology
 
-[← Back to the DMS-Eval landing page](../README.md) · [Execution Checklist](./execution-checklist.md)
+[← Back to the DMS-Eval landing page](../README.md)
 
 > [!NOTE]
 > This document contains protocol information extracted from the DMS-Eval README. Frozen decisions and unresolved values retain their original status.
 
-> **Jump to:** [Target cues](#target-warning-cues) · [Annotation workflow](#annotation-workflow) · [Cue hierarchy](#cue-categories--visual-salience) · [Detailed rules](#annotation-rules) · [Data quality](#annotation--data-quality)
+> **Jump to:** [Target cues](#target-warning-cues) · [Annotation workflow](#annotation-workflow) · [Behavioral domains](#behavioral-domains--target-cue-definitions) · [Detailed rules](#annotation-rules) · [Data quality](#annotation--data-quality-controls)
 
 - [x] Four target warning cues are frozen.
 - [x] Bounding-box extents and single-frame rules are frozen.
@@ -26,7 +26,7 @@
 | :--- | :--- | :--- |
 | `yawning` | Driver is visibly yawning; an ordinary open mouth is not sufficient | Mouth region only |
 | `hand_over_mouth` | Hand visibly covers or occludes the mouth | Full head/face |
-| `drinking` | Driver is actively drinking from a bottle, cup, or can with vessel brought to face/mouth | Face + bottle together |
+| `drinking` | Driver is actively drinking from a bottle, cup, or can with vessel brought to face/mouth | Hand + bottle together |
 | `phone_use` | Driver is engaged in an active handheld phone call (holding phone to ear/head); texting/browsing and hands-free calls are excluded | Hand + phone at ear/head |
 
 ### Single-Frame Annotation Decision Hierarchy
@@ -36,7 +36,7 @@ flowchart TD
     Start["Sampled Frame 640x640"] --> Q1{"Is phone held to ear in calling posture?"}
     Q1 -- Yes --> C1["phone_use - Class 4<br>Box: Hand and Device at Ear"]
     Q1 -- No --> Q2{"Is vessel brought to face in active consumption?"}
-    Q2 -- Yes --> C2["drinking - Class 3<br>Box: Face and Bottle Together"]
+    Q2 -- Yes --> C2["drinking - Class 3<br>Box: Hand and Bottle Together"]
     Q2 -- No --> Q3{"Is hand covering mouth even if yawning?"}
     Q3 -- Yes --> C3["hand_over_mouth - Class 2<br>Box: Full Head and Face"]
     Q3 -- No --> Q4{"Is mouth widely open in active yawn?"}
@@ -44,8 +44,7 @@ flowchart TD
     Q4 -- No --> C5["Negative Frame with 0 boxes<br>Alert Driving and Safe Baseline"]
 ```
 
-<details>
-<summary><strong>Show detailed per-cue annotation rules</strong></summary>
+---
 
 ## Annotation Rules
 
@@ -55,7 +54,7 @@ flowchart TD
 > **Static Frame Context & Single-Annotation Policy (At Most One Annotation Per Image):**
 > * All target warning cues are judged using the **individual sampled frame only**. Surrounding video frames are not referenced.
 > * **Strict Single-Annotation Constraint:** Each image should have **at most one annotation** (0 or 1 bounding box per image). An image must **never contain multiple annotations**, and `yawning` and `hand_over_mouth` must **never be labeled twice in one image**.
-> * **Drowsiness Salience & Priority Rule:** If the driver is yawning while a hand visibly covers or occludes the mouth, annotate strictly as **`hand_over_mouth`** (full head/face). Do not draw a second box for `yawning`. `yawning` is annotated only when the mouth aperture is unobstructed by a covering hand.
+> * **Drowsiness Mutual Exclusivity Priority Rule:** If the driver is yawning while a hand visibly covers or occludes the mouth, annotate strictly as **`hand_over_mouth`** (full head/face). Do not draw a second box for `yawning`. `yawning` is annotated only when the mouth aperture is unobstructed by a covering hand.
 
 ### `yawning`
 
@@ -66,7 +65,7 @@ flowchart TD
 * `mouth_open` is **not** an independent class.
 
 <p align="center">
-  <img src="../assets/yawning_annotation_example.png" alt="An example of our annotation of yawning in Label Studio" width="420"><br>
+  <img src="../assets/examples/yawning_annotation_example.png" alt="An example of our annotation of yawning in Label Studio" width="420"><br>
   <sub><b>Figure 1.</b> An example of our annotation of <code>yawning</code> in Label Studio (enclosing mouth region only).</sub>
 </p>
 
@@ -77,7 +76,7 @@ flowchart TD
 * **Bounding Box Extent:** Full head/face.
 
 <p align="center">
-  <img src="../assets/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="420"><br>
+  <img src="../assets/examples/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="420"><br>
   <sub><b>Figure 2.</b> An example of our annotation of <code>hand_over_mouth</code> in Label Studio (enclosing full visible head/face and occluding hand).</sub>
 </p>
 
@@ -85,13 +84,13 @@ flowchart TD
 
 > Annotate when the driver is actively drinking from a bottle, cup, can, or container brought up to the face/mouth.
 
-* **Bounding Box Extent:** Face + bottle together (enclosing the driver's face and the beverage container).
+* **Bounding Box Extent:** Hand + bottle together (enclosing the interacting hand and the beverage container).
 * **Exclusions:** Bottles or cups resting passively in cup holders or consoles without active consumption posture.
-* Focus is strictly on **active drinking interaction** (face + bottle).
+* Focus is strictly on **active drinking interaction** (hand + bottle).
 
 <p align="center">
-  <img src="../assets/drinking_annotation_example.png" alt="An example of our annotation of drinking in Label Studio" width="420"><br>
-  <sub><b>Figure 3.</b> An example of our annotation of <code>drinking</code> in Label Studio (enclosing driver face and beverage container together in active consumption posture).</sub>
+  <img src="../assets/examples/drinking_annotation_example.png" alt="An example of our annotation of drinking in Label Studio" width="420"><br>
+  <sub><b>Figure 3.</b> An example of our annotation of <code>drinking</code> in Label Studio (enclosing interacting hand and beverage container together in active consumption posture).</sub>
 </p>
 
 ### `phone_use`
@@ -106,7 +105,7 @@ flowchart TD
   - Phones resting passively on seats, mounts, or consoles are **excluded**.
 
 <p align="center">
-  <img src="../assets/phone_use_annotation_example.png" alt="An example of our annotation of phone_use in Label Studio" width="420"><br>
+  <img src="../assets/examples/phone_use_annotation_example.png" alt="An example of our annotation of phone_use in Label Studio" width="420"><br>
   <sub><b>Figure 4.</b> An example of our annotation of <code>phone_use</code> in Label Studio (enclosing handheld phone and interacting hand held at the ear in calling posture).</sub>
 </p>
 
@@ -119,7 +118,7 @@ flowchart TD
 The complete benchmark dataset comprises **15,723 frames** with **3,001 bounding box annotations** across all 14 subjects.
 
 <p align="center">
-  <img src="../assets/benchmark_distributions_combined.png" alt="DMS-Eval Dataset Frame Composition and Warning Cue Distribution" width="850"><br>
+  <img src="../assets/charts/benchmark_distributions_combined.png" alt="DMS-Eval Dataset Frame Composition and Warning Cue Distribution" width="850"><br>
   <sub><b>Figure 5.</b> (a) Frame-level dataset composition across 15,723 frames (80.9% negative background frames vs. 19.1% positive cue frames); (b) Proportion of bounding box annotations across the 4 frozen target warning cues (3,001 total boxes).</sub>
 </p>
 
@@ -171,21 +170,24 @@ Direct manual human annotation of all 15,723 frames is 100% complete and verifie
 
 ---
 
-## Cue Categories & Visual Salience
+## Behavioral Domains & Target Cue Definitions
 
-> **Ontological Hierarchy:** Ranked from the most direct/unambiguous single-frame visual indicator to weaker/more ambiguous postural cues. *(Visual salience does not dictate expected model detection accuracy).*
+> The benchmark categorizes the 4 warning cues across 2 core driver behavioral domains:
 
-<p align="center"><sub><b>Table 2.</b> Cue categories and visual-salience hierarchy.</sub></p>
+<p align="center"><sub><b>Table 2.</b> Behavioral domains and target warning cue definitions.</sub></p>
 
-| Behavioral Domain | Target Warning Cue | Salience Rank | Single-Frame Visual Trigger | Bounding Box Extent |
-| :--- | :--- | :---: | :--- | :--- |
-| **Drowsiness** | `yawning` | 1 *(Highest)* | Visible yawning with wide oral opening and facial elongation | Mouth region only |
-| | `hand_over_mouth` | 2 *(Lowest)* | Hand visibly covering or occluding the mouth region | Full head/face |
-| **Distraction / Inattention** | `drinking` | 1 *(Highest)* | Active drinking from a bottle/cup/can brought to the face | Face + bottle together |
-| | `phone_use` | 2 *(Lowest)* | Handheld phone call with phone held to the ear/head | Hand + phone at ear |
+<div align="center">
 
-<details>
-<summary><strong>Show removed, merged, narrowed, and background classes</strong></summary>
+| Behavioral Domain | Target Warning Cue | Single-Frame Visual Trigger | Bounding Box Extent |
+| :---: | :---: | :--- | :--- |
+| **Drowsiness** | `yawning` | Visible yawning with wide oral opening and facial elongation | Mouth region only |
+| | `hand_over_mouth` | Hand visibly covering or occluding the mouth region | Full head/face |
+| **Distraction / Inattention** | `drinking` | Active drinking from a bottle/cup/can brought to the face | Hand + bottle together |
+| | `phone_use` | Handheld phone call with phone held to the ear/head | Hand + phone at ear |
+
+</div>
+
+---
 
 ## Removed Classes & Ontological Scope Decisions
 
@@ -210,25 +212,18 @@ Direct manual human annotation of all 15,723 frames is 100% complete and verifie
 | `eye_rubbing` | Removed | Highly ambiguous in single static frames without temporal tracking |
 | `hands_off_wheel`, `hands_free` | Removed | Explicitly excluded from the current benchmark ontology |
 
-</details>
-
 ---
 
-<details>
-<summary><strong>Show annotation and data-quality controls</strong></summary>
-
-## Annotation / Data Quality
+## Annotation & Data Quality Controls
 
 ### 🧊 Frozen
 
-#### Ambiguous / uncertain cues
+#### Single-Pass Human Expert Annotation
 
-* If cue presence is ambiguous, do **not** annotate immediately.
-* Flag the uncertain cue for **secondary review**.
-* The frame remains in the dataset, but the unverified cue stays **out of the master COCO annotations** until resolved.
-* All flagged cues must be settled before model training.
+* **100% Manual Expert Annotation:** All 15,723 sampled frames are directly annotated once by a single manual human expert annotator in Label Studio, ensuring consistent, unified annotation standards across all 14 subjects.
+* **Deterministic Single-Frame Rules:** Annotations strictly adhere to the frozen 4-cue ontology, bounding box extents, and decision flowchart. Borderline or ambiguous cases without active visible cues are classified directly as true-negative background frames ($0$ bounding boxes).
 
-#### Partial occlusion and truncation
+#### Partial Occlusion and Truncation
 
 * Partially occluded cues remain annotatable if visibly identifiable.
 * Bounding boxes must cover **only the visible portion** of the defined target region.
@@ -236,61 +231,22 @@ Direct manual human annotation of all 15,723 frames is 100% complete and verifie
 * Targets truncated by the 640×640 boundary are annotated for their **visible area only**.
 * Draw bounding boxes as tightly as practical around the visible target.
 
-#### Small targets
+#### Small Targets
 
 * Small targets remain valid annotations as long as the cue is visually discernable at 640×640.
 * No arbitrary minimum pixel cutoff is enforced.
 
-#### Annotation consistency
-
-* Perform a **second-pass review over the entire dataset** after initial annotation.
-* Annotators must keep the class definition sheet accessible during labeling.
-* Log unusual cases and edge-rule clarifications in an **annotation decision log** to ensure consistent multi-annotator decisions.
-
-#### Class-choice behavior
-
-* When cue presence is definite but the exact class is borderline, choose the category **immediately** rather than deferring to review.
-
-#### Single-annotation constraint
+#### Single-Annotation Constraint
  
 * **At Most One Annotation Per Image:** Each sampled image must contain at most one bounding box annotation (0 or 1 annotation per frame).
 * **Mutual Exclusivity:** `yawning` and `hand_over_mouth` must never be labeled twice in one image. When a covering hand occludes a yawn, prioritize `hand_over_mouth`. No image may contain multiple warning cue bounding boxes.
 
-#### Unusable sampled frames
+#### 100% Frame Retention (Zero Frame Removal Policy)
 
-* Genuinely corrupt, blacked-out, or severely motion-blurred frames are **removed from the dataset**.
-* Excluded frames must be logged in:
-
-```text
-excluded_frames.csv
-```
-
-The CSV contains:
-
-```text
-filename
-exclusion_reason
-```
+* **No Sampled Frames Removed:** Every single uniformly extracted frame (15,723 frames at 1 FPS across all 81 DMD videos) is permanently retained in the benchmark corpus.
+* **Naturalistic Negative Representation:** Real-world cabin artifacts (e.g., lighting transitions, shadows, motion blur, partial face occlusions) are preserved as authentic true-negative background frames ($0$ bounding boxes) rather than being filtered or discarded, ensuring robust false-positive suppression during alert driving.
 
 > [!CAUTION]
 > **Data Integrity Controls:**
-> * **No Extrapolation:** Annotators must never draw boxes around occluded or out-of-frame anatomy.
-> * **Strict Logging:** Any excluded frame must be logged with a concrete reason in `excluded_frames.csv` to ensure auditable dataset curation.
-
-</details>
-
----
-
-## ⚠️ Resolve Later Checklist
-
-<div align="center">
-
-| Status | Item / Open Decision | Protocol Role | Target Resolution Milestone |
-| :---: | :--- | :--- | :--- |
-| [ ] | **Validation Confidence Thresholds ($\tau^*$)** | Numerical threshold values $(\tau_{\text{YOLO11n}}, \tau_{\text{D-FINE-N}}, \tau_{\text{YOLO26n}})$ selected via validation $F_1$ sweep | [Module 4.3](./execution-checklist.md#module-4-shared-evaluation-harness--validation-model-selection) |
-| [ ] | **Host Environment Manifest Pinning** | Exact pinned versions for CUDA, cuDNN, PyTorch, Ultralytics commit, D-FINE commit, and THOP | [Module 3.1](./execution-checklist.md#module-3-environment-configuration--controlled-model-training) |
-| [ ] | **Custom / Unsupported Operator Profiling** | Local operator handler audit for THOP GFLOPs computation ($1 \times 3 \times 640 \times 640$) | [Module 5.2](./execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
-| [ ] | **Non-Integer FPS Frame Mapping** | Exact frame-index rounding rule for source video extraction at non-integer framerates | [Module 1.1](./execution-checklist.md#module-1-data-pipeline--annotation-integrity) |
-| [ ] | **Checkpoint Storage Measurement** | Uniform disk footprint measurement protocol (MB) for final selected model weights | [Module 5.3](./execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
-
-</div>
+> * **No Extrapolation:** The annotator must never draw boxes around occluded or out-of-frame anatomy.
+> * **Zero Frame Exclusion:** All 15,723 sampled frames are strictly preserved to prevent dataset curation bias.

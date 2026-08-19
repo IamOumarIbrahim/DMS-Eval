@@ -1,3 +1,106 @@
+## [2026-08-19 22:45:00] - Reorganize assets directory into categorized subdirectories
+- Categorize all visual assets into 4 semantic subfolders under `assets/`:
+  - `assets/branding/`: `socialpreview.png` (820 px repository social card and header banner)
+  - `assets/diagrams/`: `dms_eval_pipeline.png` (6-module end-to-end benchmark framework architecture diagram)
+  - `assets/charts/`: `benchmark_distributions_combined.png`, `cue_class_distribution_pie.png`, `dataset_frame_composition_pie.png`, `split_cue_proportions_comparison.png`
+  - `assets/examples/`: `640X640.png`, `drinking_annotation_example.png`, `hand_over_mouth_annotation_example.png`, `phone_use_annotation_example.png`, `yawning_annotation_example.png`
+- Create comprehensive [`assets/README.md`](assets/README.md) documenting directory layout, asset specifications table, and reproduction commands
+- Update asset paths across all documentation (`README.md`, `docs/annotation-protocol.md`, `docs/quick-start.md`, `scripts/README.md`)
+- Update chart generation scripts in `scripts/charts/` to output directly to `assets/charts/` and `assets/diagrams/`
+- Verify zero broken links across entire repository
+
+## [2026-08-19 22:34:00] - Restructure scripts directory into clean modular hierarchy
+- Encapsulate presentation generation scripts into gitignored `scripts/presentation/` (`build_presentation_pptx.py`)
+- Standardize top-level `scripts/` layout around core reproducible pipeline stages (`extract_and_crop_dmd.py`, `assemble_master_coco.py`, `split_annotations_per_subject.py`, `balance_splits.py`)
+- Rewrite [`scripts/README.md`](scripts/README.md) with comprehensive documentation, CLI usage examples, and architecture references for all pipeline stages and subdirectories
+- Update `.gitignore` to track `scripts/presentation/`
+
+## [2026-08-19 22:30:00] - Restructure docs directory into clean modular hierarchy
+- Create dedicated [`docs/README.md`](docs/README.md) serving as the navigation hub for all 4 benchmark protocols and the desktop PDF field guide
+- Encapsulate presentation materials into `docs/presentation/` (`presentation-15min.md`, `DMS-Eval-Presentation-15min.pptx`, `presentation.pptx`)
+- Encapsulate internal development artifacts into gitignored `docs/internal/` (`execution-checklist.md`, `resolve_later.md`, `dev-ref/`, `literature/`)
+- Update `scripts/build_presentation_pptx.py` output paths to `docs/presentation/`
+- Verify zero broken links across all repository documentation
+
+## [2026-08-19 22:25:00] - Consolidate Resolve Later ledgers and future result tables into gitignored docs/resolve_later.md
+- Create `docs/resolve_later.md` consolidating all open decision checklists, priority matrices, and future empirical result tables (pinned environment manifest, validation model selection, isolated test benchmark, computational complexity/GFLOPs, and PyTorch hardware latency/throughput profiling)
+- Add `docs/resolve_later.md` to `.gitignore`
+- Remove all distracting Resolve Later checklist tables and unresolved subsections from public reviewer-facing documents (`README.md`, `docs/annotation-protocol.md`, `docs/evaluation-protocol.md`, `docs/quick-start.md`, `docs/training-protocol.md`, `scripts/README.md`, `tools/label-studio/README.md`)
+
+## [2026-08-19 19:42:00] - Audit reviewer-facing documentation and gitignore internal development artifacts
+- Add internal roadmap, presentation decks, and local logs to `.gitignore` (`docs/execution-checklist.md`, `docs/presentation*`, `docs/*.pptx`, `scripts/build_presentation_pptx.py`, `tools/label-studio/annotation_progress_ledger.json`, `tools/label-studio/annotation_decision_log.json`)
+- Untrack internal development files from git index while preserving local disk copies
+- Clean all links to `execution-checklist.md` across public documentation (`README.md`, `docs/annotation-protocol.md`, `docs/evaluation-protocol.md`, `docs/quick-start.md`, `docs/training-protocol.md`, `scripts/README.md`, `tools/label-studio/README.md`)
+
+## [2026-08-19 19:37:00] - Streamline Table 2 and remove salience rank column
+- Remove Salience Rank column from Table 2 in `docs/annotation-protocol.md`
+- Rename section to **Behavioral Domains & Target Cue Definitions** with clean centered table layout
+
+## [2026-08-19 19:35:00] - Standardize single-pass manual human expert annotation protocol
+- Remove multi-annotator, second-pass review, and voting references from `docs/annotation-protocol.md` and `docs/execution-checklist.md`
+- Clarify protocol: all 15,723 frames are annotated directly once by a single manual human expert annotator under frozen deterministic rules
+
+## [2026-08-19 19:33:00] - Enforce 100% frame retention policy and delete excluded_frames.csv
+- Enforce strict zero-frame-removal rule: all 15,723 uniformly sampled frames (at 1 FPS across all 81 DMD videos) are permanently preserved in the dataset
+- Remove `dataset/excluded_frames.csv`
+- Update `docs/annotation-protocol.md` and `docs/execution-checklist.md` (Module 1.4) to reflect 100% frame retention
+
+## [2026-08-19 19:26:00] - Standardize drinking bounding box extent to hand + bottle
+- Audit repository and correct `drinking` bounding box extent from `face + bottle` to `hand + bottle` (enclosing interacting hand and beverage container together in active consumption posture)
+- Update definitions across `docs/annotation-protocol.md`, `README.md`, `manuscript/main.tex`, `docs/presentation-15min.md`, `scripts/build_presentation_pptx.py`, `docs/execution-checklist.md`, and `tools/label-studio/generate_pdf_guide.py`
+- Recompile `docs/manual-annotation-guide.pdf` and rebuild presentation PowerPoint decks
+
+## [2026-08-19 19:18:00] - Refactor chart scripts and update gitignore rules
+- Move chart generation scripts into dedicated `scripts/charts/` subfolder:
+  - `scripts/charts/generate_distribution_charts.py`
+  - `scripts/charts/generate_pipeline_and_split_charts.py`
+  - `scripts/charts/generate_pipeline_diagram_redesign.py`
+- Add `scripts/charts/`, `charts/`, and `tools/macros/` to `.gitignore`
+- Untrack `tools/macros/` files from git while preserving local utilities on disk
+
+## [2026-08-19 19:15:00] - Rename annotations directory to annotations_per_subject
+- Rename `dataset/Annotations_split/` to `dataset/annotations_per_subject/` to follow standardized lowercase snake_case and avoid confusion with train/val/test split files
+- Update `scripts/split_annotations_per_subject.py` output paths and verify 14-subject integrity (15,723 frames, 3,001 bounding boxes)
+
+## [2026-08-19 19:12:00] - Standardize README manuscript link and table status emojis
+- Streamline manuscript download link in `README.md` to a clean, professional link
+- Add status emojis to Table 3 in `README.md` (`🧊 Frozen`, `⚠️ Frozen + resolve later`, `📋 Practical field guide`, `🎯 Actionable checklist`)
+
+## [2026-08-19 19:10:00] - Redesign pipeline diagram typography and enhance PPTX deck
+- Update `scripts/charts/generate_pipeline_diagram_redesign.py` to center module banner titles, enlarge body typography to 12.2pt, and eliminate dead whitespace
+- Re-render high-DPI assets at `assets/dms_eval_pipeline.png` and `manuscript/figures/dms_eval_pipeline.png`
+- Scale up body typography across presentation slides (12.0–12.5pt) and dedicate Slide 9 to the full-prominence evaluation framework diagram
+
+## [2026-08-19 19:00:00] - Create comprehensive 15-minute presentation deck (Markdown & PPTX)
+- Create Marp-compatible 15-minute technical presentation slide deck in `docs/presentation-15min.md` with slide timings, talk tracks, and placeholder tags for unfinalized test metrics
+- Implement `scripts/build_presentation_pptx.py` to generate 16:9 widescreen PowerPoint presentation (`docs/DMS-Eval-Presentation-15min.pptx` and `docs/presentation.pptx`) with embedded figures and native speaker notes
+- Conduct automated bounding-box audit verifying zero visual overlaps and zero canvas overflows across all 16 slides
+
+## [2026-08-19 18:53:00] - Format annotation examples figure as 2x2 grid in manuscript
+- Update `manuscript/main.tex` Fig. 2 to structure 4 target cue annotation examples into a compact 2x2 subfigure grid with standardized captions
+- Recompile `manuscript/main.pdf`
+
+## [2026-08-19 18:49:00] - Configure direct raw PDF download link
+- Configure raw GitHub media download link for `manuscript/main.pdf` in `README.md`
+- Add Adobe Reader badge and direct download anchor
+
+## [2026-08-19 18:42:00] - Convert file:/// links to relative paths across documentation
+- Standardize all repository internal documentation links across `docs/` and `README.md` to relative Markdown paths for seamless web and GitHub browsing
+
+## [2026-08-19 18:38:00] - Add Resolve Later checklist table to documentation
+- Add standardized Resolve Later tracking ledger table to footer of `README.md`, `docs/quick-start.md`, `docs/annotation-protocol.md`, `docs/training-protocol.md`, and `docs/evaluation-protocol.md`
+
+## [2026-08-19 18:31:00] - Fix KaTeX math syntax for GitHub rendering
+- Correct LaTeX delimiters across Markdown documents for full KaTeX rendering compatibility on GitHub and web viewers
+
+## [2026-08-19 18:24:00] - Redesign pipeline diagram with 2x3 serpentine grid
+- Implement `generate_pipeline_diagram_redesign.py` generating high-contrast 2x3 grid lifecycle diagram without crossing arrows
+- Save to `assets/dms_eval_pipeline.png` and integrate into documentation and manuscript
+
+## [2026-08-19 18:21:00] - Center tables and fix Mermaid diagram rendering
+- Center all Markdown protocol tables in `README.md` using `<div align="center">` containers
+- Fix Mermaid diagram syntax and flowcharts in `docs/evaluation-protocol.md` and `docs/execution-checklist.md`
+
 ## [2026-08-19 18:10:00] - Authoritative 8/3/3 subject split selection and permanent freeze
 - Implement `scripts/balance_splits.py` with deterministic exhaustive proportion-matching algorithm (evaluating all 60,060 candidate assignments)
 - Permanently freeze `dataset/splits.json` (Train: 8 subjects [01, 04, 06, 07, 08, 09, 13, 14], Validation: 3 subjects [02, 03, 11], Test: 3 subjects [05, 10, 12])

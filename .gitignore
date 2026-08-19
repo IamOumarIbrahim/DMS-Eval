@@ -30,9 +30,10 @@ manuscript/archive
 
 # Third party documentation and assets
 dataset/docs
-/docs/dev-ref
-# Literature personal references and PDF repository
+docs/internal/
+docs/presentation/
 docs/literature/
+docs/dev-ref/
 
 # Dataset Raw Files
 dataset/DMD
@@ -53,3 +54,15 @@ tools/**/.venv/
 tools/**/.env
 tools/**/data/
 tools/**/media/
+tools/macros/
+
+# Chart Generation Scripts
+scripts/charts/
+charts/
+
+# Presentation generation scripts
+scripts/presentation/
+
+# Internal annotation ledger logs
+tools/label-studio/annotation_progress_ledger.json
+tools/label-studio/annotation_decision_log.json

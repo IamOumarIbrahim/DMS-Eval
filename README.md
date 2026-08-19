@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <img src="./assets/socialpreview.png" alt="DMS-Eval social preview" width="820">
+  <img src="./assets/branding/socialpreview.png" alt="DMS-Eval social preview" width="820">
 </p>
 
 <p align="center">
@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  👉 <strong><a href="https://raw.githubusercontent.com/IamOumarIbrahim/DMS-Eval/main/manuscript/main.pdf" download="DMS-Eval-Manuscript.pdf">Read PDF here</a></strong> <em>(Click to Download · IEEE Conference Manuscript · 6-Page Camera-Ready PDF)</em> 👈
+  <strong><a href="https://raw.githubusercontent.com/IamOumarIbrahim/DMS-Eval/main/manuscript/main.pdf" download="DMS-Eval-Manuscript.pdf">Read Full Manuscript (PDF)</a></strong>
 </p>
 
 **DMS-Eval** is a planned benchmark framework currently in development for evaluating nano-scale (lightweight) object detection architectures for detecting visual cues associated with driver drowsiness and distraction in real time across diverse cabin operating conditions.
@@ -37,7 +37,7 @@
 ## Benchmark Evaluation Lifecycle
 
 <p align="center">
-  <img src="./assets/dms_eval_pipeline.png" alt="DMS-Eval Benchmark Evaluation Lifecycle" width="850"><br>
+  <img src="./assets/diagrams/dms_eval_pipeline.png" alt="DMS-Eval Benchmark Evaluation Lifecycle" width="850"><br>
   <sub><b>Figure 1.</b> DMS-Eval end-to-end benchmark framework: from naturalistic DMD video extraction and authoritative Label Studio annotation through deterministic 8/3/3 subject-disjoint partitioning, controlled model training, and validation-calibrated test evaluation.</sub>
 </p>
 
@@ -50,7 +50,7 @@
 <sub><b>Table 1.</b> Frozen benchmark scope summary.</sub>
 
 | Setting | Frozen value | Setting | Frozen value |
-| :--- | :--- | :--- | :--- |
+| :---: | :---: | :---: | :---: |
 | **Dataset** | DMD-derived real-cabin RGB video | **Models** | YOLO11n, D-FINE-N, YOLO26n |
 | **Input** | 640×640 individual frames | **Sampling** | 1 frame every 1 second |
 | **Split** | 8 / 3 / 3 subjects | **Split unit** | Strictly subject-disjoint |
@@ -96,12 +96,12 @@ dataset/images/
 > Annotation uses **Label Studio** (Community Edition) with one project (**DMS-Eval**) and one task per image. Subject, video, filename, and sampled-frame index are retained as task metadata. All 15,723 sampled frames are directly and manually annotated by the human expert annotator under the frozen 4-cue ontology to produce the authoritative master COCO ground truth in `dataset/annotations.json`. See the [annotation protocol](./docs/annotation-protocol.md) and [manual annotation guide (1-page PDF)](./docs/manual-annotation-guide.pdf).
 
 <p align="center">
-  <img src="./assets/benchmark_distributions_combined.png" alt="DMS-Eval Dataset Frame Composition and Warning Cue Distribution" width="880"><br>
+  <img src="./assets/charts/benchmark_distributions_combined.png" alt="DMS-Eval Dataset Frame Composition and Warning Cue Distribution" width="880"><br>
   <sub><b>Figure 2.</b> Benchmark ground-truth distributions: (a) Frame-level dataset composition across all 15,723 frames (80.9% negative background frames vs. 19.1% positive cue frames); (b) Proportion of bounding box annotations across the 4 frozen target warning cues (3,001 total annotations: 81.2% <code>phone_use</code>, 8.8% <code>drinking</code>, 5.3% <code>yawning</code>, 4.7% <code>hand_over_mouth</code>).</sub>
 </p>
 
 <p align="center">
-  <img src="./assets/split_cue_proportions_comparison.png" alt="Split Cue Proportions Comparison" width="880"><br>
+  <img src="./assets/charts/split_cue_proportions_comparison.png" alt="Split Cue Proportions Comparison" width="880"><br>
   <sub><b>Figure 3.</b> Target warning cue distribution across 8/3/3 subject-disjoint partitions: showing balanced proportional alignment ($\le 5.48\%$ relative divergence) across Training, Validation, and Testing splits.</sub>
 </p>
 
@@ -114,7 +114,7 @@ dataset/images/
 <sub><b>Table 2.</b> Candidate real-time detector architectures evaluated in DMS-Eval.</sub>
 
 | Model Architecture | Architectural Family | Parameter Scale | GFLOPs ($640\times 640$) | Detection Paradigm / Key Feature | Official Source |
-| :--- | :--- | :---: | :---: | :--- | :--- |
+| :---: | :---: | :---: | :---: | :---: | :---: |
 | **Ultralytics YOLO11n** | Single-Stage CNN | 2.6 M | 6.5 G | C3k2 feature extractors & SPPF modules | [Ultralytics](https://github.com/ultralytics/ultralytics) |
 | **Ultralytics YOLO26n** | End-to-End CNN | 2.4 M | 5.8 G | Anchor-free, NMS-free direct bounding box prediction | [Ultralytics](https://github.com/ultralytics/ultralytics) |
 | **D-FINE-N** | Real-Time DETR | 3.8 M | 8.4 G | HGNetv2 backbone with Fine-grained Distribution Refinement (FDR) | [D-FINE](https://github.com/Peterande/D-FINE) |
@@ -130,18 +130,17 @@ dataset/images/
 <sub><b>Table 3.</b> Detailed protocol documentation and execution resources.</sub>
 
 | Document | What it contains | Status covered |
-| :--- | :--- | :--- |
-| [**Benchmark scope, data & splits**](./docs/quick-start.md) | Frozen scope, preprocessing, subject splits, annotation format, frame naming, and future work | Frozen + resolve later |
-| [**Annotation protocol & cue ontology**](./docs/annotation-protocol.md) | Four warning cues, bounding-box rules, removed classes, and data-quality controls | Frozen |
-| [**Manual annotation field guide (PDF)**](./docs/manual-annotation-guide.pdf) | Single-page desktop PDF reference: hotkey cheat sheet, bounding-box extents, and decision matrix | Practical field guide |
-| [**Training protocol**](./docs/training-protocol.md) | Initialization, model-specific recipes, and shared training controls | Frozen |
-| [**Evaluation protocol**](./docs/evaluation-protocol.md) | Metrics, evaluator, test isolation, thresholding, checkpoint selection, runtime, and unresolved choices | Frozen + resolve later |
-| [**Execution checklist & roadmap**](./docs/execution-checklist.md) | Step-by-step 7-module implementation roadmap, dependencies, quality controls, and deliverables | Actionable checklist |
+| :---: | :---: | :---: |
+| [**Benchmark scope, data & splits**](./docs/quick-start.md) | Frozen scope, preprocessing, subject splits, annotation format, and frame naming | 🧊 Frozen |
+| [**Annotation protocol & cue ontology**](./docs/annotation-protocol.md) | Four warning cues, bounding-box rules, removed classes, and data-quality controls | 🧊 Frozen |
+| [**Manual annotation field guide (PDF)**](./docs/manual-annotation-guide.pdf) | Single-page desktop PDF reference: hotkey cheat sheet, bounding-box extents, and decision matrix | 📋 Practical field guide |
+| [**Training protocol**](./docs/training-protocol.md) | Initialization, model-specific recipes, and shared training controls | 🧊 Frozen |
+| [**Evaluation protocol**](./docs/evaluation-protocol.md) | Metrics, evaluator, test isolation, thresholding, checkpoint selection, and runtime profiling | 🧊 Frozen |
 
 </div>
 
 > [!TIP]
-> Start with [**Benchmark scope, data & splits**](./docs/quick-start.md), then use the annotation, training, and evaluation documents as the source for implementation details. Refer to the [**Execution checklist & roadmap**](./docs/execution-checklist.md) for current implementation progress.
+> Start with [**Benchmark scope, data & splits**](./docs/quick-start.md), then use the annotation, training, and evaluation documents as the source for authoritative implementation details.
 
 ---
 
@@ -159,11 +158,11 @@ dataset/images/
 </div>
 
 <p align="center">
-  <img src="./assets/yawning_annotation_example.png" alt="An example of our annotation of yawning in Label Studio" width="160">
-  <img src="./assets/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="160">
-  <img src="./assets/drinking_annotation_example.png" alt="An example of our annotation of drinking in Label Studio" width="160">
-  <img src="./assets/phone_use_annotation_example.png" alt="An example of our annotation of phone_use in Label Studio" width="160"><br>
-  <sub><b>Figure 4.</b> Examples of our manual annotations in Label Studio across the 4 frozen target warning cues: <code>yawning</code> (orange box around mouth), <code>hand_over_mouth</code> (purple box), <code>drinking</code> (blue box enclosing face + beverage container), and <code>phone_use</code> (pink box enclosing phone and hand held at ear in calling posture).</sub>
+  <img src="./assets/examples/yawning_annotation_example.png" alt="An example of our annotation of yawning in Label Studio" width="160">
+  <img src="./assets/examples/hand_over_mouth_annotation_example.png" alt="An example of our annotation of hand_over_mouth in Label Studio" width="160">
+  <img src="./assets/examples/drinking_annotation_example.png" alt="An example of our annotation of drinking in Label Studio" width="160">
+  <img src="./assets/examples/phone_use_annotation_example.png" alt="An example of our annotation of phone_use in Label Studio" width="160"><br>
+  <sub><b>Figure 4.</b> Examples of our manual annotations in Label Studio across the 4 frozen target warning cues: <code>yawning</code> (orange box around mouth), <code>hand_over_mouth</code> (purple box), <code>drinking</code> (blue box enclosing hand and beverage container), and <code>phone_use</code> (pink box enclosing phone and hand held at ear in calling posture).</sub>
 </p>
 
 > [!NOTE]
@@ -174,22 +173,6 @@ dataset/images/
 
 > [!TIP]
 > Cue definitions, bounding-box extents, exclusions, priority rules, and annotation-quality controls are maintained in the [annotation protocol](./docs/annotation-protocol.md).
-
----
-
-## ⚠️ Resolve Later Checklist
-
-<div align="center">
-
-| Status | Item / Open Decision | Protocol Role | Target Resolution Milestone |
-| :---: | :--- | :--- | :--- |
-| [ ] | **Validation Confidence Thresholds ($\tau^*$)** | Numerical threshold values $(\tau_{\text{YOLO11n}}, \tau_{\text{D-FINE-N}}, \tau_{\text{YOLO26n}})$ selected via validation $F_1$ sweep | [Module 4.3](./docs/execution-checklist.md#module-4-shared-evaluation-harness--validation-model-selection) |
-| [ ] | **Host Environment Manifest Pinning** | Exact pinned versions for CUDA, cuDNN, PyTorch, Ultralytics commit, D-FINE commit, and THOP | [Module 3.1](./docs/execution-checklist.md#module-3-environment-configuration--controlled-model-training) |
-| [ ] | **Custom / Unsupported Operator Profiling** | Local operator handler audit for THOP GFLOPs computation ($1 \times 3 \times 640 \times 640$) | [Module 5.2](./docs/execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
-| [ ] | **Non-Integer FPS Frame Mapping** | Exact frame-index rounding rule for source video extraction at non-integer framerates | [Module 1.1](./docs/execution-checklist.md#module-1-data-pipeline--annotation-integrity) |
-| [ ] | **Checkpoint Storage Measurement** | Uniform disk footprint measurement protocol (MB) for final selected model weights | [Module 5.3](./docs/execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
-
-</div>
 
 ---
 

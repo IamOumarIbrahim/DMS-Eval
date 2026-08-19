@@ -1,103 +1,92 @@
-# DMS-Eval Dataset Processing & Extraction Scripts
+# DMS-Eval Processing & Execution Scripts
 
-This folder contains the implemented preprocessing pipeline used to prepare the Driver Monitoring Dataset (DMD) for model evaluation and benchmarking.
+[← Back to the DMS-Eval Landing Page](../README.md)
 
-> **Status:** The frame-extraction pipeline is implemented under `scripts/`. Generated images under `dataset/images/` are local dataset artifacts and are not intended to be committed to Git.
-
----
-
-## 1. `extract_and_crop_dmd.py`
-
-An end-to-end multi-processed Python CLI pipeline that extracts, crops, and verifies frames from DMD videos.
-
-### Pipeline Stages:
-1. **1 FPS Frame Sampling**:
-   - Discovers all 1280x720 `rgb_face` videos across `distraction`, `gaze`, and `di21-dmd-dataset-drowsiness`.
-   - Applies the frozen intent of sampling 1 frame every 1 second.
-   - The exact implementation mapping to source frames at approximately 29.76 FPS remains unresolved; no timestamp, rounding, accumulated-time, floor/ceiling, or other mapping rule is frozen.
-   - Outputs full-resolution (1280x720) frames to `dataset/DMD/Images/` using standardized naming:
-     ```
-     <category>_<group>_<subject>_<session>_<framenumber:04d>.jpg
-     ```
-2. **640×640 Face Region Cropping**:
-   - Crops each frame to the standardized driver-face bounding box:
-     - `x = 272`, `y = 71`, `width = 640`, `height = 640`
-     - Corners: `(272, 71)` to `(912, 711)`
-   - Uses no resizing, padding, letterboxing, or stretching.
-   - Saves cropped frames under `dataset/images/subject_<ID>/video_<ID>/`.
-   - Final cropped filenames use the sequential sampled-frame index within each video:
-     ```
-     subject_<SUBJECT_ID>_video_<VIDEO_ID>_frame_<SAMPLED_FRAME_INDEX>.jpg
-     ```
-   - Numbering begins at `0001`, is zero-padded to four digits, and restarts for each video.
-   - The sampled-frame index is not claimed to be the original MP4 source-frame index.
-3. **Automated Quality Verification**:
-   - Detects any pure black or corrupt frames (`max_pixel == 0`).
-   - Measures Laplacian Variance ($\sigma^2(\nabla^2 I)$) sharpness across all frames.
+This directory contains the complete Python script suite powering the data extraction, preprocessing, annotation management, split balancing, and visual asset generation pipelines for the **DMS-Eval** benchmark.
 
 ---
 
-### Requirements
+## 📂 Directory Layout
 
-```bash
-pip install opencv-python numpy
+```text
+scripts/
+├── README.md                          # Scripts documentation suite (this file)
+│
+├── extract_and_crop_dmd.py            # [Stage 1] Multi-processed video extraction & 640x640 cropping
+├── assemble_master_coco.py            # [Stage 2] Assembles Label Studio exports into master COCO JSON
+├── split_annotations_per_subject.py   # [Stage 3] Partitions ground truth into 14 per-subject folders
+├── balance_splits.py                  # [Stage 4] Exhaustive 8/3/3 subject-disjoint split optimizer
+│
+├── charts/                            # [Gitignored] Publication chart & diagram generators
+│   ├── generate_distribution_charts.py
+│   ├── generate_pipeline_and_split_charts.py
+│   └── generate_pipeline_diagram_redesign.py
+│
+└── presentation/                      # [Gitignored] Presentation builder scripts
+    └── build_presentation_pptx.py
 ```
 
 ---
 
-### Usage Examples
+## 🛠️ Pipeline Scripts & Usage
+
+### 1. `extract_and_crop_dmd.py` — Video Ingestion & Spatial Cropping
+Discovers all `rgb_face` videos across DMD subsets (`distraction`, `gaze`, `drowsiness`), uniformly samples frames at 1 FPS, crops them to the canonical $640 \times 640$ driver-face window (`x: 272, y: 71, w: 640, h: 640`), and runs automated Laplacian variance blur/black-frame checks.
 
 ```bash
-# Run full pipeline (extraction + cropping + verification)
+# Run full extraction + cropping + quality verification
 python scripts/extract_and_crop_dmd.py
 
-# Custom parameters example
-python scripts/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped dataset/images --sample-fps 1.0 --crop-box 272 71 640 640 --workers 6
+# Custom path or multi-processing parameters
+python scripts/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped dataset/images --sample-fps 1.0 --workers 6
 
-# Run only cropping on existing extracted frames
-python scripts/extract_and_crop_dmd.py --skip-extract
-
-# Run quality & sharpness verification only
+# Quality & sharpness verification only
 python scripts/extract_and_crop_dmd.py --verify-only
 ```
 
 ---
 
-### Output Directory Structure:
+### 2. `assemble_master_coco.py` — Master Ground Truth Assembly
+Reads raw Label Studio annotation export tasks, standardizes category IDs and class names against the frozen 4-cue ontology, and compiles the master COCO ground-truth file at [`dataset/annotations.json`](../dataset/annotations.json).
 
-```
-dataset/
-├── images/                                  # 640x640 cropped dataset; not committed to Git
-│   ├── subject_01/
-│   │   ├── video_01/
-│   │   │   ├── subject_01_video_01_frame_0001.jpg
-│   │   │   ├── subject_01_video_01_frame_0002.jpg
-│   │   │   ├── subject_01_video_01_frame_0003.jpg
-│   │   │   └── ...
-│   │   ├── video_02/
-│   │   └── ...
-│   ├── subject_02/
-│   │   └── ...
-│   └── ...
-└── DMD/
-    ├── Images/                              # 1280x720 Raw Extracted Frames
-    ├── distraction/                         # Original Videos & Annotations
-    ├── gaze/
-    └── di21-dmd-dataset-drowsiness/
+```bash
+# Assemble and validate master annotations
+python scripts/assemble_master_coco.py
 ```
 
 ---
 
-## ⚠️ Resolve Later Checklist
+### 3. `split_annotations_per_subject.py` — Per-Subject Annotation Partitioning
+Partitions [`dataset/annotations.json`](../dataset/annotations.json) into 14 distinct per-subject directories (`dataset/annotations_per_subject/subject_01/` ... `subject_14/`), producing isolated COCO JSONs and task lists for modular subject-level tracking.
 
-<div align="center">
+```bash
+# Partition master annotations per subject
+python scripts/split_annotations_per_subject.py
+```
 
-| Status | Item / Open Decision | Protocol Role | Target Resolution Milestone |
-| :---: | :--- | :--- | :--- |
-| [ ] | **Validation Confidence Thresholds ($\tau^*$)** | Numerical threshold values $(\tau_{\text{YOLO11n}}, \tau_{\text{D-FINE-N}}, \tau_{\text{YOLO26n}})$ selected via validation $F_1$ sweep | [Module 4.3](../docs/execution-checklist.md#module-4-shared-evaluation-harness--validation-model-selection) |
-| [ ] | **Host Environment Manifest Pinning** | Exact pinned versions for CUDA, cuDNN, PyTorch, Ultralytics commit, D-FINE commit, and THOP | [Module 3.1](../docs/execution-checklist.md#module-3-environment-configuration--controlled-model-training) |
-| [ ] | **Custom / Unsupported Operator Profiling** | Local operator handler audit for THOP GFLOPs computation ($1 \times 3 \times 640 \times 640$) | [Module 5.2](../docs/execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
-| [ ] | **Non-Integer FPS Frame Mapping** | Exact frame-index rounding rule for source video extraction at non-integer framerates | [Module 1.1](../docs/execution-checklist.md#module-1-data-pipeline--annotation-integrity) |
-| [ ] | **Checkpoint Storage Measurement** | Uniform disk footprint measurement protocol (MB) for final selected model weights | [Module 5.3](../docs/execution-checklist.md#module-5-computational-complexity--footprint-profiling) |
+---
 
-</div>
+### 4. `balance_splits.py` — Subject-Disjoint Partition Optimizer
+Evaluates all $\binom{14}{8} \times \binom{6}{3} = 60{,}060$ possible 8/3/3 subject partitions to find the globally optimal split that preserves exact class balance, subject disjointness ($S_{\text{train}} \cap S_{\text{val}} = \emptyset$, etc.), and target frame proportions (70.6% Train, 15.0% Val, 14.4% Test).
+
+```bash
+# Run exhaustive split balance search and verify dataset/splits.json
+python scripts/balance_splits.py
+```
+
+---
+
+## 📊 Visualization & Presentation Builders
+
+### `scripts/charts/` (Publication Figures)
+- **`generate_distribution_charts.py`**: Generates high-resolution class frequency, frame retention, and subject distribution charts for the manuscript.
+- **`generate_pipeline_and_split_charts.py`**: Generates dataset split balance comparisons and flow diagrams.
+- **`generate_pipeline_diagram_redesign.py`**: Generates the authoritative 6-module system architecture diagram saved to `assets/diagrams/dms_eval_pipeline.png` and `manuscript/figures/dms_eval_pipeline.png`.
+
+### `scripts/presentation/` (Slide Decks)
+- **`build_presentation_pptx.py`**: Compiles the 16-slide 16:9 widescreen PowerPoint presentation (`docs/presentation/DMS-Eval-Presentation-15min.pptx` and `docs/presentation/presentation.pptx`) with embedded figures, design palette tokens, and speaker notes.
+
+```bash
+# Build presentation slide decks
+uv run --with python-pptx python scripts/presentation/build_presentation_pptx.py
+```
