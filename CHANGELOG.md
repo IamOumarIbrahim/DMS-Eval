@@ -1,3 +1,8 @@
+## [2026-08-19 17:56:00] - Generate per-subject split annotation directories
+- Implement `scripts/split_annotations_per_subject.py` partitioning annotations into 14 distinct folders under `dataset/Annotations_split/subject_01/` ... `subject_14/`
+- Each subject folder contains both standard `coco_annotations.json` and `raw_annotations.json` (Label Studio task format)
+- Verified exact 14-subject total consistency (15,723 frames, 3,001 bounding boxes)
+
 ## [2026-08-19 17:45:00] - Commit 14-subject annotation source and generate master COCO ground truth
 - Commit full 14-subject annotation source export in `dataset/All_Subjects_annotated/` (15,723 tasks, 3,001 bounding boxes, 12,722 negative frames)
 - Implement `scripts/assemble_master_coco.py` to assemble and validate canonical `dataset/annotations.json`
