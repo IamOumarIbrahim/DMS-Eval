@@ -15,6 +15,11 @@
 \usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{url}
+\setlength{\textfloatsep}{5pt plus 1pt minus 1pt}
+\setlength{\floatsep}{5pt plus 1pt minus 1pt}
+\setlength{\intextsep}{5pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{3pt}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -123,10 +128,10 @@ Ground truth is generated through 100\% manual human inspection in Label Studio 
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.48\columnwidth]{yawning_annotation_example.png}\hfill
-\includegraphics[width=0.48\columnwidth]{hand_over_mouth_annotation_example.png}\\[4pt]
-\includegraphics[width=0.48\columnwidth]{drinking_annotation_example.png}\hfill
-\includegraphics[width=0.48\columnwidth]{phone_use_annotation_example.png}
+\includegraphics[width=0.46\columnwidth]{yawning_annotation_example.png}\hfill
+\includegraphics[width=0.46\columnwidth]{hand_over_mouth_annotation_example.png}\\[2pt]
+\includegraphics[width=0.46\columnwidth]{drinking_annotation_example.png}\hfill
+\includegraphics[width=0.46\columnwidth]{phone_use_annotation_example.png}
 \caption{Visual demonstrations of our manual annotations in Label Studio across all 4 frozen target warning cues: (a) \texttt{yawning} (top-left, mouth aperture only), (b) \texttt{hand\_over\_mouth} (top-right, full head enclosing occluding hand), (c) \texttt{drinking} (bottom-left, hand and beverage container in consumption posture), and (d) \texttt{phone\_use} (bottom-right, hand and mobile device held at the ear in calling posture).}
 \label{fig_annotation_examples}
 \end{figure}
@@ -174,24 +179,29 @@ The optimal partition selected by the algorithm is permanently frozen in \texttt
 \item \textbf{Test} (3 subjects): $S_5, S_{10}, S_{12}$
 \end{itemize}
 
-As documented in Table~\ref{tab_splits} and Table~\ref{tab_classes}, the maximum relative deviation across all splits and classes is restricted to $\le 5.4812\%$, ensuring near-identical distribution fidelity across partitions.
+As documented in Table~\ref{tab_splits} and Fig.~\ref{fig_split_proportions}, the maximum relative deviation across all splits and classes is restricted to $\le 5.4812\%$, ensuring near-identical distribution fidelity across partitions.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=\columnwidth]{split_cue_proportions_comparison.png}}
+\caption{Distribution fidelity across frozen 8/3/3 subject-disjoint partitions: class proportions for all four target warning cues track the global dataset distribution across Train ($S_1, S_4, S_6, S_7, S_8, S_9, S_{13}, S_{14}$), Validation ($S_2, S_3, S_{11}$), and Test ($S_5, S_{10}, S_{12}$) splits ($\le 5.4812\%$ maximum relative divergence).}
+\label{fig_split_proportions}
+\end{figure}
 
 \subsection{Temporal Shuffling and Sequence Preservation}
 Because 1~FPS extraction from continuous driving video introduces temporal correlation between adjacent frames, a deterministic pseudo-random permutation (seed 13) is applied exclusively to the training split ($S_{\text{train}}$) to diversify mini-batch gradient updates and prevent sequential overfitting. Conversely, validation and test splits ($S_{\text{val}}, S_{\text{test}}$) are strictly preserved in their native chronological order to enable contiguous temporal error analysis and ensure benchmark compatibility with future sequence-based architectures.
 
-
 \begin{table}[htbp]
-\caption{Frame Composition Across Frozen Benchmark Splits}
+\caption{Dataset Split Composition and Warning Cue Distributions Across Partitions}
 \begin{center}
 \resizebox{\columnwidth}{!}{
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrrrrr}
 \toprule
-\textbf{Split} & \textbf{Total Images} & \textbf{Negatives (0 box)} & \textbf{Positives (1 box)} & \textbf{Pos. Rate (\%)} \\
+\textbf{Split} & \textbf{Total} & \textbf{Negatives} & \textbf{Positives} & \textbf{Pos. Rate} & \textbf{\texttt{phone}} & \textbf{\texttt{drinking}} & \textbf{\texttt{yawning}} & \textbf{\texttt{hand\_mouth}} \\
 \midrule
-\textbf{Global} & \textbf{15,723} & \textbf{12,722} & \textbf{3,001} & \textbf{19.09\%} \\
-\textbf{Train}  & 9,087  & 7,339  & 1,748 & 19.24\% \\
-\textbf{Val}    & 3,423  & 2,784  & 639   & 18.67\% \\
-\textbf{Test}   & 3,213  & 2,599  & 614   & 19.11\% \\
+\textbf{Global} & \textbf{15,723} & \textbf{12,722} & \textbf{3,001} & \textbf{19.09\%} & \textbf{2,437 (81.2\%)} & \textbf{264 (8.8\%)} & \textbf{159 (5.3\%)} & \textbf{141 (4.7\%)} \\
+\textbf{Train}  & 9,087  & 7,339  & 1,748 & 19.24\% & 1,417 (81.1\%) & 154 (8.8\%) & 94 (5.4\%)  & 83 (4.7\%) \\
+\textbf{Val}    & 3,423  & 2,784  & 639   & 18.67\% & 523 (81.9\%)   & 54 (8.5\%)  & 32 (5.0\%)  & 30 (4.7\%) \\
+\textbf{Test}   & 3,213  & 2,599  & 614   & 19.11\% & 497 (80.9\%)   & 56 (9.1\%)  & 33 (5.4\%)  & 28 (4.6\%) \\
 \bottomrule
 \end{tabular}
 }
@@ -199,24 +209,6 @@ Because 1~FPS extraction from continuous driving video introduces temporal corre
 \end{center}
 \end{table}
 
-\begin{table}[htbp]
-\caption{Target Warning Cue Counts and Proportions Across Splits}
-\begin{center}
-\resizebox{\columnwidth}{!}{
-\begin{tabular}{lrrrr}
-\toprule
-\textbf{Split} & \textbf{\texttt{phone\_use}} & \textbf{\texttt{drinking}} & \textbf{\texttt{yawning}} & \textbf{\texttt{hand\_mouth}} \\
-\midrule
-\textbf{Global} & \textbf{2,437 (81.21\%)} & \textbf{264 (8.80\%)} & \textbf{159 (5.30\%)} & \textbf{141 (4.70\%)} \\
-\textbf{Train}  & 1,417 (81.06\%) & 154 (8.81\%) & 94 (5.38\%)  & 83 (4.75\%) \\
-\textbf{Val}    & 523 (81.85\%)   & 54 (8.45\%)  & 32 (5.01\%)  & 30 (4.69\%) \\
-\textbf{Test}   & 497 (80.94\%)   & 56 (9.12\%)  & 33 (5.37\%)  & 28 (4.56\%) \\
-\bottomrule
-\end{tabular}
-}
-\label{tab_classes}
-\end{center}
-\end{table}
 
 \begin{figure*}[htbp]
 \centerline{\includegraphics[width=\textwidth]{dms_eval_pipeline.png}}
@@ -321,6 +313,7 @@ The authors thank the University of Sharjah for providing compute infrastructure
 % -------------------------------------------------------------------------
 
 \begin{thebibliography}{00}
+\setlength{\itemsep}{1pt plus 0.5pt minus 0.5pt}
 
 \bibitem{yolo11_ultralytics}
 G.~Jocher and J.~Qiu, ``Ultralytics {YOLO11},'' 2024. [Online]. Available: \url{https://github.com/ultralytics/ultralytics}
