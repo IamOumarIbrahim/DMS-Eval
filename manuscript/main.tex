@@ -191,7 +191,7 @@ Because 1~FPS extraction from continuous driving video introduces temporal corre
 
 \begin{figure*}[htbp]
 \centerline{\includegraphics[width=\textwidth]{dms_eval_pipeline.png}}
-\caption{DMS-Eval end-to-end benchmark framework and evaluation lifecycle: spanning standardized $640\times 640$ frame extraction from 81 DMD videos, authoritative Label Studio ground truth annotation across 4 target visual warning cues (80.91\% negative frames), deterministic 8/3/3 subject-disjoint split optimization ($\le 5.48\%$ relative divergence), controlled training on RTX 4060 hardware (batch size 1, 220 epochs, seed 13), validation-only $F_1$ score threshold calibration ($\tau^*$), and isolated single-pass test evaluation.}
+\caption{DMS-Eval end-to-end benchmark framework and evaluation lifecycle: spanning standardized $640\times 640$ frame extraction from 81 DMD videos, authoritative Label Studio ground truth annotation across 4 target visual warning cues (80.91\% negative frames), deterministic 8/3/3 subject-disjoint split optimization ($\le 5.48\%$ relative divergence), controlled training on RTX 4060 hardware (physical batch 8, accumulation 4, 220 epochs, seed 13), validation-only $F_1$ score threshold calibration ($\tau^*$), and isolated single-pass test evaluation.}
 \label{fig_pipeline}
 \end{figure*}
 

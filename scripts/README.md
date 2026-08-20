@@ -20,6 +20,7 @@ scripts/
 ├── convert_coco_to_yolo.py            # [Stage 6] Converts master COCO JSON to YOLO format labels & YAML
 ├── prepare_dfine_coco.py              # [Stage 7] Partitions master COCO JSON into D-FINE/DETR split JSONs
 ├── train_yolo.py                      # [Stage 8] YOLO training engine with gradient accumulation & telemetry
+├── evaluate_benchmark.py              # [Stage 9] Evaluator harness, validation threshold sweep & profiler
 │
 ├── charts/                            # [Gitignored] Publication chart & diagram generators
 │   ├── generate_distribution_charts.py
@@ -119,6 +120,19 @@ python scripts/train_yolo.py --epochs 2 --model weights/pretrained/yolo11n.pt --
 
 # Full benchmark training run (220 epochs)
 python scripts/train_yolo.py --epochs 220 --model weights/pretrained/yolo11n.pt --batch 8 --accumulate 4 --device 0
+```
+
+---
+
+### 9. `evaluate_benchmark.py` — Standardized Evaluation Harness & Profiler
+Runs the frozen DMS-Eval evaluation protocol: performs validation-only confidence threshold grid sweep ($\tau \in [0.01, 0.99]$) to find $\tau^*$ maximizing micro-averaged $F_1$, executes single-pass evaluation on the unseen test split, and profiles hardware-synchronized batch-1 CUDA-event latency ($p50/p95/p99$), sustained FPS, and peak VRAM.
+
+```bash
+# Full validation calibration and single-pass test evaluation
+python scripts/evaluate_benchmark.py --weights runs/train/yolo11n_dms/weights/best.pt --config configs/yolo/dms_eval.yaml --device 0
+
+# Fast test split evaluation with fixed confidence threshold
+python scripts/evaluate_benchmark.py --weights runs/train/yolo11n_dms/weights/best.pt --split test --threshold 0.45 --device 0
 ```
 
 ---
