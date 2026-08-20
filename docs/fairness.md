@@ -1,28 +1,42 @@
 # Fairness Audit
 
-[← Back to Main Landing Page](../README.md) · [Documentation Hub](./README.md) · [Training Protocol](./training-protocol.md) · [Evaluation Protocol](./evaluation-protocol.md)
+[Back to repository](../README.md) · [Documentation hub](./README.md) · [Training protocol](./training-protocol.md) · [Evaluation protocol](./evaluation-protocol.md)
 
-This audit describes the current implemented protocol before any training or real evaluation has run. It distinguishes shared controls from backend-specific behavior that can affect cross-model interpretation. The entries are methodological risks, not observed performance effects; the named beneficiary is the most plausible direction, not an empirical conclusion.
+This is a pre-training implementation audit. It records controls and residual interpretation risks; it does not report empirical effects.
 
-| Severity | Asymmetry | Likely beneficiary | Fairness impact | Recommended correction |
-|---|---|---|---|---|
-| High | D-FINE reloads its best stage-1 validation checkpoint at epoch 148 and can perform additional validation-driven reloads afterward | D-FINE-N | D-FINE’s training trajectory receives validation-guided intervention, while YOLO uses validation only for reporting/checkpoint retention | Remove the validation-driven D-FINE restart, or implement an equivalent predefined restart rule that does not inspect validation performance |
-| High | YOLO accumulation ramps from 1 to 4 during warm-up; D-FINE uses fixed accumulation 4 | YOLO11n/YOLO26n | YOLO receives substantially more optimizer updates during approximately the first three epochs | Implement fixed four-step accumulation for YOLO or explicitly define different native accumulation as an architecture-specific variable |
-| High | D-FINE uses `drop_last=true`; YOLO uses `drop_last=false` | YOLO11n/YOLO26n | D-FINE drops seven training images each epoch—1,540 image presentations over 220 epochs—while YOLO sees every image | Use the same `drop_last` policy and correctly normalize partial accumulation windows |
-| High | Optimization settings are benchmark-selected rather than comparably derived official recipes | Uncertain; D-FINE may be disadvantaged | D-FINE-N’s official config uses base/backbone LR `0.0008/0.0004`, while the benchmark uses `0.00025/0.0000125`; Ultralytics’ pinned default uses automatic MuSGD selection, while the benchmark forces SGD | Either preserve upstream recipes except for declared shared controls, or give every model the same validation-only tuning budget |
-| High | Inference precision is not identical | Split effect | D-FINE’s autocast may preserve more FP32-sensitive operations, potentially helping accuracy, while YOLO’s pure FP16 weights may help speed and VRAM | Run all inference under the same execution/casting policy, or report the modes as separate deployment configurations |
-| High | Timing excludes required postprocessing and NMS | Especially YOLO11n; potentially D-FINE too | YOLO11n’s required NMS cost is omitted, while YOLO26n performs more of its end-to-end detection work inside the timed model boundary | Report both model-only latency and tensor-to-final-detections latency |
-| High | Raw training-checkpoint size is compared | YOLO models | YOLO serializes a half-precision EMA-oriented package, whereas D-FINE checkpoints may contain FP32 model, EMA, optimizer, and scheduler states | Export a standardized inference-only FP16 state dictionary for every model and compare that size |
-| Medium | Architecture capacities and per-epoch compute differ | D-FINE-N for potential accuracy; YOLO for efficiency | Equal epochs provide equal data passes, not equal FLOPs, wall time, or parameter capacity | Describe the budget as equal epochs/data exposure, not equal compute |
-| Medium | Postprocessing differs: YOLO11n uses NMS; D-FINE and YOLO26n are end-to-end | Likely YOLO11n on this ≤1-object-per-frame dataset | NMS can remove duplicate detections before F1/FAR calculation, reducing false positives | Accept this only if comparing deployable systems; otherwise report an additional standardized raw-output analysis |
-| Medium | One seed and one run per model | No predictable beneficiary | Random initialization, sampling, and CUDA variance may make one model appear better by chance | Prefer multiple seeds or explicitly characterize conclusions as single-run results |
-| Medium | Protected evaluation does not itself reject non-RTX-4060 hardware | Whichever model is accidentally run elsewhere | Separate test invocations could be performed under different hardware despite the documented policy | Call the environment validator inside protected test execution |
-| Medium | THOP operator coverage may differ across CNN and transformer operations | Uncertain | Identical tooling does not guarantee equally accurate FLOP accounting for custom attention/deformable operations | Validate FLOPs with a second tool or audited per-operator rules |
+## Paragraph A — frozen methodological goal
 
-## Controls that are consistent
+All models use the same underlying training/test data, subject-disjoint test split, 640×640 resolution, evaluation annotations, shared metric implementation, RTX 4060 benchmark environment, FP32 model/input storage under CUDA AMP FP16, physical training batch size 8, fixed four-step gradient accumulation, batch-1 inference protocol, and protected test-access policy. Shared controls include 220 epochs, disabled early stopping, retention of every training image with sample-correct incomplete-window normalization, one run, and validation-only checkpoint selection that never changes training state. Architecture-specific optimizer, learning-rate, scheduler, weight-decay, and augmentation settings follow pinned official recipes. The only recipe adaptations are the DMS-Eval dataset and four classes, 640×640 input, physical batch 8, fixed four-step accumulation, 220 epochs, seed 13, and disabled early stopping; no model-specific tuning is performed.
 
-All candidates use the same underlying image and annotation sets, subject-disjoint split, 640×640 resolution, protected master COCO ground truth, physical training batch, epoch ceiling, checkpoint-ranking rule, threshold grid and tie-breakers, shared metric implementation, target RTX 4060 environment, batch-1 model-forward timing procedure, and protected single-pass test policy. Disabled early stopping does not itself favor a model because the best earlier validation checkpoint remains eligible under the shared ranking procedure.
+This paragraph is the goal enforced by configuration and verification. It does not imply equal compute, statistical significance, or publication readiness.
 
-## Interpretation
+## Corrections implemented before training
 
-Until the high-severity items are resolved, results may support a transparent comparison of the three configured systems, but not a claim that architecture alone caused every observed difference. Technical readiness and protocol reproducibility are necessary but insufficient conditions for a publishable paper.
+| Former asymmetry | Implemented control | Verification |
+|---|---|---|
+| D-FINE validation-guided stage reloads | Removed; epoch-148 transition is predefined and continues the current model/optimizer state | Backend patch and config verifier reject the old reload |
+| YOLO accumulation warm-up ramp | Fixed accumulation at four from the first training batch | Pinned Ultralytics trainer patch |
+| D-FINE dropped incomplete batches | `drop_last=false` for all; short final windows are sample-correct for mean- or sum-reduced losses | Configuration and accumulation unit tests |
+| Benchmark-selected optimizer settings | Restored pinned official recipes; YOLO `optimizer=auto` (expected MuSGD), D-FINE AdamW `0.0008/0.0004` | Source recipe fingerprints and final-plan verifier |
+| Unequal inference precision | FP32 model weights/input tensors for all, with CUDA autocast FP16 around model forward | Adapter and protocol assertions |
+| Forward-only timing | Both model-forward and tensor-to-final-detections latency/FPS are reported | Shared one-pass profiler |
+| Raw checkpoint size | Replaced by a standardized inference-only FP16 state-dictionary artifact | Artifact schema and unit test |
+| Ambiguous equal-epoch claim | Described as equal epoch/data exposure, never equal FLOPs or wall time | Documentation/manuscript wording |
+| Native postprocessing hidden from timing | Architecture-required postprocessing/NMS is included in the second timing boundary | Profiler finalization path |
+| Environment policy was documentary only | Protected test calls the complete RTX 4060 validator before ledger/test access | Environment gate and unit test |
+| Single-tool FLOP estimate | THOP and `torch.profiler` estimates are stored with method/status and an operator-coverage caveat | Protected/synthetic result schema |
+
+## Residual, non-removable scope limitations
+
+| Limitation | Fairness implication | Required interpretation |
+|---|---|---|
+| Architecture capacities and per-epoch compute differ | Equal data passes do not equal parameters, FLOPs, or wall time | Compare configured systems and accuracy–efficiency trade-offs; do not claim architecture-only causation |
+| Native postprocessing differs | YOLO11n uses NMS while end-to-end detectors have different output semantics | Use tensor-to-final-detections latency for deployable-system comparison and disclose native postprocessing |
+| One seed and one run per model | Random variation can change an apparent ordering | Treat results as single-run descriptive observations, not statistically established superiority |
+| FLOP tools have incomplete/operator-dependent coverage | CNN/transformer estimates may disagree for tooling reasons | Report both estimates and avoid false precision |
+| Official recipes originated under different upstream tasks/batches | Recipe faithfulness does not make optimization mathematically identical | State the closed adaptation list and avoid unrestricted fairness claims |
+| Early stopping is disabled | A model can overtrain by epoch 220, but all retained checkpoints remain eligible under the same validation-only rule | Report selected validation epoch and never use test performance to diagnose or correct overtraining |
+
+## Verdict boundary
+
+After all automated checks pass, the protocol supports the frozen Paragraph A as a transparent system-level benchmark claim. It still does not establish that architecture alone caused a result, that the single observed ranking is statistically stable, or that the paper is publishable before real results, analysis, and scientific review exist.

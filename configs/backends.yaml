@@ -3,6 +3,10 @@ ultralytics:
   package: ultralytics
   version: 8.4.123
   source: https://github.com/ultralytics/ultralytics
+  recipe:
+    file: ultralytics/cfg/default.yaml
+    sha256: 9ad9a3150cedb839f7c1a352d37b578aaccd2db107ad63cea2e0bafce2966b71
+  trainer_patch: patches/ultralytics-fixed-accumulation.patch
   models:
     yolo11n:
       file: weights/pretrained/yolo11n.pt
@@ -25,3 +29,6 @@ dfine:
     size_bytes: 15489558
     sha256: 41973938d2784d38a9836990d805b8392855ebf611aba55f0f7add90e110744c
   config: configs/dfine/dfine_n_dms.yml
+  recipe:
+    file: configs/dfine/dfine_hgnetv2_n_coco.yml
+    sha256: d15c3cc0ad0f8e5b0977fd88c56948350b4898a51abd2709bc3d5535a689080d

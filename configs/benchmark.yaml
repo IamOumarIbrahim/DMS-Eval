@@ -63,25 +63,41 @@ training:
   physical_batch_size: 8
   gradient_accumulation_steps: 4
   effective_batch_size: 32
-  workers: 4
   amp: true
-  precision: fp16
+  precision: amp_fp16
   early_stopping: false
   single_run: true
+  incomplete_batch:
+    drop_last: false
+    normalize_partial_accumulation_window: true
+  validation_intervention: checkpoint_retention_only
+  recipe_policy:
+    type: pinned_official_no_model_specific_tuning
+    model_specific_tuning_trials: 0
+    allowed_adaptations:
+      - dataset_and_classes
+      - input_size_640x640
+      - physical_batch_size_8
+      - gradient_accumulation_steps_4
+      - epochs_220
+      - seed_13
+      - early_stopping_disabled
   checkpoint_selection:
     split: val
     primary: map_50_95
     tie_breakers: [map_50, later_epoch]
   optimization:
     ultralytics:
-      optimizer: SGD
-      lr0: 0.01
-      momentum: 0.937
-      weight_decay: 0.0005
-      cos_lr: false
+      source: ultralytics_8.4.123_default_yaml
+      optimizer: auto
+      expected_resolved_optimizer: MuSGD
+      scheduler: linear
+      augmentation: pinned_package_defaults
     dfine:
+      source: dfine_hgnetv2_n_coco_at_pinned_commit
       optimizer: AdamW
-      lr: 0.00025
+      lr: 0.0008
+      backbone_lr: 0.0004
       weight_decay: 0.0001
       scheduler: MultiStepLR
       milestones: [500]
@@ -105,12 +121,16 @@ evaluation:
 profiling:
   hardware: NVIDIA GeForce RTX 4060 8GB
   batch_size: 1
-  precision: fp16
+  precision: cuda_amp_fp16
+  model_weights: fp32
+  input_dtype: fp32
   input_shape: [1, 3, 640, 640]
   warmup_passes: 10
-  timing: synchronized_cuda_events
-  boundary: model_forward_only
-  excluded: [disk_io, decode, preprocessing, postprocessing, nms, metrics]
+  timing:
+    model_forward: synchronized_cuda_events
+    tensor_to_final_detections: synchronized_wall_clock
+  boundaries: [model_forward, tensor_to_final_detections]
+  excluded: [disk_io, decode, preprocessing, metrics]
   latency_percentiles: [50, 95, 99]
-  sustained_fps: timed_frames / total_gpu_forward_seconds
-  resources: [parameters, flops, peak_allocated_vram, checkpoint_bytes]
+  sustained_fps: reported_per_timing_boundary
+  resources: [parameters, dual_estimator_flops, peak_allocated_vram, standardized_fp16_artifact_bytes]

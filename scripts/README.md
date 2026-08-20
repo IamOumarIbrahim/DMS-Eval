@@ -2,7 +2,7 @@
 
 [← Back to the DMS-Eval Landing Page](../README.md)
 
-This directory contains the complete Python script suite powering the data extraction, preprocessing, annotation management, split balancing, and visual asset generation pipelines for the **DMS-Eval** benchmark.
+This directory contains the complete Python workflow suite for **DMS-Eval**, grouped by responsibility so dataset generation, benchmark execution, and publication production remain visibly separate.
 
 ---
 
@@ -11,26 +11,32 @@ This directory contains the complete Python script suite powering the data extra
 ```text
 scripts/
 ├── README.md                          # Scripts documentation suite (this file)
-│
-├── extract_and_crop_dmd.py            # [Stage 1] Multi-processed video extraction & 640x640 cropping
-├── assemble_master_coco.py            # [Stage 2] Assembles Label Studio exports into master COCO JSON
-├── split_annotations_per_subject.py   # [Stage 3] Partitions ground truth into 14 per-subject folders
-├── balance_splits.py                  # [Stage 4] Exhaustive 8/3/3 subject-disjoint split optimizer
-├── create_shuffled_annotations.py     # [Stage 5] Generates Training/Val/Test hierarchy with seed-13 shuffle
-├── convert_coco_to_yolo.py            # [Stage 6] Converts master COCO JSON to YOLO format labels & YAML
-├── prepare_dfine_coco.py              # [Stage 7] Partitions master COCO JSON into D-FINE/DETR split JSONs
-├── preflight.py                       # Read-only protocol/environment/backend/dataset preflight
-├── validate_environment.py            # Frozen Python/CUDA/RTX 4060 validation
-├── validate_dataset.py                # Full deterministic dataset and derived-format validation
-├── setup_backends.py                  # Pinned checkout and official-weight setup/verification
-├── validate_backends.py               # Backend loading and optional synthetic FP16 smoke
-├── train_yolo.py                      # [Stage 8] Guarded YOLO11n/YOLO26n launcher
-├── train_dfine.py                     # [Stage 8] Guarded pinned D-FINE-N launcher
-├── evaluate_benchmark.py              # [Stage 9] Shared guarded evaluation lifecycle
-├── profile_runtime.py                 # Synthetic-only shared CUDA profiler smoke
-├── aggregate_results.py               # Protected result aggregation
-├── generate_publication_tables.py     # Aggregate-to-Markdown/LaTeX tables
-├── generate_figures.py                # Aggregate-to-publication figure
+├── data/
+│   ├── extract_and_crop_dmd.py         # [Stage 1] Video extraction and 640×640 cropping
+│   ├── assemble_master_coco.py         # [Stage 2] Master COCO assembly
+│   ├── split_annotations_per_subject.py# [Stage 3] Per-subject ground truth
+│   ├── balance_splits.py               # [Stage 4] Exhaustive 8/3/3 optimizer
+│   ├── create_shuffled_annotations.py  # [Stage 5] Deterministic split hierarchy
+│   ├── convert_coco_to_yolo.py         # [Stage 6] YOLO labels and manifests
+│   └── prepare_dfine_coco.py           # [Stage 7] D-FINE COCO partitions
+├── benchmark/
+│   ├── preflight.py                    # Read-only full repository gate
+│   ├── setup_backends.py               # Pinned backend and weight setup
+│   ├── validate_environment.py         # Frozen RTX 4060 environment check
+│   ├── validate_dataset.py             # Frozen-data audit
+│   ├── validate_backends.py            # Backend and synthetic inference check
+│   ├── verify_training_configs.py      # No-training final configuration gate
+│   ├── train_yolo.py                   # [Stage 8] Guarded YOLO launchers
+│   ├── train_dfine.py                  # [Stage 8] Guarded D-FINE-N launcher
+│   ├── evaluate_benchmark.py           # [Stage 9] Protected evaluation lifecycle
+│   ├── profile_runtime.py              # Synthetic profiler smoke test
+│   └── aggregate_results.py            # Protected result aggregation
+├── publication/
+│   ├── generate_publication_tables.py  # Aggregate-to-Markdown/LaTeX tables
+│   ├── generate_figures.py             # Aggregate-to-publication trade-off figure
+│   └── generate_crop_geometry.py       # Reproducible crop schematic
+├── maintenance/
+│   └── check_links.py                   # Local and optional external link audit
 │
 ├── charts/                            # [Gitignored] Publication chart & diagram generators
 │   ├── generate_distribution_charts.py
@@ -50,13 +56,13 @@ Discovers all `rgb_face` videos across DMD subsets (`distraction`, `gaze`, `drow
 
 ```bash
 # Run full extraction + cropping + quality verification
-python scripts/extract_and_crop_dmd.py
+python scripts/data/extract_and_crop_dmd.py
 
 # Custom path or multi-processing parameters
-python scripts/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped dataset/images --sample-fps 1.0 --workers 6
+python scripts/data/extract_and_crop_dmd.py --dmd-dir dataset/DMD --out-cropped dataset/images --sample-fps 1.0 --workers 6
 
 # Quality & sharpness verification only
-python scripts/extract_and_crop_dmd.py --verify-only
+python scripts/data/extract_and_crop_dmd.py --verify-only
 ```
 
 ---
@@ -66,7 +72,7 @@ Reads raw Label Studio annotation export tasks, standardizes category IDs and cl
 
 ```bash
 # Assemble and validate master annotations
-python scripts/assemble_master_coco.py
+python scripts/data/assemble_master_coco.py
 ```
 
 ---
@@ -76,7 +82,7 @@ Partitions [`dataset/annotations.json`](../dataset/annotations.json) into 14 dis
 
 ```bash
 # Partition master annotations per subject
-python scripts/split_annotations_per_subject.py
+python scripts/data/split_annotations_per_subject.py
 ```
 
 ---
@@ -86,7 +92,7 @@ Evaluates all $\binom{14}{8} \times \binom{6}{3} = 60{,}060$ possible 8/3/3 subj
 
 ```bash
 # Run exhaustive split balance search and verify dataset/splits.json
-python scripts/balance_splits.py
+python scripts/data/balance_splits.py
 ```
 
 ---
@@ -96,7 +102,7 @@ Duplicates per-subject annotations and reorganizes them into [`dataset/annotatio
 
 ```bash
 # Generate shuffled per-subject dataset hierarchy
-python scripts/create_shuffled_annotations.py
+python scripts/data/create_shuffled_annotations.py
 ```
 
 ---
@@ -106,7 +112,7 @@ Converts [`dataset/annotations.json`](../dataset/annotations.json) into YOLO for
 
 ```bash
 # Convert master COCO annotations to YOLO label hierarchy & config
-python scripts/convert_coco_to_yolo.py
+python scripts/data/convert_coco_to_yolo.py
 ```
 
 ---
@@ -116,44 +122,64 @@ Splits [`dataset/annotations.json`](../dataset/annotations.json) into standalone
 
 ```bash
 # Generate partitioned COCO JSON splits for D-FINE-N
-python scripts/prepare_dfine_coco.py
+python scripts/data/prepare_dfine_coco.py
 ```
 
 ---
 
 ### 8. `train_yolo.py` — Guarded YOLO Training Launcher
-Configures Ultralytics YOLO training with physical batch size 8, `nbs=32`, mixed-precision FP16, and the RTX 4060 gate. Ultralytics ramps accumulation from 1 toward 4 during warm-up before settling at four, so 32 is a nominal effective batch rather than an identical fixed update schedule relative to D-FINE. See the [training protocol](../docs/training-protocol.md) and [fairness audit](../docs/fairness.md).
+Configures the pinned Ultralytics recipe with physical batch 8, fixed four-step accumulation from the first batch, 220 epochs, seed 13, disabled early stopping, AMP FP16, and the RTX 4060 gate. A pinned trainer patch sample-normalizes incomplete accumulation windows. YOLO retains `optimizer=auto` from Ultralytics 8.4.123 (expected to resolve to MuSGD for these plans).
 
 ```bash
 # Dry-run frozen plans (no training)
-python scripts/train_yolo.py --model-id yolo11n
-python scripts/train_yolo.py --model-id yolo26n
-python scripts/train_dfine.py
+python scripts/benchmark/train_yolo.py --model-id yolo11n
+python scripts/benchmark/train_yolo.py --model-id yolo26n
+python scripts/benchmark/train_dfine.py
 
 # Authorized full runs require --execute-training
-python scripts/train_yolo.py --model-id yolo11n --execute-training
+python scripts/benchmark/train_yolo.py --model-id yolo11n --execute-training
 ```
 
 ---
 
 ### 9. `evaluate_benchmark.py` — Standardized Evaluation Harness & Profiler
-Separates validation export, validation-only checkpoint selection, validation-only confidence calibration, immutable manifest creation, and the sole protected test pass. The protected pass also performs the full-test-set model-only CUDA profile so test frames are not traversed twice.
+Separates validation export, validation-only checkpoint selection, validation-only confidence calibration, immutable manifest creation, and the sole protected test pass. The protected pass validates the RTX 4060 environment and collects predictions, model-forward timing, tensor-to-final-detections timing (including required postprocessing/NMS), peak VRAM, dual FLOP estimates, and standardized FP16 inference-artifact size without traversing test frames twice.
 
 ```bash
 # Safe protocol dry-run; never defaults to test
-python scripts/evaluate_benchmark.py
+python scripts/benchmark/evaluate_benchmark.py
 
 # List guarded lifecycle commands
-python scripts/evaluate_benchmark.py --help
+python scripts/benchmark/evaluate_benchmark.py --help
 ```
 
 See [`docs/benchmark-readiness.md`](../docs/benchmark-readiness.md) for the complete future command sequence. No shortcut for repeated test evaluation exists.
+
+### 10. `verify_training_configs.py` — Final Configuration Gate
+
+Verifies the exact seven-item recipe-adaptation list, pinned upstream recipe fingerprints, physical batch and accumulation controls, incomplete-window handling, absence of validation-guided D-FINE reloads, and all three dry-run plans. It never starts training or accesses test images.
 
 ---
 
 ## 📊 Visualization & Presentation Builders
 
-### `scripts/charts/` (Publication Figures)
+### `scripts/publication/` (Tracked Manuscript Outputs)
+
+- **`generate_crop_geometry.py`**: Rebuilds the fixed source-to-crop schematic in both asset locations.
+- **`generate_figures.py`**: Builds the result-driven quality-versus-latency figure after aggregation.
+- **`generate_publication_tables.py`**: Converts the aggregate result artifact to Markdown and LaTeX tables.
+
+### `scripts/maintenance/` (Repository Integrity)
+
+```bash
+# Check every tracked/current Markdown, HTML, and LaTeX file reference.
+python scripts/maintenance/check_links.py
+
+# Include unique HTTP(S) targets.
+python scripts/maintenance/check_links.py --external
+```
+
+### `scripts/charts/` (Legacy/Development Figures)
 - **`generate_distribution_charts.py`**: Generates high-resolution class frequency, frame retention, and subject distribution charts for the manuscript.
 - **`generate_pipeline_and_split_charts.py`**: Generates dataset split balance comparisons and flow diagrams.
 - **`generate_pipeline_diagram_redesign.py`**: Generates the authoritative 6-module system architecture diagram saved to `assets/diagrams/dms_eval_pipeline.png` and `manuscript/figures/dms_eval_pipeline.png`.

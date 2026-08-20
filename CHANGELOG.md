@@ -1,8 +1,12 @@
-## [2026-08-20] - Complete benchmark-readiness implementation and disclose fairness limits
-- Add pinned backend setup, protocol configuration, adapters, full dataset validation, shared evaluation, runtime profiling, test-isolation controls, guarded training/evaluation launchers, aggregation, and publication generators.
-- Correct derived YOLO and D-FINE manifests and add reproducible Python/lockfile metadata plus automated protocol, metric, and isolation tests.
-- Align the landing page, technical documentation, fairness audit, and manuscript with the implemented accumulation, remainder, optimizer, precision, timing, FAR, checkpoint-serialization, and single-run boundaries.
-- Keep all empirical result fields pending until the authorized frozen training, validation, calibration, and protected single-pass test lifecycle has completed.
+## [2026-08-20] - Resolve pre-training fairness controls and freeze the closed recipe boundary
+- Fix four-step accumulation from the first batch for every model, retain every training image, and sample-normalize incomplete windows for mean- and sum-reduced losses.
+- Remove D-FINE validation-guided training-state reloads and preserve a predefined continuous stage transition; restore pinned official YOLO and D-FINE-N optimization recipes with zero model-specific tuning.
+- Standardize inference on FP32 model/input storage under CUDA AMP FP16; report both model-forward and tensor-to-final-detections latency; replace raw checkpoint comparison with an inference-only FP16 state dictionary.
+- Gate protected testing with the full RTX 4060 environment validator and report both THOP and PyTorch-profiler FLOP estimates with operator-coverage qualifications.
+- Freeze the only permitted recipe adaptations as dataset/classes, 640×640 input, batch 8, accumulation 4, 220 epochs, seed 13, and disabled early stopping; add a no-training final-configuration verifier and regression tests.
+- Reconcile the landing page, technical documentation, fairness audit, pipeline figure, and six-page manuscript while keeping every empirical field pending.
+- Group executable workflows under `scripts/data/`, `scripts/benchmark/`, and `scripts/publication/`; update imports, commands, and repository links to match the new layout.
+- Add a reproducible local/HTTP link-integrity checker under `scripts/maintenance/`.
 
 ## [2026-08-20 00:19:00] - Converge documentation suite and internal ledgers on unified metrics and asset catalogs
 - Synchronize Table 1 and Table 2 in `docs/evaluation-protocol.md` with manuscript Table II ($p50, p95, p99$ latency, sustained FPS, Peak VRAM, and Background False Alarm Rate)
@@ -59,7 +63,7 @@
 - Create [`dataset/annotations_per_subject_shuffled/`](dataset/annotations_per_subject_shuffled/) organizing per-subject annotations into `Training/` (8 subjects), `Validation/` (3 subjects), and `Test/` (3 subjects) folders
 - Implement deterministic pseudo-random shuffling (seed 13) strictly for the 8 training subjects across `coco_annotations.json` and `raw_annotations.json` to break 1 FPS sequence correlations during model training
 - Maintain `Validation/` and `Test/` splits in exact sequential/index order for temporal analysis and deterministic evaluation
-- Create [`scripts/create_shuffled_annotations.py`](scripts/create_shuffled_annotations.py) to reproducibly generate and verify the partition hierarchy with 100% data integrity (15,723 frames, 3,001 bboxes)
+- Create [`scripts/data/create_shuffled_annotations.py`](scripts/data/create_shuffled_annotations.py) to reproducibly generate and verify the partition hierarchy with 100% data integrity (15,723 frames, 3,001 bboxes)
 - Create [`dataset/annotations_per_subject_shuffled/README.md`](dataset/annotations_per_subject_shuffled/README.md) and update documentation in [`docs/quick-start.md`](docs/quick-start.md), [`docs/annotation-protocol.md`](docs/annotation-protocol.md), and [`scripts/README.md`](scripts/README.md)
 
 ## [2026-08-19 22:45:00] - Reorganize assets directory into categorized subdirectories

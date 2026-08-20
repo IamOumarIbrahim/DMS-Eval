@@ -20,7 +20,7 @@ class DFineAdapter(DetectorAdapter):
     def load(self) -> "DFineAdapter":
         checkout = REPO_ROOT / "third_party" / "D-FINE"
         if not checkout.is_dir():
-            raise ProtocolError("Pinned D-FINE checkout is missing; run scripts/setup_backends.py")
+            raise ProtocolError("Pinned D-FINE checkout is missing; run scripts/benchmark/setup_backends.py")
         if str(checkout) not in sys.path:
             sys.path.insert(0, str(checkout))
         try:
@@ -51,8 +51,7 @@ class DFineAdapter(DetectorAdapter):
     def preprocess(self, image: Image.Image) -> torch.Tensor:
         image = image.convert("RGB").resize(self.input_size, Image.Resampling.BILINEAR)
         array = np.asarray(image, dtype=np.float32).transpose(2, 0, 1) / 255.0
-        batch = torch.from_numpy(array).unsqueeze(0).to(self.device)
-        return batch.half() if self.device.type == "cuda" else batch
+        return torch.from_numpy(array).unsqueeze(0).to(self.device)
 
     def raw_forward(self, batch: torch.Tensor) -> Any:
         if self.device.type == "cuda":

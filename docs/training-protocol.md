@@ -1,65 +1,60 @@
-# 🏋️ Training Protocol & Optimization Controls
+# Training Protocol and Optimization Controls
 
-[← Back to Main Landing Page](../README.md) · [Documentation Hub](./README.md) · [Evaluation Protocol](./evaluation-protocol.md) · [Fairness Audit](./fairness.md) · [Pipeline Scripts](../scripts/README.md)
+[Back to repository](../README.md) · [Documentation hub](./README.md) · [Evaluation protocol](./evaluation-protocol.md) · [Fairness audit](./fairness.md)
 
-This authoritative protocol governs model initialization, shared training constraints, hardware controls, and benchmark-pinned model-specific optimization configurations for **DMS-Eval**.
+This document is the authoritative training specification for DMS-Eval. Training is not authorized merely because these controls pass verification.
 
----
+## Frozen comparison policy
 
-## 🔒 Controlled-Comparison Principle
+Every model receives the same underlying training data and four-class ontology, 640×640 input, physical batch 8, fixed four-step gradient accumulation, 220 epochs, seed 13, disabled early stopping, one run, and validation-only checkpoint ranking. All training images are retained with `drop_last=false`; the last incomplete accumulation window is sample-correct for each backend's loss reduction.
 
-The benchmark separates shared experimental controls from disclosed model-specific behavior:
+Architecture-specific optimizer, learning-rate, scheduler, weight-decay, and augmentation settings follow pinned upstream recipes. The only permitted recipe adaptations are the following closed list:
 
-1. **Shared controls:** underlying training data, physical batch 8, 220-epoch ceiling, disabled early stopping, RTX 4060 target, FP16 training policy, seed 13, one trajectory, and validation-only final checkpoint ranking.
-2. **Nominal rather than literal accumulation equality:** all models target a nominal effective batch of 32. D-FINE uses fixed four-step accumulation; Ultralytics ramps accumulation from 1 toward 4 during warm-up and then settles at 4.
-3. **Benchmark-pinned recipes:** optimizer, learning rate, schedule, weight decay, and augmentation are explicit model-specific benchmark choices. They are documented but are not represented as unchanged copies of every current upstream default.
+1. DMS-Eval dataset and four classes.
+2. 640×640 input.
+3. Physical batch size 8.
+4. Fixed four-step gradient accumulation.
+5. 220 epochs.
+6. Seed 13.
+7. Disabled early stopping.
 
-These controls equalize data and the epoch ceiling, not total FLOPs, wall-clock training time, optimizer-update count, or stochastic trajectory. Known asymmetries are recorded in the [fairness audit](./fairness.md).
+There are zero model-specific tuning trials. Any eighth adaptation invalidates the frozen protocol until it is explicitly reviewed and documented.
 
----
+## Initialization
 
-## 1. Initialization & Full-Model Fine-Tuning
+All models start from checksum-verified official pretrained checkpoints: `yolo11n.pt`, `yolo26n.pt`, and `dfine_n_coco.pth`. The full model remains trainable. Exactly one trajectory per model is planned, so later conclusions must remain single-run observations rather than claims of statistical superiority.
 
-- **Pretrained Initialization:** All models start from verified official checkpoints (`yolo11n.pt`, `yolo26n.pt`, and the official COCO `dfine_n_coco.pth`). No model is trained from scratch; URLs and SHA-256 values are pinned in `configs/backends.yaml`.
-- **Full-Model Fine-Tuning:** All backbone, neck, and detection head layers are fully trainable (0 frozen layers).
-- **Single Training Run:** Exactly one trajectory per model is planned with seed 13. This is reproducible as a protocol but does not quantify multi-seed uncertainty.
+## Final model plans
 
----
+| Dimension | Shared policy | YOLO11n | YOLO26n | D-FINE-N |
+|---|---|---|---|---|
+| Data/classes | Frozen DMS-Eval train split; four classes | Same | Same | Same |
+| Input | 640×640 | Same | Same | Same |
+| Epoch/data exposure | 220 epochs; no early stopping | Same | Same | Same |
+| Physical batch | 8 | 8 | 8 | 8 |
+| Accumulation | Fixed 4 from the first batch | Fixed 4 | Fixed 4 | Fixed 4 |
+| Remainder | `drop_last=false`; sample-correct final window | Sum-reduced loss normalization | Sum-reduced loss normalization | Mean-reduced loss normalization |
+| Seed/runs | Seed 13; one run | Same | Same | Same |
+| Precision | PyTorch CUDA AMP FP16 | Same policy | Same policy | Same policy |
+| Checkpoint use during training | Retention/reporting only; validation never changes training state | Continuous state | Continuous state | Predefined epoch-148 augmentation/EMA transition; continuous model/optimizer state |
+| Final selection | Validation mAP@0.5:0.95; ties by mAP@0.5 then later epoch | Same | Same | Same |
+| Optimizer recipe | Pinned official backend recipe | Ultralytics 8.4.123 `optimizer=auto` → expected MuSGD | Same | AdamW |
+| Learning rate / decay | Pinned official backend recipe | Package default `lr0=0.01`, `weight_decay=0.0005` | Same | Base LR `0.0008`, backbone LR `0.0004`, `weight_decay=0.0001` |
+| Scheduler/augmentation | Pinned official backend recipe | Linear schedule and package-default augmentation | Same | Official D-FINE-N schedule and augmentation; predefined stop epoch 148 |
 
-## 2. Shared Controls and Model-Specific Recipes
+The Ultralytics trainer is patched only to keep accumulation at four throughout warm-up and to normalize a short final window. D-FINE is patched only for accumulation/remainder correctness, continuous training state at the predefined stage transition, checkpoint retention, and the FP16 dtype compatibility needed by the shared execution policy. Patch application is verified against pinned sources.
 
-<div align="center">
+## What equal epochs mean
 
-<sub><b>Table 1.</b> Authoritative training specification: shared benchmark controls and explicitly pinned model-specific variations.</sub>
+The budget equalizes epoch count and data exposure. It does not equalize parameter count, FLOPs, wall-clock training time, architecture capacity, native postprocessing, or stochastic trajectories. Those are reported as scope limitations rather than silently treated as controlled variables.
 
-| Parameter Dimension | Shared Controlled Benchmark Policy | Ultralytics YOLO11n Recipe | Ultralytics YOLO26n Recipe | D-FINE-N Recipe | Scientific Rationale |
-| :--- | :--- | :---: | :---: | :---: | :--- |
-| **Fine-Tuning Budget** | **220 Epochs** (No Early Stopping) | 220 Epochs | 220 Epochs | 220 Epochs | Equal epoch/data-pass ceiling, not equal training compute |
-| **Mini-Batch Size** | **Physical Batch = 8** | Batch 8 | Batch 8 | Batch 8 | Comfortably fits RTX 4060 8 GB VRAM in FP16 |
-| **Gradient Accumulation** | **Nominal Batch 32** | `nbs=32`; warm-up ramps 1→4 | `nbs=32`; warm-up ramps 1→4 | Fixed `accum=4` | Exact early optimizer-update schedules differ |
-| **Hardware Platform** | **NVIDIA RTX 4060 (8 GB)** | RTX 4060 | RTX 4060 | RTX 4060 | Standardized automotive edge GPU environment |
-| **Training Precision** | **Automatic Mixed Precision (FP16 policy)** | PyTorch AMP | PyTorch AMP | PyTorch AMP | Common policy; backend operator casting may differ |
-| **Random Seed** | **Seed = 13** across all frameworks | Seed 13 | Seed 13 | Seed 13 | Shared seed without claiming identical stochastic trajectories |
-| **DataLoader Workers** | **4 Multi-Processing Workers** | 4 Workers | 4 Workers | 4 Workers | Prevents CPU-to-GPU data starvation |
-| **Training remainder policy** | Model-specific | `drop_last=false` | `drop_last=false` | `drop_last=true` | D-FINE drops seven frames per epoch; disclosed fairness limitation |
-| **Optimizer Family** | Benchmark-Pinned Recipe | SGD (`momentum=0.937`) | SGD (`momentum=0.937`) | AdamW | Explicit benchmark choice |
-| **Base LR & Weight Decay** | Benchmark-Pinned Recipe | `lr0=0.01, wd=0.0005` | `lr0=0.01, wd=0.0005` | `lr=0.00025, backbone_lr=0.0000125, wd=0.0001` | Explicit values; not unchanged upstream defaults |
-| **LR Schedule** | Model-Specific Pinned Recipe | ⭕ Ultralytics linear decay | ⭕ Ultralytics linear decay | ⭕ D-FINE `MultiStepLR` (milestone 500) | Exact schedule from each pinned backend |
-| **Data Augmentation** | Model-Specific Pinned Recipe | ⭕ Mosaic, HSV, flips (`mixup=0`) | ⭕ Mosaic, HSV, flips (`mixup=0`) | ⭕ Photometric, zoom-out, crop, flips; fixed 640 | Preserves the exact pinned-backend pipeline |
-| **Training-stage restart** | Model-specific | None | None | Best stage-1 checkpoint reloaded at epoch 148 by the pinned solver | D-FINE receives a validation-guided trajectory intervention |
-| **Final Model Selection** | **Shared validation ranking** | Peak Val mAP | Peak Val mAP | Peak Val mAP | mAP50:95, then mAP50, then later epoch; test isolated |
+## Safe verification and gated execution
 
-</div>
-
----
-
-## 3. Execution Commands
-
-```bash
-# Omit --execute-training to inspect the immutable plan without training.
-python scripts/train_yolo.py --model-id yolo11n --execute-training
-python scripts/train_yolo.py --model-id yolo26n --execute-training
-python scripts/train_dfine.py --execute-training
+```powershell
+.venv\Scripts\python.exe scripts\benchmark\verify_training_configs.py
+.venv\Scripts\python.exe scripts\benchmark\train_yolo.py --model-id yolo11n
+.venv\Scripts\python.exe scripts\benchmark\train_yolo.py --model-id yolo26n
+.venv\Scripts\python.exe scripts\benchmark\train_dfine.py
 ```
 
-All epoch, physical-batch, image-size, seed, AMP, checkpoint-frequency, and early-stopping controls are locked in configuration rather than exposed as casual CLI overrides. Accumulation semantics and D-FINE's stage transition remain backend-specific and are disclosed above. See [benchmark readiness](./benchmark-readiness.md) for the guarded post-training lifecycle and [fairness audit](./fairness.md) for interpretation limits.
+These commands are dry-runs. Training starts only when the explicit `--execute-training` gate is added after authorization.

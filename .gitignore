@@ -27,6 +27,7 @@ docs/guide/
 
 # TeX templates
 manuscript/archive
+manuscript/$build/
 
 # Third party documentation and assets
 dataset/docs
@@ -37,6 +38,7 @@ docs/dev-ref/
 
 # Dataset Raw Files & Generated Labels
 dataset/DMD
+dataset/driveandact/
 dataset/images
 dataset/labels/
 # Ignore ad-hoc root-level Label Studio export dumps (canonical exports are tracked under dataset/All_Subjects_annotated/)

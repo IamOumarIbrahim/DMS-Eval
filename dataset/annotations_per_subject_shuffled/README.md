@@ -73,5 +73,5 @@ dataset/annotations_per_subject_shuffled/
 To re-generate or verify this shuffled partition hierarchy from the baseline per-subject annotations:
 
 ```bash
-uv run python scripts/create_shuffled_annotations.py
+uv run python scripts/data/create_shuffled_annotations.py
 ```

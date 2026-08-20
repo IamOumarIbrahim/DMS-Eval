@@ -48,6 +48,31 @@ class DetectorAdapter(ABC):
     def parameter_count(self) -> int:
         raise NotImplementedError
 
+    def export_inference_artifact(self, destination: str | Path) -> Path:
+        """Export a comparable inference-only FP16 state dictionary.
+
+        The artifact intentionally excludes optimizer, scheduler, scaler, EMA wrapper,
+        and training history so serialized size means the same thing for every backend.
+        """
+        if not hasattr(self, "model"):
+            raise RuntimeError("Adapter must be loaded before exporting an inference artifact")
+        destination = Path(destination).resolve()
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        state_dict = {
+            key: (value.detach().cpu().half() if value.is_floating_point() else value.detach().cpu())
+            for key, value in self.model.state_dict().items()
+        }
+        payload = {
+            "schema_version": 1,
+            "artifact": "standardized_inference_state_dict",
+            "model_id": self.model_id,
+            "tensor_precision": "fp16",
+            "state_dict": state_dict,
+        }
+        temporary = destination.with_name(f".{destination.name}.tmp")
+        torch.save(payload, temporary)
+        temporary.replace(destination)
+        return destination
+
     def synthetic_input(self) -> torch.Tensor:
-        dtype = torch.float16 if self.device.type == "cuda" else torch.float32
-        return torch.zeros((1, 3, 640, 640), dtype=dtype, device=self.device)
+        return torch.zeros((1, 3, 640, 640), dtype=torch.float32, device=self.device)

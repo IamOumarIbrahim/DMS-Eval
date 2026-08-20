@@ -168,7 +168,7 @@ Bottom-right: (912, 711)
 The benchmark split is selected via the authoritative optimization rule:
 > **Select the 8/3/3 subject split whose negative/positive frame proportion and four class proportions most closely match the complete dataset distribution.**
 
-#### Selection Algorithm (Implemented in [`scripts/balance_splits.py`](../scripts/balance_splits.py)):
+#### Selection Algorithm (Implemented in [`scripts/data/balance_splits.py`](../scripts/data/balance_splits.py)):
 1. Read master annotations from `dataset/annotations.json` and derive subject IDs from relative image paths.
 2. For each subject, compute total frames, negative frames ($0$ boxes), positive frames ($\ge 1$ box), and class-specific positive frames for `phone_use`, `drinking`, `yawning`, and `hand_over_mouth`.
 3. Exhaustively evaluate all $\binom{14}{8} \times \binom{6}{3} = 3003 \times 20 = 60,060$ ordered 8/3/3 subject assignments.

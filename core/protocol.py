@@ -13,6 +13,15 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BENCHMARK_CONFIG = REPO_ROOT / "configs" / "benchmark.yaml"
 BACKEND_CONFIG = REPO_ROOT / "configs" / "backends.yaml"
+ALLOWED_RECIPE_ADAPTATIONS = [
+    "dataset_and_classes",
+    "input_size_640x640",
+    "physical_batch_size_8",
+    "gradient_accumulation_steps_4",
+    "epochs_220",
+    "seed_13",
+    "early_stopping_disabled",
+]
 
 
 class ProtocolError(RuntimeError):
@@ -86,8 +95,25 @@ def validate_protocol() -> dict[str, Any]:
     if classes != {1: "yawning", 2: "hand_over_mouth", 3: "drinking", 4: "phone_use"}:
         raise ProtocolError("Frozen ontology mismatch")
     training = protocol["training"]
+    if (training["epochs"], training["physical_batch_size"], training["gradient_accumulation_steps"]) != (220, 8, 4):
+        raise ProtocolError("Frozen shared training budget must be 220 epochs, physical batch 8, accumulation 4")
     if training["physical_batch_size"] * training["gradient_accumulation_steps"] != training["effective_batch_size"]:
         raise ProtocolError("Physical batch and accumulation do not equal effective batch")
+    if training["early_stopping"] is not False:
+        raise ProtocolError("Frozen early-stopping policy must be disabled")
+    if training["recipe_policy"]["allowed_adaptations"] != ALLOWED_RECIPE_ADAPTATIONS:
+        raise ProtocolError("Recipe adaptations must equal the frozen seven-item closed list")
+    if training["recipe_policy"]["model_specific_tuning_trials"] != 0:
+        raise ProtocolError("Model-specific tuning is not permitted")
+    if training["incomplete_batch"] != {"drop_last": False, "normalize_partial_accumulation_window": True}:
+        raise ProtocolError("Every training image must be retained with normalized partial accumulation")
+    if training["validation_intervention"] != "checkpoint_retention_only":
+        raise ProtocolError("Validation may select retained checkpoints but may not alter training state")
+    profiling = protocol["profiling"]
+    if (profiling["precision"], profiling["model_weights"], profiling["input_dtype"]) != ("cuda_amp_fp16", "fp32", "fp32"):
+        raise ProtocolError("Inference must use FP32 model/input storage under shared CUDA AMP FP16")
+    if profiling["boundaries"] != ["model_forward", "tensor_to_final_detections"]:
+        raise ProtocolError("Both frozen timing boundaries must be reported")
     threshold = protocol["evaluation"]["threshold"]
     if (threshold["start"], threshold["stop"], threshold["step"]) != (0.01, 0.99, 0.01):
         raise ProtocolError("Frozen threshold grid mismatch")

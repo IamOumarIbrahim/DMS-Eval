@@ -1,78 +1,79 @@
-# Benchmark readiness and traceability
+# Benchmark Readiness and Traceability
 
-`configs/benchmark.yaml` is the machine-readable frozen source of truth. The authoritative artifacts `dataset/annotations.json` and `dataset/splits.json` are protected by SHA-256 fingerprints and are never rewritten by preflight.
+**Status:** READY FOR TRAINING AT THE IMPLEMENTATION LEVEL; TRAINING NOT AUTHORIZED
+
+**Verified:** 2026-08-20 17:32 GST (+04:00)
+
+**Publication target:** `main`
+
+`configs/benchmark.yaml` is the machine-readable source of truth. Dataset master artifacts remain protected by pinned SHA-256 fingerprints. No training, validation export/calibration, protected test inference, or test metric computation was run while producing this report.
+
+## Frozen claim boundary
+
+All models use the same underlying data/classes, subject-disjoint split, 640×640 input, physical batch 8, fixed accumulation 4, 220 epochs, seed 13, disabled early stopping, one run, sample-correct retention of every training image, validation-only checkpoint selection without training-state intervention, RTX 4060 environment, FP32 model/input storage under CUDA AMP FP16, shared evaluator, batch-1 dual-boundary profiling, and protected test policy.
+
+Architecture-specific optimizer, learning-rate, scheduler, weight-decay, and augmentation settings follow pinned official recipes. The only recipe adaptations are dataset/classes, 640×640 input, batch 8, accumulation 4, 220 epochs, seed 13, and disabled early stopping.
+
+## Verification evidence
+
+| Check | Result |
+|---|---|
+| Full preflight | PASS; protocol, environment, backends, weights, and 59,217 dataset checks |
+| Dataset validation | PASS; 15,723 distinct decoded images; exact global/train/val/test counts; 0 failures |
+| Environment | PASS; Python 3.12.10, Torch 2.4.1+cu121, RTX 4060 8 GB, CUDA FP16 smoke |
+| Backend provenance | PASS; Ultralytics 8.4.123 recipe hash and patch; D-FINE commit `956d170...`, official N recipe hash, and patch |
+| Final plan verifier | VERIFIED; exact seven-item adaptation list and all three dry-run configurations |
+| Adapter smoke | PASS for YOLO11n, YOLO26n, and D-FINE-N with FP32 input under CUDA AMP |
+| Dual-boundary synthetic profiler | PASS for all three adapters; three timed synthetic frames after 10 warm-ups, dual FLOP estimators exercised |
+| Test suite | PASS; 31 tests |
+| Link integrity | PASS; 108 local targets and 13 unique HTTP(S) targets; 0 broken |
+| Training launchers | PASS as dry-runs; each explicitly reported that training was not started |
+| Manuscript production | PASS; stable multi-pass compile, 6 letter-size pages, 0 errors, 0 undefined references, 0 overfull boxes, and 11 harmless underfull spacing notices; all pages visually inspected with no clipping/overlap |
+| Protected test | NOT RUN by design |
+
+Synthetic profiler values are setup diagnostics only and must not be used as benchmark results.
 
 ## Requirement traceability
 
-| Frozen requirement | Authoritative documentation | Configuration | Implementation | Automated test/check |
-|---|---|---|---|---|
-| Models: YOLO11n, YOLO26n, D-FINE-N | `README.md`, `docs/training-protocol.md` | `configs/benchmark.yaml`, `configs/backends.yaml` | `core/adapters/` | `scripts/validate_backends.py --synthetic` |
-| Official pretrained initialization and provenance | `docs/training-protocol.md` | `configs/backends.yaml` | `scripts/setup_backends.py` | checksum/size checks in setup and backend validation |
-| Four-class ontology and COCO↔YOLO mapping | `docs/annotation-protocol.md` | `configs/benchmark.yaml` | `core/dataset.py`, adapters | `tests/test_protocol.py`, dataset preflight |
-| Protected master COCO and split fingerprints | this document | `configs/benchmark.yaml` | `core/protocol.py` | `tests/test_protocol.py`, preflight |
-| 640×640 input and 14 subjects | `docs/quick-start.md` | `configs/benchmark.yaml` | adapters, dataset validator | full image decode preflight |
-| Frozen 8/3/3 subject split and exact counts | `README.md`, `docs/quick-start.md` | `dataset/splits.json`, `configs/benchmark.yaml` | `core/dataset_validation.py` | `tests/test_audit_fixes.py`, full preflight |
-| Train-only seed-13 permutation; native val/test order | `docs/training-protocol.md` | `configs/benchmark.yaml` | conversion scripts | derived parity and order checks in dataset preflight |
-| Physical batch 8 and nominal effective batch 32 | `docs/training-protocol.md` | `configs/benchmark.yaml`, D-FINE YAML | YOLO `nbs=32` warm-up ramp; fixed D-FINE accumulation patch | launcher dry-runs; patch verification |
-| 220 epochs, seed 13, AMP FP16, no early stopping | `docs/training-protocol.md` | `configs/benchmark.yaml` | training launchers | frozen-plan dry-runs |
-| Benchmark-pinned optimization and augmentation recipes | `docs/training-protocol.md` | `configs/benchmark.yaml`, D-FINE YAML | explicit YOLO launcher arguments; pinned D-FINE config | `tests/test_protocol.py`, launcher dry-runs, D-FINE config construction |
-| Validation-only checkpoint selection | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | `select-checkpoint` subcommand | CLI and artifact validation tests |
-| Primary mAP50:95; ties mAP50 then later epoch | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | `select-checkpoint` subcommand | evaluator unit tests and selection artifact validation |
-| Validation-only threshold grid 0.01…0.99 | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | `core/evaluation.py` | `tests/test_evaluation.py` |
-| Maximize micro-F1; ties precision then threshold | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | `calibrate_threshold` | threshold known-answer tests |
-| Official COCO mAP50:95, mAP50, per-class AP | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | `pycocotools` evaluator | perfect-prediction known-answer test |
-| IoU 0.50, same-class greedy one-to-one matching | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | `operating_point_metrics` | IoU/matching known-answer tests |
-| FAR = negative-frame FP detections / negative frames ×100 | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | `operating_point_metrics` | FAR known-answer test |
-| Frozen-artifact test isolation and single test pass | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | `core/isolation.py`, protected `test` command | `tests/test_isolation.py` |
-| RTX 4060; batch-1 FP16; 10 warm-ups | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | `core/profiling.py` | environment validation and synthetic CUDA profile |
-| CUDA events and model-forward-only boundary | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | adapters’ `raw_forward`, `CudaForwardProfiler` | synthetic profiler smoke |
-| p50/p95/p99 and sustained frames/total GPU time | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | `CudaForwardProfiler.finish` | profiler smoke and unit assertions |
-| Parameters, FLOPs, peak allocated VRAM, checkpoint size | `docs/evaluation-protocol.md` | `configs/benchmark.yaml` | profiler and protected result schema | backend/profile smoke |
+| Requirement | Configuration / source | Enforcement |
+|---|---|---|
+| Three pinned models and official initialization | `configs/backends.yaml` | Setup hashes, versions, commit, and adapter smoke |
+| Four classes, 640×640, subject-disjoint 8/3/3 split | `configs/benchmark.yaml`, protected dataset artifacts | Protocol fingerprints and full dataset validator |
+| Batch 8, fixed accumulation 4, 220 epochs, seed 13, no early stopping | `configs/benchmark.yaml`, model launch plans | Patched backends, protocol assertions, config verifier, dry-runs |
+| No dropped images; sample-correct short window | `training.incomplete_batch` | Backend patches and accumulation regression tests |
+| Validation cannot change training state | `validation_intervention: checkpoint_retention_only` | D-FINE reload removal and config-verifier source check |
+| Pinned official architecture recipes | Recipe hashes and optimization blocks | YOLO `optimizer=auto` (expected MuSGD); D-FINE AdamW `0.0008/0.0004` |
+| Closed seven-item recipe adaptation list | `training.recipe_policy.allowed_adaptations` | Exact ordered-list assertion; zero tuning trials |
+| Validation-only checkpoint/threshold selection | Evaluation configuration | Immutable artifacts, fixed ranking/grid/ties, unit tests |
+| Single protected test pass | `test_policy` | Manifest checks, explicit gate, append-only ledger |
+| RTX 4060 enforcement | Environment manifest | Protected command calls full validator before test access |
+| Common inference precision | Profiling configuration | FP32 weights/input and CUDA autocast FP16 in every adapter |
+| Forward and tensor-to-final-detections timing | Profiling boundaries | CUDA events plus synchronized high-resolution wall clock in the same pass |
+| Comparable storage | Standardized artifact policy | Inference-only FP16 state dictionary; hash and bytes recorded |
+| FLOP uncertainty visible | Dual-estimator policy | THOP and `torch.profiler` methods/status recorded |
+| Results remain pending | Documentation/manuscript | No empirical field populated before authorized runs |
 
-## Readiness versus fairness
-
-`READY FOR TRAINING` means that the frozen implementation, environment, data, adapters, evaluator, isolation controls, and future commands pass their technical checks. It does not mean that every cross-framework optimization step or deployment artifact is identical, nor does it make the eventual results publication-ready by itself. The current directional comparability risks are listed in the [fairness audit](./fairness.md) and must be considered before authorizing training or making architectural-superiority claims.
-
-## Safe setup commands
+## Safe commands
 
 ```powershell
-uv venv --python 3.12.10 .venv
-uv pip sync --python .venv\Scripts\python.exe requirements.lock.txt
-.venv\Scripts\python.exe scripts/setup_backends.py --install
-.venv\Scripts\python.exe scripts/validate_environment.py
-.venv\Scripts\python.exe scripts/validate_dataset.py
-.venv\Scripts\python.exe scripts/validate_backends.py --synthetic
+.venv\Scripts\python.exe scripts\benchmark\preflight.py
+.venv\Scripts\python.exe scripts\benchmark\validate_backends.py --synthetic
+.venv\Scripts\python.exe scripts\benchmark\verify_training_configs.py
+.venv\Scripts\python.exe scripts\maintenance\check_links.py --external
 .venv\Scripts\python.exe -m pytest -q
+
+# Dry-run only
+.venv\Scripts\python.exe scripts\benchmark\train_yolo.py --model-id yolo11n
+.venv\Scripts\python.exe scripts\benchmark\train_yolo.py --model-id yolo26n
+.venv\Scripts\python.exe scripts\benchmark\train_dfine.py
 ```
 
-The training launchers are dry-runs unless `--execute-training` is present. Validation export and calibration also require explicit execution gates. Test is unavailable until selection, validation predictions, calibration, and their checksums are frozen into a manifest; it additionally requires `--execute-protected-test`, and the append-only ledger refuses repeats.
+Do not add `--execute-training` until the frozen Paragraph A and this readiness evidence have been approved.
 
-## Future benchmark lifecycle (do not run during setup)
+## Post-training lifecycle
 
-```powershell
-# Training (each command prints a dry-run plan without the final gate)
-.venv\Scripts\python.exe scripts/train_yolo.py --model-id yolo11n --execute-training
-.venv\Scripts\python.exe scripts/train_yolo.py --model-id yolo26n --execute-training
-.venv\Scripts\python.exe scripts/train_dfine.py --execute-training
+After explicit authorization: train each model once; export retained validation predictions; rank checkpoints by validation mAP; calibrate the confidence threshold on validation; freeze the manifest; then run one environment-gated protected test pass per model. That pass produces quality metrics, both timing boundaries, peak VRAM, dual FLOP estimates, and the standardized FP16 artifact without a second test traversal.
 
-# Export validation predictions once per saved epoch/checkpoint
-.venv\Scripts\python.exe scripts/evaluate_benchmark.py export-validation --model-id yolo11n --checkpoint runs/train/yolo11n_seed13/weights/epoch1.pt --epoch 1 --output predictions/yolo11n/epoch1-val.json --execute-validation-export
+## Interpretation limits
 
-# Rank validation artifacts, calibrate the selected validation predictions, and freeze
-.venv\Scripts\python.exe scripts/evaluate_benchmark.py select-checkpoint --model-id yolo11n --validation-predictions predictions/yolo11n/*-val.json --output results/frozen/yolo11n-selection.json
-.venv\Scripts\python.exe scripts/evaluate_benchmark.py calibrate --validation-predictions predictions/yolo11n/SELECTED-val.json --output results/frozen/yolo11n-calibration.json --execute-validation-calibration
-.venv\Scripts\python.exe scripts/evaluate_benchmark.py freeze --selection results/frozen/yolo11n-selection.json --calibration results/frozen/yolo11n-calibration.json --output results/frozen/yolo11n-manifest.json
-
-# Protected test and runtime profiling happen together in the sole real test pass
-.venv\Scripts\python.exe scripts/evaluate_benchmark.py test --manifest results/frozen/yolo11n-manifest.json --output results/test/yolo11n.json --execute-protected-test
-
-# Synthetic standalone profiling is safe and never reads a dataset split
-.venv\Scripts\python.exe scripts/profile_runtime.py --model-id yolo11n --checkpoint weights/pretrained/yolo11n.pt --allow-pretrained-head-mismatch
-
-# Final aggregation and publication artifacts
-.venv\Scripts\python.exe scripts/aggregate_results.py results/test/yolo11n.json results/test/yolo26n.json results/test/dfine_n.json --output results/aggregate.json
-.venv\Scripts\python.exe scripts/generate_publication_tables.py --aggregate results/aggregate.json --markdown generated/results.md --latex generated/results.tex
-.venv\Scripts\python.exe scripts/generate_figures.py --aggregate results/aggregate.json --output generated/accuracy-latency.png
-```
-
-PowerShell wildcard expansion is not automatic for native Python programs. Replace `predictions/yolo11n/*-val.json` with the explicit validation artifact paths when selecting a checkpoint.
+Implementation readiness does not make the manuscript publishable by itself. Equal epochs mean equal data exposure rather than equal compute. Native postprocessing and architecture capacity differ, FLOP tools have incomplete coverage, and one run cannot establish statistical superiority. The final paper still requires authorized empirical results, bounded analysis, PI review, and venue review.

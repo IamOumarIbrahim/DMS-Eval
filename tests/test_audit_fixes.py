@@ -81,8 +81,8 @@ def test_bbox_invariants():
 
 def test_dynamic_export_discovery():
     print("\n--- Test 3: Dynamic Label Studio Export Discovery ---")
-    from scripts.assemble_master_coco import find_latest_export as find_zip
-    from scripts.split_annotations_per_subject import find_latest_export as find_json
+    from scripts.data.assemble_master_coco import find_latest_export as find_zip
+    from scripts.data.split_annotations_per_subject import find_latest_export as find_json
 
     latest_zip = find_zip(str(REPO_ROOT / "dataset" / "All_Subjects_annotated" / "project-*.zip"))
     latest_json = find_json(str(REPO_ROOT / "dataset" / "All_Subjects_annotated" / "project-*.json"))

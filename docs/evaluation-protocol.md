@@ -1,148 +1,66 @@
-# 📊 Evaluation Protocol & Profiling Harness
+# Evaluation Protocol and Profiling Harness
 
-[← Back to Main Landing Page](../README.md) · [Documentation Hub](./README.md) · [Training Protocol](./training-protocol.md) · [Fairness Audit](./fairness.md) · [Pipeline Scripts](../scripts/README.md)
+[Back to repository](../README.md) · [Documentation hub](./README.md) · [Training protocol](./training-protocol.md) · [Fairness audit](./fairness.md)
 
-This authoritative protocol governs the detection quality metrics, validation-only confidence threshold calibration ($\tau^*$), checkpoint selection rules, and hardware-synchronized batch-1 latency/throughput profiling for the **DMS-Eval** benchmark.
+This document freezes the shared detection metrics, validation-only selection and calibration, protected test access, and batch-1 RTX 4060 profiling protocol.
 
----
+## Reported measures
 
-## 🧊 Frozen Evaluation Metrics
+| Dimension | Measure | Frozen interpretation |
+|---|---|---|
+| Detection | mAP@0.5:0.95, mAP@0.5, per-class AP | Computed by the shared COCO evaluator |
+| Operating point | Precision, recall, micro-F1 | IoU 0.50; same-class greedy one-to-one matching |
+| False alarms | FAR per 100 negative frames | `100 × false-positive detections on negative frames / negative frames`; may exceed 100 |
+| Model runtime | p50/p95/p99 and sustained FPS | Preprocessed tensor to raw model output |
+| System runtime | p50/p95/p99 and sustained FPS | Preprocessed tensor to normalized final detections, including required postprocessing/NMS |
+| Resources | Parameters and peak allocated VRAM | Loaded four-class model; protected batch-1 pass |
+| Workload | Two FLOP estimates | THOP (`2 × MACs`) and `torch.profiler` operator sum, both explicitly tool-dependent |
+| Storage | Standardized FP16 inference artifact bytes | Model state dictionary only; excludes optimizer, scheduler, scaler, EMA wrapper, and training history |
 
-<a id="frozen-metrics"></a>
+Generic classification accuracy is not reported because DMS-Eval is an object-detection benchmark.
 
-### 🧊 Frozen Metrics
+## Shared evaluator
 
-> Comprehensive multi-dimensional evaluation matrix:
+Every adapter emits the same COCO-style prediction schema. The master COCO annotations are the only ground truth, and one implementation computes all published quality metrics. This removes framework-evaluator differences without removing native detection/postprocessing differences.
 
-<p align="center"><sub><b>Table 1.</b> Frozen detection, runtime, and deployment metrics.</sub></p>
+## Validation and protected test isolation
 
-| Dimension | Metric | Reporting Granularity | Optimization / Protocol Role |
-| :--- | :--- | :--- | :--- |
-| **Detection Quality** | `mAP@0.5:0.95` | Full Test Set & Per-Class | Primary benchmark accuracy metric; drives validation checkpoint selection |
-| | `mAP@0.5` | Full Test Set & Per-Class | Secondary detection metric and first checkpoint tie-breaker |
-| | Precision | Full Test Set | Evaluated at validation-optimal F1 confidence threshold using IoU = 0.50 |
-| | Recall | Full Test Set | Evaluated at validation-optimal F1 confidence threshold using IoU = 0.50 |
-| | F1-Score | Full Test Set | Primary criterion for per-model validation confidence-threshold selection |
-| | False Alarm Rate (FAR per 100 negative frames) | Test Negative Frames | `100 × false-positive detections on negative test frames / 2,599 negative test frames`; may exceed 100 |
-| **Runtime Efficiency** | Latency Percentiles (ms) | Full Test Set | Median (p50), 95th (p95), and 99th (p99) latency; batch size 1; PyTorch CUDA events |
-| | Sustained Throughput (FPS) | Full Test Set | Measured continuously across all 3,213 test frames at batch size 1 |
-| **Deployment Profile** | Parameters (M) | Architectural | Exact parameter count of the loaded four-class model |
-| | Computational Workload (GFLOPs) | Architectural | Calculated with THOP at `1 × 3 × 640 × 640` using `1 MAC = 2 FLOPs` |
-| | Peak GPU Memory (MB) | Full Test Set | Measured via `torch.cuda.max_memory_allocated()` at batch size 1 |
-| | Raw Checkpoint Size (MB) | Final Selected Checkpoint | Descriptive serialized training artifact; not a standardized deployment package |
+Validation has exactly two roles:
 
-> [!NOTE]
-> DMS-Eval uses **mAP as the benchmark's detection-accuracy measure**. A separate generic classification `Accuracy` metric is not included.
+1. Rank retained epoch checkpoints by validation mAP@0.5:0.95, then mAP@0.5, then later epoch.
+2. Choose a confidence threshold from 0.01 through 0.99 in steps of 0.01 by maximum validation micro-F1, then higher precision, then higher threshold.
 
-### Reporting Structure
+Validation never reloads or otherwise changes a model's training state. The chosen checkpoint, prediction artifact, threshold, and checksums are frozen into an immutable manifest before test access.
 
-* **Overall test-set reporting:** `mAP@0.5:0.95`, `mAP@0.5`, Precision, Recall, F1-score, model-forward latency ($p50, p95, p99$), sustained model-forward FPS, Parameters (M), THOP GFLOPs, Peak VRAM (MB), raw checkpoint size (MB), and FAR per 100 negative test frames.
-* **Per-class reporting:** `mAP@0.5:0.95` and `mAP@0.5` across all 4 target warning cues.
+The protected test command requires an explicit `--execute-protected-test` gate, validates the manifest, rejects a repeated model/manifest in the append-only ledger, and calls the complete RTX 4060 environment validator before inference. Test images are traversed once: predictions, both timing boundaries, and peak VRAM are collected in that same pass. Test results cannot guide checkpoint, threshold, recipe, or any other training decision.
 
-<p align="center"><sub><b>Table 2.</b> Benchmark comparative evaluation matrix framework (NVIDIA RTX 4060, Batch Size 1, FP16).</sub></p>
+## Shared precision and timing
 
-| Model Architecture | Params (M) | FLOPs (G) | Peak VRAM (MB) | Latency p50 (ms) | Latency p95 (ms) | Latency p99 (ms) | Throughput (FPS) | FAR / 100 negatives | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Ultralytics YOLO11n** | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| **Ultralytics YOLO26n** | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| **D-FINE-N** | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+All three adapters retain FP32 model weights and FP32 input tensors and execute model forward under CUDA autocast with FP16 enabled. Batch size is 1 and input shape is `1 × 3 × 640 × 640`.
 
----
+Ten untimed full-path warm-ups precede measurement. Two boundaries are reported:
 
-### Shared Evaluation Harness
+- **Model forward:** synchronized CUDA events around `raw_forward`.
+- **Tensor to final detections:** synchronized high-resolution wall-clock timing from the preprocessed input tensor through raw forward and architecture-required normalization/postprocessing, including YOLO11n NMS.
 
-> Shared metric control through a unified ground-truth evaluation pipeline:
+Disk I/O, image decoding, preprocessing, metric computation, and result serialization are outside both boundaries. The second measure is therefore comparable tensor-to-detections latency, not camera-to-alert application latency.
 
-All benchmark models are evaluated using **one shared evaluation harness** rather than relying on each model repository's evaluator for the final reported detection metrics.
+## Complexity and storage safeguards
 
-```text
-master COCO ground truth
-        +
-model predictions converted to a common COCO-style detection format
-        ↓
-shared DMS-Eval evaluator
-        ↓
-reported benchmark metrics
-```
+FLOPs are estimates rather than audited ground truth. The result artifact stores both THOP and PyTorch-profiler values plus their methods/status so operator-coverage disagreement is visible across CNN and transformer components.
 
-* The **master COCO annotations** (`dataset/annotations.json`) are used directly as ground truth.
-* Each model's predictions are converted into a **common COCO-style detection format** before evaluation.
-* The shared evaluator computes mAP, Precision, Recall, micro-F1, and false detections per 100 negative test frames.
-* Precision, Recall, and micro-F1 use an **IoU threshold of 0.50** with **same-class one-to-one greedy matching** in descending confidence order.
+Raw training checkpoint size is never used as the cross-model storage comparison. Immediately before a protected test, each loaded adapter exports the same schema: an inference-only state dictionary whose floating tensors are stored in FP16. The artifact path, SHA-256, and byte count are recorded.
 
----
+## Pending results table
 
-### Validation / Test Isolation Protocol
+No numerical result is inserted before the authorized frozen runs.
 
-* The **validation split ($S_{\text{val}}$)** is used strictly for checkpoint selection and confidence-threshold calibration ($\tau^*$).
-* The **test split ($S_{\text{test}}$)** is used strictly for final reported benchmark results in a single frozen pass.
-* No training decision, checkpoint choice, confidence-threshold choice, or other tuning decision may be based on test-set performance.
+| Model | mAP@0.5:0.95 | mAP@0.5 | F1 | FAR/100 | Forward p50 | Tensor→detections p50 | Forward FPS | Tensor→detections FPS | Params | FLOPs (THOP / profiler) | Peak VRAM | FP16 artifact |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| YOLO11n | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
+| YOLO26n | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
+| D-FINE-N | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
 
-> [!CAUTION]
-> **Strict Validation/Test Isolation:**
-> Never inspect or compute test-set metrics to guide hyperparameter selection, checkpoint filtering, or threshold sweeps. There is no returning to the test set for additional tuning after the final evaluation pass.
+## Interpretation boundary
 
----
-
-### Checkpoint Selection Protocol
-
-Final checkpoints are selected using validation results from the shared DMS-Eval evaluator in this order:
-1. **Primary:** Highest validation $\text{mAP}@0.5:0.95$.
-2. **First Tie-Breaker:** Highest validation $\text{mAP}@0.5$.
-3. **Second Tie-Breaker:** Later epoch checkpoint.
-
----
-
-### Validation-Only Confidence Threshold Calibration ($\tau^*$)
-
-Candidate confidence thresholds are evaluated across a **fixed numerical grid sweep** $\tau \in [0.01, 0.99]$ with a step size of $0.01$ (99 candidate values) on the validation split:
-
-$$\tau^* = \arg\max_{\tau \in [0.01, 0.99]} F_1(\tau; S_{\text{val}}) = \frac{2 \cdot P(\tau) \cdot R(\tau)}{P(\tau) + R(\tau)}$$
-
-**Deterministic Tie-Breaking Logic:**
-1. If multiple candidate thresholds produce the same highest validation $F_1$-score, select the threshold with the **higher Precision**.
-2. If Precision is also tied, select the **higher confidence threshold**.
-
-Once calibrated, $\tau^*$ is permanently frozen for that model and applied unchanged during the single-pass test evaluation.
-
-```mermaid
-flowchart LR
-    subgraph Val["Validation Calibration - Zero Test Access"]
-        V1["Val Split: 3,423 Frames"] --> V2["Evaluate 220 Epoch Checkpoints (mAP@0.5:0.95)"]
-        V2 --> V3["Select Optimal Checkpoint"]
-        V3 --> V4["Confidence Grid Sweep: tau in [0.01, 0.99]"]
-        V4 --> V5["Select tau* Maximizing Validation F1"]
-        V5 --> V6["Freeze Optimal Checkpoint & tau*"]
-    end
-
-    subgraph Test["Isolated Test Evaluation - Single Pass"]
-        V6 --> T1["Unseen Test Split: 3,213 Frames"]
-        T1 --> T2["Single-Pass Inference: Batch 1, FP16"]
-        T2 --> T3["Compute mAP, Precision, Recall, F1"]
-        T2 --> T4["CUDA Event Latency: p50, p95, p99, FPS"]
-    end
-```
-
----
-
-### Runtime Latency & Throughput Profiling
-
-* **Hardware:** Dedicated NVIDIA RTX 4060 GPU (8 GB VRAM).
-* **Backend:** Native PyTorch + CUDA under a shared FP16 execution policy. YOLO uses FP16 weights and input; D-FINE uses an FP16 input under CUDA autocast, so operator-level precision is not identical.
-* **Batch Size:** `1` (single-frame streaming edge inference).
-* **Warm-up Protocol:** 10 untimed forward passes before starting timers.
-* **Timing Scope:** Model forward only. Disk I/O, decoding, preprocessing, postprocessing/NMS, and metrics are excluded. The resulting numbers are not end-to-end deployable latency, and exclusion of external NMS particularly affects interpretation of YOLO11n.
-* **Timing Mechanism:** Hardware-synchronized `torch.cuda.Event` timers.
-* **Reporting:** Median ($p50$), 95th ($p95$), and 99th ($p99$) latency (ms), and sustained model-forward throughput ($\text{FPS}=3{,}213/\sum_i t_{\text{GPU-forward},i}$).
-
----
-
-### Deployment Footprint & Computational Workload
-
-* **Computational Workload (GFLOPs):** Calculated locally using THOP at tensor shape $1 \times 3 \times 640 \times 640$ with $1 \text{ MAC} = 2 \text{ FLOPs}$. Cross-family interpretation is qualified because THOP operator coverage may differ for convolutional and transformer-specific operations.
-* **Peak GPU VRAM:** Measured directly via `torch.cuda.max_memory_allocated()` during test inference.
-* **Raw Checkpoint Size:** Measured from the selected `.pt` or `.pth` artifact. Ultralytics and D-FINE serialize different training state, dtype, optimizer, and EMA payloads, so this is descriptive and must not be presented as a standardized deployment-size comparison.
-
-### Fairness and interpretation boundary
-
-The shared evaluator removes metric-implementation differences, but it does not erase architecture-native postprocessing, precision, training, serialization, or compute differences. The current limitations and likely directional effects are maintained in the [fairness audit](./fairness.md). Technical readiness therefore does not by itself establish causal architectural superiority or publication-ready evidence.
+The benchmark compares three fully configured deployable detector systems. Equal data exposure and shared evaluation do not isolate architecture, equalize compute, or eliminate native postprocessing differences. With one run per model, any performance ordering is descriptive and must not be framed as statistically established superiority.

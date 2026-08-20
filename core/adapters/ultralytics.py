@@ -13,7 +13,7 @@ from .base import DetectorAdapter
 
 
 class UltralyticsAdapter(DetectorAdapter):
-    precision_mode = "fp16_weights"
+    precision_mode = "cuda_amp_fp16"
 
     def load(self) -> "UltralyticsAdapter":
         try:
@@ -22,8 +22,6 @@ class UltralyticsAdapter(DetectorAdapter):
             raise ProtocolError("ultralytics is not installed") from exc
         self.wrapper = YOLO(str(self.checkpoint))
         self.model = self.wrapper.model.to(self.device).eval()
-        if self.device.type == "cuda":
-            self.model.half()
         names = self.wrapper.names
         if len(names) != self.class_count and not self.allow_pretrained_head_mismatch:
             raise ProtocolError(f"{self.model_id} checkpoint has {len(names)} classes, expected 4")
@@ -32,10 +30,12 @@ class UltralyticsAdapter(DetectorAdapter):
     def preprocess(self, image: Image.Image) -> torch.Tensor:
         image = image.convert("RGB").resize(self.input_size, Image.Resampling.BILINEAR)
         array = np.asarray(image, dtype=np.float32).transpose(2, 0, 1) / 255.0
-        batch = torch.from_numpy(array).unsqueeze(0).to(self.device)
-        return batch.half() if self.device.type == "cuda" else batch
+        return torch.from_numpy(array).unsqueeze(0).to(self.device)
 
     def raw_forward(self, batch: torch.Tensor) -> Any:
+        if self.device.type == "cuda":
+            with torch.autocast(device_type="cuda", dtype=torch.float16):
+                return self.model(batch)
         return self.model(batch)
 
     @torch.inference_mode()

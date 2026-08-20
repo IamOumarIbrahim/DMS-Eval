@@ -49,7 +49,7 @@ train_dataloader:
   total_batch_size: 8
   shuffle: true
   num_workers: 4
-  drop_last: true
+  drop_last: false
   dataset:
     type: CocoDetection
     img_folder: dataset/images
@@ -94,9 +94,12 @@ optimizer:
   type: AdamW
   params:
     - params: '^(?=.*backbone)(?!.*norm|bn).*$'
-      lr: 0.0000125
+      lr: 0.0004
+    - params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0004
+      weight_decay: 0.0
     - params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
       weight_decay: 0.0
-  lr: 0.00025
+  lr: 0.0008
   betas: [0.9, 0.999]
   weight_decay: 0.0001
