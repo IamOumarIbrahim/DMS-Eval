@@ -41,7 +41,7 @@ To establish an equitable benchmark without introducing artificial hyperparamete
 | **Base LR & Weight Decay** | Model-Specific Official Recipe | ⭕ `lr0=0.01, wd=0.0005` | ⭕ `lr0=0.01, wd=0.0005` | ⭕ `lr=0.00025, wd=0.0001` | Official fine-tuning hyperparameters |
 | **LR Schedule** | Model-Specific Official Recipe | ⭕ Linear / Cosine decay | ⭕ Linear / Cosine decay | ⭕ Step / Cosine annealing | Official decay schedule |
 | **Data Augmentation** | Model-Specific Official Recipe | ⭕ Mosaic, Mixup, HSV, Flips | ⭕ Mosaic, Mixup, Flips | ⭕ Multi-scale, Crop, Flips | Preserves model-native augmentation pipeline |
-| **Model Selection** | **Validation $\text{mAP}@0.5:0.95$ Checkpoint** | Peak Val mAP | Peak Val mAP | Peak Val mAP | 100% test-isolated model selection |
+| **Model Selection** | **Validation mAP@0.5:0.95 Checkpoint** | Peak Val mAP | Peak Val mAP | Peak Val mAP | 100% test-isolated model selection |
 
 </div>
 

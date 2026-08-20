@@ -23,8 +23,8 @@ This authoritative protocol governs the detection quality metrics, validation-on
 | | Precision | Full Test Set | Evaluated at validation-optimal F1 confidence threshold using IoU = 0.50 |
 | | Recall | Full Test Set | Evaluated at validation-optimal F1 confidence threshold using IoU = 0.50 |
 | | F1-Score | Full Test Set | Primary criterion for per-model validation confidence-threshold selection |
-| | False Alarm Rate (FAR %) | Full Test Set (Negative Frames) | Quantifies false alarms on background frames: $\text{FAR} = (\text{FP}_{\text{neg}} / N_{\text{neg}}) \times 100\%$ |
-| **Runtime Efficiency** | Latency Percentiles (ms) | Full Test Set | Median ($p50$), 95th ($p95$), and 99th ($p99$) latency; batch size 1; PyTorch CUDA events |
+| | False Alarm Rate (FAR %) | Full Test Set (Negative Frames) | Quantifies false alarms on background frames: FAR = (FP_neg / N_neg) × 100% |
+| **Runtime Efficiency** | Latency Percentiles (ms) | Full Test Set | Median (p50), 95th (p95), and 99th (p99) latency; batch size 1; PyTorch CUDA events |
 | | Sustained Throughput (FPS) | Full Test Set | Measured continuously across all 3,213 test frames at batch size 1 |
 | **Deployment Profile** | Parameters (M) | Architectural | Official published parameter count |
 | | Computational Workload (GFLOPs) | Architectural | Calculated with THOP at `1 × 3 × 640 × 640` using `1 MAC = 2 FLOPs` |
@@ -41,7 +41,7 @@ This authoritative protocol governs the detection quality metrics, validation-on
 
 <p align="center"><sub><b>Table 2.</b> Benchmark comparative evaluation matrix framework (NVIDIA RTX 4060, Batch Size 1, FP16).</sub></p>
 
-| Model Architecture | Params (M) | FLOPs (G) | Peak VRAM (MB) | Latency $p50$ (ms) | Latency $p95$ (ms) | Latency $p99$ (ms) | Throughput (FPS) | FAR (%) | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
+| Model Architecture | Params (M) | FLOPs (G) | Peak VRAM (MB) | Latency p50 (ms) | Latency p95 (ms) | Latency p99 (ms) | Throughput (FPS) | FAR (%) | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Ultralytics YOLO11n** | 2.6M | 6.5G | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 | **Ultralytics YOLO26n** | 2.4M | 5.8G | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |

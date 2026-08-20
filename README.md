@@ -236,15 +236,15 @@ The optimal assignment is permanently frozen in [`dataset/splits.json`](./datase
 | Split | Subjects | Total Frames | Negative Frames (0 boxes) | Positive Frames (1 box) | `phone_use` | `drinking` | `yawning` | `hand_over_mouth` | Max Relative Dev. |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Global** | **14** | **15,723** | **12,722 (80.91%)** | **3,001 (19.09%)** | **2,437 (81.21%)** | **264 (8.80%)** | **159 (5.30%)** | **141 (4.70%)** | — |
-| **Train ($S_{\text{train}}$)** | 8 | 9,087 | 7,339 (80.76%) | 1,748 (19.24%) | 1,417 (81.06%) | 154 (8.81%) | 94 (5.38%) | 83 (4.75%) | $\le 1.48\%$ |
-| **Val ($S_{\text{val}}$)** | 3 | 3,423 | 2,784 (81.33%) | 639 (18.67%) | 523 (81.85%) | 54 (8.45%) | 32 (5.01%) | 30 (4.69%) | $\le 5.48\%$ |
-| **Test ($S_{\text{test}}$)** | 3 | 3,213 | 2,599 (80.89%) | 614 (19.11%) | 497 (80.94%) | 56 (9.12%) | 33 (5.37%) | 28 (4.56%) | $\le 3.68\%$ |
+| **Train (S_train)** | 8 | 9,087 | 7,339 (80.76%) | 1,748 (19.24%) | 1,417 (81.06%) | 154 (8.81%) | 94 (5.38%) | 83 (4.75%) | ≤ 1.48% |
+| **Val (S_val)** | 3 | 3,423 | 2,784 (81.33%) | 639 (18.67%) | 523 (81.85%) | 54 (8.45%) | 32 (5.01%) | 30 (4.69%) | ≤ 5.48% |
+| **Test (S_test)** | 3 | 3,213 | 2,599 (80.89%) | 614 (19.11%) | 497 (80.94%) | 56 (9.12%) | 33 (5.37%) | 28 (4.56%) | ≤ 3.68% |
 
 </div>
 
 <p align="center">
   <img src="./assets/charts/split_cue_proportions_comparison.png" alt="Split Cue Proportions Comparison" width="880"><br>
-  <sub><b>Figure 4.</b> Proportional warning cue alignment across Training, Validation, and Testing partitions ($\le 5.48\%$ maximum relative divergence from global dataset distribution).</sub>
+  <sub><b>Figure 4.</b> Proportional warning cue alignment across Training, Validation, and Testing partitions (≤ 5.48% maximum relative divergence from global dataset distribution).</sub>
 </p>
 
 ---
@@ -257,7 +257,7 @@ We benchmark three state-of-the-art nano-scale real-time object detector archite
 
 <sub><b>Table 2.</b> Candidate real-time detector architectures evaluated in DMS-Eval.</sub>
 
-| Model Architecture | Architectural Family | Parameter Scale | Published GFLOPs ($640\times 640$) | Detection Paradigm / Key Feature | Repository Source |
+| Model Architecture | Architectural Family | Parameter Scale | Published GFLOPs (640×640) | Detection Paradigm / Key Feature | Repository Source |
 | :--- | :---: | :---: | :---: | :--- | :---: |
 | **Ultralytics YOLO11n** | Single-Stage CNN | 2.6 M | 6.5 G | C3k2 feature extractors & SPPF modules; optimizes CIoU + BCE + DFL | [Ultralytics](https://github.com/ultralytics/ultralytics) |
 | **Ultralytics YOLO26n** | End-to-End CNN | 2.4 M | 5.8 G | Anchor-free, NMS-free direct bounding box prediction via dual-label assignment | [Ultralytics](https://github.com/ultralytics/ultralytics) |
@@ -288,17 +288,17 @@ To guarantee architectural fairness without distorting framework-native optimiza
 | :--- | :--- | :---: | :---: | :---: | :--- |
 | **Dataset & Ingestion** | **Source Dataset** | DMD RGB Video | DMD RGB Video | DMD RGB Video | 81 driver-facing video recordings (68 public sessions across 14 subjects) |
 | | **Temporal Sampling** | 1 FPS | 1 FPS | 1 FPS | 1 frame sampled every 1 second across all videos |
-| | **Input Spatial Resolution** | $640 \times 640$ | $640 \times 640$ | $640 \times 640$ | Direct spatial cabin crop (`x=272, y=71, w=640, h=640`); zero letterbox padding or distortion |
+| | **Input Spatial Resolution** | 640×640 | 640×640 | 640×640 | Direct spatial cabin crop (`x=272, y=71, w=640, h=640`); zero letterbox padding or distortion |
 | | **Input Representation** | Single static frame | Single static frame | Single static frame | Isolated 2D RGB image frame (emulating streaming single-frame edge ingestion) |
 | | **Total Dataset Volume** | 15,723 frames | 15,723 frames | 15,723 frames | 12,722 negative background frames (80.91%) + 3,001 positive cue frames (19.09%) |
 | | **Target Cue Ontology** | 4 warning classes | 4 warning classes | 4 warning classes | `phone_use`, `drinking`, `yawning`, `hand_over_mouth` |
-| | **Annotation Policy** | 100% human manual | 100% human manual | 100% human manual | Label Studio ground truth; at most 1 bounding box per frame ($\le 1$ label/frame) |
+| | **Annotation Policy** | 100% human manual | 100% human manual | 100% human manual | Label Studio ground truth; at most 1 bounding box per frame (≤ 1 label/frame) |
 | | **Master Ground Truth** | Master COCO JSON | Master COCO JSON | Master COCO JSON | `dataset/annotations.json` as the authoritative single source of truth |
-| **Partitioning & Splits** | **Partition Scheme** | 8 / 3 / 3 subjects | 8 / 3 / 3 subjects | 8 / 3 / 3 subjects | Strictly subject-disjoint ($S_{\text{train}} \cap S_{\text{val}} = \emptyset$, $S_{\text{train}} \cap S_{\text{test}} = \emptyset$, $S_{\text{val}} \cap S_{\text{test}} = \emptyset$) |
-| | **Training Split ($S_{\text{train}}$)** | 8 subjects | 8 subjects | 8 subjects | 9,087 frames (1,748 boxes): $S_1, S_4, S_6, S_7, S_8, S_9, S_{13}, S_{14}$ |
-| | **Validation Split ($S_{\text{val}}$)** | 3 subjects | 3 subjects | 3 subjects | 3,423 frames (639 boxes): $S_2, S_3, S_{11}$ |
-| | **Test Split ($S_{\text{test}}$)** | 3 subjects | 3 subjects | 3 subjects | 3,213 frames (614 boxes): $S_5, S_{10}, S_{12}$ |
-| | **Split Balance Deviation** | $\le 5.48\%$ | $\le 5.48\%$ | $\le 5.48\%$ | Exhaustive combinatorial optimization ensuring balanced cue proportions |
+| **Partitioning & Splits** | **Partition Scheme** | 8 / 3 / 3 subjects | 8 / 3 / 3 subjects | 8 / 3 / 3 subjects | Strictly subject-disjoint (S_train ∩ S_val = ∅, S_train ∩ S_test = ∅, S_val ∩ S_test = ∅) |
+| | **Training Split (S_train)** | 8 subjects | 8 subjects | 8 subjects | 9,087 frames (1,748 boxes): S1, S4, S6, S7, S8, S9, S13, S14 |
+| | **Validation Split (S_val)** | 3 subjects | 3 subjects | 3 subjects | 3,423 frames (639 boxes): S2, S3, S11 |
+| | **Test Split (S_test)** | 3 subjects | 3 subjects | 3 subjects | 3,213 frames (614 boxes): S5, S10, S12 |
+| | **Split Balance Deviation** | ≤ 5.48% | ≤ 5.48% | ≤ 5.48% | Exhaustive combinatorial optimization ensuring balanced cue proportions |
 | | **Temporal Sequencing** | Shuffled (Seed 13) | Shuffled (Seed 13) | Shuffled (Seed 13) | Shuffling applied *only* to train split; val/test preserved in native video order |
 | **Training & Optimization** | **Initialization** | Official pretrained | Official pretrained | Official pretrained | Full-model fine-tuning from official pretraining (no training from scratch) |
 | | **Frozen Layers** | None (0 layers) | None (0 layers) | None (0 layers) | All backbone and head layers are fully trainable |
@@ -316,29 +316,29 @@ To guarantee architectural fairness without distorting framework-native optimiza
 | | **LR Schedule** | ⭕ Linear / Cosine decay | ⭕ Step / Cosine annealing | ⭕ Linear / Cosine decay | Official model-specific learning rate schedule |
 | | **Data Augmentation** | ⭕ Mosaic, Mixup, HSV, Flips | ⭕ Multi-scale, Crop, Flips | ⭕ Mosaic, Mixup, Flips | Official model-specific augmentation pipeline |
 | **Validation & Calibration** | **Test Isolation Rule** | Zero test access | Zero test access | Zero test access | Test split untouched during training, tuning, checkpointing, and calibration |
-| | **Checkpoint Selection** | Highest Val mAP | Highest Val mAP | Highest Val mAP | 1st: Val $\text{mAP}@0.5:0.95$; 2nd: Val $\text{mAP}@0.5$; 3rd: Later epoch |
-| | **Threshold Search Space** | $\tau \in [0.01, 0.99]$ | $\tau \in [0.01, 0.99]$ | $\tau \in [0.01, 0.99]$ | Fixed 99-point numerical grid sweep ($\Delta\tau = 0.01$) on validation split only |
-| | **Threshold Objective** | Max Validation $F_1$ | Max Validation $F_1$ | Max Validation $F_1$ | Uniform objective maximizing micro-averaged validation $F_1$ score |
-| | **Calibrated Threshold ($\tau^*$)** | ⭕ $\tau^*_{\text{YOLO11n}}$ | ⭕ $\tau^*_{\text{D-FINE-N}}$ | ⭕ $\tau^*_{\text{YOLO26n}}$ | Model-specific optimal confidence threshold calibrated on validation split |
+| | **Checkpoint Selection** | Highest Val mAP | Highest Val mAP | Highest Val mAP | 1st: Val mAP@0.5:0.95; 2nd: Val mAP@0.5; 3rd: Later epoch |
+| | **Threshold Search Space** | τ ∈ [0.01, 0.99] | τ ∈ [0.01, 0.99] | τ ∈ [0.01, 0.99] | Fixed 99-point numerical grid sweep (Δτ = 0.01) on validation split only |
+| | **Threshold Objective** | Max Validation F1 | Max Validation F1 | Max Validation F1 | Uniform objective maximizing micro-averaged validation F1 score |
+| | **Calibrated Threshold (τ*)** | ⭕ τ* (YOLO11n) | ⭕ τ* (D-FINE-N) | ⭕ τ* (YOLO26n) | Model-specific optimal confidence threshold calibrated on validation split |
 | | **Threshold Tie-Breaker** | Higher Precision | Higher Precision | Higher Precision | 1st tie-breaker: Higher Precision; 2nd tie-breaker: Higher confidence value |
-| | **Parameter Freezing** | Checkpoint & $\tau^*$ | Checkpoint & $\tau^*$ | Checkpoint & $\tau^*$ | Selected checkpoint weights and $\tau^*$ frozen prior to single test pass |
+| | **Parameter Freezing** | Checkpoint & τ* | Checkpoint & τ* | Checkpoint & τ* | Selected checkpoint weights and τ* frozen prior to single test pass |
 | **Runtime & Profiling** | **Runtime Backend** | PyTorch + CUDA | PyTorch + CUDA | PyTorch + CUDA | Native PyTorch (no TensorRT / ONNX Runtime / OpenVINO exports) |
 | | **Runtime Hardware** | NVIDIA RTX 4060 | NVIDIA RTX 4060 | NVIDIA RTX 4060 | Consistent 8 GB VRAM GPU environment |
 | | **Runtime Precision** | FP16 | FP16 | FP16 | Standard half-precision inference |
 | | **Runtime Batch Size** | `1` | `1` | `1` | Single-frame edge stream latency profiling |
-| | **Warm-up Protocol** | 10 passes | 10 passes | 10 passes | Untimed warm-up passes on $640 \times 640$ frames before latency capture |
+| | **Warm-up Protocol** | 10 passes | 10 passes | 10 passes | Untimed warm-up passes on 640×640 frames before latency capture |
 | | **Timing Scope / Boundary** | Forward pass only | Forward pass only | Forward pass only | Excludes disk I/O, image decode, pre-processing, post-processing/NMS, & metrics |
 | | **Timing Mechanism** | PyTorch CUDA Events | PyTorch CUDA Events | PyTorch CUDA Events | Hardware-synchronized `torch.cuda.Event` timers |
 | | **Test Set Coverage** | 3,213 test frames | 3,213 test frames | 3,213 test frames | Complete unseen test split evaluated in a single pass |
-| | **Latency Metrics** | $p50, p95, p99$ (ms) | $p50, p95, p99$ (ms) | $p50, p95, p99$ (ms) | Median, 95th, and 99th percentile inference latency |
-| | **Throughput Profiling** | Sustained FPS | Sustained FPS | Sustained FPS | Continuous test split pass ($\text{FPS} = 3,213 / T_{\text{total}}$) |
+| | **Latency Metrics** | p50, p95, p99 (ms) | p50, p95, p99 (ms) | p50, p95, p99 (ms) | Median, 95th, and 99th percentile inference latency |
+| | **Throughput Profiling** | Sustained FPS | Sustained FPS | Sustained FPS | Continuous test split pass (FPS = 3,213 / T_total) |
 | | **VRAM Measurement** | Peak allocated MB | Peak allocated MB | Peak allocated MB | Captured via `torch.cuda.max_memory_allocated()` |
 | **Evaluation Harness** | **Shared Evaluator** | DMS-Eval Harness | DMS-Eval Harness | DMS-Eval Harness | Single unified evaluation script; predictions mapped to COCO JSON format |
-| | **IoU Matching Rule** | COCO One-to-One | COCO One-to-One | COCO One-to-One | Greedy matching in descending confidence order at $\text{IoU} \ge 0.50$ |
-| | **Detection Metrics** | $\text{mAP}_{50:95}, \text{mAP}_{50}$ | $\text{mAP}_{50:95}, \text{mAP}_{50}$ | $\text{mAP}_{50:95}, \text{mAP}_{50}$ | Full test set and per-class Average Precision |
-| | **Operating Point Metrics** | $P, R, F_1$ | $P, R, F_1$ | $P, R, F_1$ | Evaluated at frozen validation-optimal threshold $\tau^*$ ($\text{IoU} = 0.50$) |
-| | **False Alarm Rate (FAR)** | $\text{FP}_{\text{neg}} / N_{\text{neg}} \times 100\%$ | $\text{FP}_{\text{neg}} / N_{\text{neg}} \times 100\%$ | $\text{FP}_{\text{neg}} / N_{\text{neg}} \times 100\%$ | Evaluated across all $12,722$ negative background frames |
-| | **Workload Profiling** | THOP GFLOPs | THOP GFLOPs | THOP GFLOPs | Measured at $1 \times 3 \times 640 \times 640$ with convention $1 \text{ MAC} = 2 \text{ FLOPs}$ |
+| | **IoU Matching Rule** | COCO One-to-One | COCO One-to-One | COCO One-to-One | Greedy matching in descending confidence order at IoU ≥ 0.50 |
+| | **Detection Metrics** | mAP@0.5:0.95, mAP@0.5 | mAP@0.5:0.95, mAP@0.5 | mAP@0.5:0.95, mAP@0.5 | Full test set and per-class Average Precision |
+| | **Operating Point Metrics** | P, R, F1 | P, R, F1 | P, R, F1 | Evaluated at frozen validation-optimal threshold τ* (IoU = 0.50) |
+| | **False Alarm Rate (FAR)** | (FP_neg / N_neg) × 100% | (FP_neg / N_neg) × 100% | (FP_neg / N_neg) × 100% | Evaluated across all 12,722 negative background frames |
+| | **Workload Profiling** | THOP GFLOPs | THOP GFLOPs | THOP GFLOPs | Measured at 1 × 3 × 640 × 640 with convention 1 MAC = 2 FLOPs |
 | | **Model File Size** | Local Checkpoint MB | Local Checkpoint MB | Local Checkpoint MB | Measured directly from the saved `.pt` artifact file on disk |
 
 </div>
@@ -377,9 +377,9 @@ In accordance with MLPerf edge benchmarking standards, the unseen Test split ($S
 
 <div align="center">
 
-<sub><b>Table 4.</b> Controlled comparative evaluation results framework on unseen test split ($S_{\text{test}}$, 3,213 frames, RTX 4060, Batch Size 1, FP16).</sub>
+<sub><b>Table 4.</b> Controlled comparative evaluation results framework on unseen test split (S_test, 3,213 frames, RTX 4060, Batch Size 1, FP16).</sub>
 
-| Model Architecture | Params (M) | Local GFLOPs | Peak VRAM (MB) | Latency $p50$ (ms) | Latency $p95$ (ms) | Latency $p99$ (ms) | Throughput (FPS) | FAR (%) | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | $F_1$ Score |
+| Model Architecture | Params (M) | Local GFLOPs | Peak VRAM (MB) | Latency p50 (ms) | Latency p95 (ms) | Latency p99 (ms) | Throughput (FPS) | FAR (%) | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Ultralytics YOLO11n** | 2.6M | 6.5G | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* |
 | **Ultralytics YOLO26n** | 2.4M | 5.8G | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* |
@@ -389,7 +389,7 @@ In accordance with MLPerf edge benchmarking standards, the unseen Test split ($S
 
 <div align="center">
 
-<sub><b>Table 5.</b> Per-class detection performance breakdown ($\text{mAP}@0.5:0.95$ / $\text{mAP}@0.5$ on unseen test split).</sub>
+<sub><b>Table 5.</b> Per-class detection performance breakdown (mAP@0.5:0.95 / mAP@0.5 on unseen test split).</sub>
 
 | Model Architecture | `phone_use` (mAP 50:95 / 50) | `drinking` (mAP 50:95 / 50) | `yawning` (mAP 50:95 / 50) | `hand_over_mouth` (mAP 50:95 / 50) |
 | :--- | :---: | :---: | :---: | :---: |
