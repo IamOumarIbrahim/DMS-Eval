@@ -1,11 +1,11 @@
 """
 DMS-Eval YOLO Training Script with Gradient Accumulation
 ========================================================
-Addresses the Batch Normalization instability and gradient noise under physical batch size = 1
-by configuring gradient accumulation over 16 to 64 steps (effective batch size 16-64).
+Configured for physical batch size = 8 with gradient accumulation over 4 steps
+(effective nominal batch size 32) on NVIDIA RTX 4060 hardware (8 GB VRAM).
 
 Features:
-- Configurable gradient accumulation (nbs/accumulate)
+- Configurable gradient accumulation (nbs = batch * accumulate = 32)
 - Single-frame 640x640 resolution
 - Fixed benchmark seed (13)
 - Automatic Mixed Precision (AMP FP16)
@@ -24,8 +24,8 @@ def parse_args():
     parser.add_argument("--model", type=str, default="weights/pretrained/yolo11n.pt", help="Pretrained model weights path or name")
     parser.add_argument("--data", type=str, default=None, help="Path to dataset YAML configuration")
     parser.add_argument("--epochs", type=int, default=220, help="Number of training epochs (use 2 or 3 for mini-epoch sanity check)")
-    parser.add_argument("--batch", type=int, default=1, help="Physical mini-batch size (frozen at 1 for benchmark hardware constraints)")
-    parser.add_argument("--accumulate", type=int, default=32, help="Gradient accumulation steps (nominal batch size nbs, e.g. 16-64)")
+    parser.add_argument("--batch", type=int, default=8, help="Physical mini-batch size (frozen at 8 for RTX 4060 8GB VRAM)")
+    parser.add_argument("--accumulate", type=int, default=4, help="Gradient accumulation steps (nominal batch size nbs = batch * accumulate = 32)")
     parser.add_argument("--imgsz", type=int, default=640, help="Input image dimension (frozen at 640x640)")
     parser.add_argument("--workers", type=int, default=4, help="DataLoader workers count")
     parser.add_argument("--seed", type=int, default=13, help="Deterministic benchmark random seed")
@@ -72,7 +72,7 @@ def main():
     print(f"  Dataset Config         : {args.data}")
     print(f"  Epochs                 : {args.epochs}")
     print(f"  Physical Batch Size    : {args.batch}")
-    print(f"  Gradient Accumulation  : {args.accumulate} steps (Effective Batch Size: {args.batch * args.accumulate})")
+    print(f"  Gradient Accumulation  : {args.accumulate} steps (Effective Nominal Batch Size: {args.batch * args.accumulate})")
     print(f"  Input Resolution       : {args.imgsz}x{args.imgsz}")
     print(f"  DataLoader Workers     : {args.workers}")
     print(f"  Random Seed            : {args.seed}")
@@ -102,7 +102,7 @@ def main():
         data=args.data,
         epochs=args.epochs,
         batch=args.batch,
-        nbs=args.accumulate,       # Nominal batch size configures gradient accumulation: accumulate = round(nbs / batch)
+        nbs=args.batch * args.accumulate,  # Nominal batch size configures gradient accumulation: accumulate = round(nbs / batch)
         imgsz=args.imgsz,
         workers=args.workers,
         seed=args.seed,

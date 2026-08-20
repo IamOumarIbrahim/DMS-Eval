@@ -47,8 +47,8 @@
 | :--- | :--- |
 | **Maximum training epochs** | `220` for all three models |
 | **Early stopping** | Disabled for all three models |
-| **Batch size** | Physical batch size = `1` for all three models to emulate streaming edge frame ingestion |
-| **Gradient accumulation** | Accumulated over 32 steps (nominal batch size 32, `nbs=32`) to stabilize Batch Normalization running statistics |
+| **Batch size** | Physical batch size = `8` for all three models (fitting RTX 4060 8 GB VRAM budget at 640×640) |
+| **Gradient accumulation** | Accumulated over 4 steps (nominal batch size 32, `nbs=32` / `grad_accum_steps=4`, effective batch size 32) to stabilize Batch Normalization running statistics and Hungarian bipartite matching |
 | **Training runs** | One training run per model; no multi-seed averaging |
 | **Random seed** | `13` for all three models wherever the shared benchmark seed applies |
 | **Training hardware** | NVIDIA RTX 4060 with 8 GB VRAM for all three models |
@@ -66,7 +66,7 @@
 | Parameter Dimension | Shared Controlled Benchmark Policy | YOLO11n / YOLO26n Recipe | D-FINE-N Recipe |
 | :--- | :--- | :--- | :--- |
 | **Fine-Tuning Budget** | **220 Epochs** (Early stopping disabled) | 220 Epochs | 220 Epochs |
-| **Batch Size & Accumulation** | **Physical Batch size = 1**, Gradient accumulation = 32 (`nbs=32`) | Physical batch = 1 (`nbs=32`) | Physical batch = 1 (`accumulate=32`) |
+| **Batch Size & Accumulation** | **Physical Batch = 8**, Gradient accumulation = 4 (`nbs=32`, effective batch 32) | Physical batch = 8 (`nbs=32`) | Physical batch = 8 (`accumulate=4`) |
 | **Random Seed & Hardware** | **Seed = 13**, Dedicated NVIDIA RTX 4060 GPU | Seed = 13, RTX 4060 | Seed = 13, RTX 4060 |
 | **Numerical Precision** | **Automatic Mixed Precision (FP16 AMP)** | PyTorch AMP (Ultralytics) | PyTorch AMP (D-FINE) |
 | **Optimizer Family** | Model-Specific Official Recipe | SGD (`lr0=0.01, momentum=0.937`) | AdamW (`lr=0.00025, weight_decay=0.0001`) |

@@ -43,7 +43,7 @@ Sharjah, United Arab Emirates \\
 \maketitle
 
 \begin{abstract}
-Driver Monitoring Systems (DMS) are critical safety components of modern Advanced Driver Assistance Systems (ADAS). While commercial systems often employ complex temporal pipelines, automotive edge deployments demand lightweight, low-latency 2D object detectors capable of real-time single-frame inference. This paper presents \textbf{DMS-Eval}, an empirical benchmark comparing compact convolutional detectors (Ultralytics YOLO11n and YOLO26n) against lightweight Real-Time Detection Transformers (D-FINE-N). Formulated on 81 driver-facing RGB video recordings comprising 68 behavioral sessions across 14 subjects from the Driver Monitoring Dataset (DMD), our benchmark establishes a standardized dataset of 15,723 frames ($640 \times 640$ crop). Ground truth is constructed via 100\% manual human annotation in Label Studio targeting four visual warning cues: \texttt{phone\_use}, \texttt{drinking}, \texttt{yawning}, and \texttt{hand\_over\_mouth}, incorporating 12,722 naturalistic negative frames (80.91\%) to enforce false-positive suppression. To eliminate identity leakage, we formalize an authoritative 8/3/3 subject-disjoint split via deterministic exhaustive combinatorial search across 60,060 candidate assignments, ensuring all splits preserve identical class proportions ($\le 5.48\%$ relative divergence). Under a strictly controlled comparison on dedicated RTX 4060 hardware at batch size 1 across 220 fine-tuning epochs, candidate models are calibrated via validation-only $F_1$ score maximization prior to single-pass test evaluation. This work provides an open, reproducible framework for edge-deployed in-cabin driver state analysis.
+Driver Monitoring Systems (DMS) are critical safety components of modern Advanced Driver Assistance Systems (ADAS). While commercial systems often employ complex temporal pipelines, automotive edge deployments demand lightweight, low-latency 2D object detectors capable of real-time single-frame inference. This paper presents \textbf{DMS-Eval}, an empirical benchmark comparing compact convolutional detectors (Ultralytics YOLO11n and YOLO26n) against lightweight Real-Time Detection Transformers (D-FINE-N). Formulated on 81 driver-facing RGB video recordings comprising 68 behavioral sessions across 14 subjects from the Driver Monitoring Dataset (DMD), our benchmark establishes a standardized dataset of 15,723 frames ($640 \times 640$ crop). Ground truth is constructed via 100\% manual human annotation in Label Studio targeting four visual warning cues: \texttt{phone\_use}, \texttt{drinking}, \texttt{yawning}, and \texttt{hand\_over\_mouth}, incorporating 12,722 naturalistic negative frames (80.91\%) to enforce false-positive suppression. To eliminate identity leakage, we formalize an authoritative 8/3/3 subject-disjoint split via deterministic exhaustive combinatorial search across 60,060 candidate assignments, ensuring all splits preserve identical class proportions ($\le 5.48\%$ relative divergence). Under a strictly controlled comparison on dedicated RTX 4060 hardware (physical training batch 8 with gradient accumulation over 4 steps, effective batch 32; single-frame batch-1 inference profiling) across 220 fine-tuning epochs, candidate models are calibrated via validation-only $F_1$ score maximization prior to single-pass test evaluation. This work provides an open, reproducible framework for edge-deployed in-cabin driver state analysis.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -70,7 +70,7 @@ To close the identified gap, this paper will make four contributions:
 \begin{itemize}
 \item \textbf{First Cross-Paradigm Nano-Scale DMS Benchmark:} The first controlled comparison between nano-scale CNNs (YOLO11n, YOLO26n) and a nano-scale DETR (D-FINE-N) for in-cabin driver cue detection with spatial bounding box localization.
 \item \textbf{Rigorous Subject-Disjoint Data Curation:} 15,723 frames ($640\times640$) with 100\% manual annotation across 4 warning cues and 80.91\% naturalistic negatives, partitioned via exhaustive combinatorial optimization ($\le 5.48\%$ divergence).
-\item \textbf{Unified Precision--Efficiency Protocol:} Identical hardware (RTX 4060), physical batch size~1 with gradient accumulation across 32 steps, 220 epochs, FP16 AMP, with detection accuracy and hardware-synchronized latency ($p50$/$p95$/$p99$) reported jointly.
+\item \textbf{Unified Precision--Efficiency Protocol:} Identical hardware (RTX 4060), physical training batch 8 with gradient accumulation over 4 steps (effective batch 32), 220 epochs, FP16 AMP, with detection accuracy and hardware-synchronized batch-1 latency ($p50$/$p95$/$p99$) reported jointly.
 \item \textbf{Open Reproducibility:} Public release of all COCO annotations, partitioning scripts, and evaluation tooling.
 \end{itemize}
 
@@ -216,13 +216,13 @@ We evaluate three state-of-the-art nano-scale real-time object detectors:
 All models are fine-tuned under strictly locked shared controls:
 \begin{itemize}
 \item \textbf{Fine-Tuning Budget}: Exactly 220 epochs without early stopping.
-\item \textbf{Batch Size \& Gradient Dynamics}: Physical batch size is strictly locked to 1 to emulate real-time edge frame ingestion, paired with gradient accumulation across 32 steps (nominal batch size 32, \texttt{nbs=32}) to stabilize Batch Normalization running statistics and optimization trajectories on GPU hardware.
+\item \textbf{Batch Size \& Gradient Dynamics}: Physical mini-batch size is locked to 8 (fitting the RTX 4060 8~GB VRAM budget at $640\times 640$), paired with gradient accumulation across 4 steps (nominal batch size 32, \texttt{nbs=32}) to stabilize Batch Normalization running statistics and Hungarian bipartite matching.
 \item \textbf{Deterministic Seed}: Random seed fixed to 13 across PyTorch, CUDA, and CuDNN.
 \item \textbf{Precision}: FP16 Automatic Mixed Precision (AMP).
 \item \textbf{Hardware Platform}: Dedicated NVIDIA GeForce RTX 4060 GPU (8~GB VRAM).
 \end{itemize}
 
-Model-specific optimizer configurations (SGD vs. AdamW), learning rate schedules, and data augmentations follow each architecture's official repository recipe to ensure peak performance without unfair hyperparameter distortion.
+Optimization hyperparameters (SGD with momentum for CNN detectors vs. AdamW for D-FINE-N, alongside native learning rate schedules and augmentations) follow each architecture's authoritative repository recipes to prevent artificial distortion from mismatched optimization regimes. To accommodate cross-paradigm dynamics between convolutional networks and transformer set-prediction decoders, an effective batch size of 32 stabilizes gradient estimates, while model checkpoints are selected via peak validation $\text{mAP}@0.5:0.95$ rather than terminal epoch weights, mitigating potential late-schedule overfitting on convolutional models while allowing transformers sufficient trajectory to converge.
 
 \subsection{Validation Calibration and Test Isolation}
 To prevent data snooping, model checkpoints and confidence thresholds ($\tau$) are selected strictly on the Validation split. For each model, we sweep confidence thresholds $\tau \in [0.01, 0.99]$ with a step of $0.01$ and identify the threshold $\tau^*$ that maximizes the micro-averaged $F_1$ score:
@@ -292,7 +292,7 @@ Empirical error inspection across the evaluation splits reveals three primary ch
 
 \subsection{Threats to Validity}
 \begin{itemize}
-\item \textbf{Internal Validity:} Fixed training seeds and locked optimizer configurations guarantee fair comparisons. Validation-only threshold calibration prevents optimistic test leakage.
+\item \textbf{Internal Validity:} Fixed training seeds and locked optimizer configurations guarantee fair comparisons. While single-seed execution (seed 13) was adopted due to compute budget ceilings, deterministic CUDA seeding and validation-only threshold calibration ($\tau^* = \arg\max_{\tau} F_1(\tau; S_{\text{val}})$) prevent optimistic test leakage. Checkpointing at peak validation $\text{mAP}@0.5:0.95$ guards against late-epoch variance.
 \item \textbf{External Validity:} Performance may vary under extreme nighttime illumination or across unobserved camera mounting angles.
 \end{itemize}
 
