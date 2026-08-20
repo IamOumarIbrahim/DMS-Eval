@@ -99,8 +99,6 @@ flowchart TD
   <sub><b>Figure 4.</b> An example of our annotation of <code>phone_use</code> in Label Studio (enclosing handheld phone and interacting hand held at the ear in calling posture).</sub>
 </p>
 
-</details>
-
 ---
 
 ## Dataset & Cue Distribution
@@ -154,30 +152,6 @@ Workflow state is not embedded into the detection ontology. The ontology contain
 - `phone_use`
 
 No synthetic workflow labels (such as `reviewed`, `needs_review`, `ai_generated`, `ambiguous`, or `finalized`) exist in the COCO ground truth classes.
-
-#### External progress ledger
-
-Direct manual human annotation of all 15,723 frames is 100% complete and verified in [`dataset/annotations.json`](../dataset/annotations.json). Workflow states (e.g., `finalized`, `human_reviewed`) were tracked externally and are strictly excluded from the canonical COCO class ontology, ensuring the ground-truth ontology contains strictly the 4 visual warning cue classes.
-
----
-
-<a id="behavioral-domains--target-cue-definitions"></a>
-## Behavioral Domains & Target Cue Definitions
-
-> The benchmark categorizes the 4 warning cues across 2 core driver behavioral domains:
-
-<p align="center"><sub><b>Table 2.</b> Behavioral domains and target warning cue definitions.</sub></p>
-
-<div align="center">
-
-| Behavioral Domain | Target Warning Cue | Single-Frame Visual Trigger | Bounding Box Extent |
-| :---: | :---: | :--- | :--- |
-| **Drowsiness** | `yawning` | Visible yawning with wide oral opening and facial elongation | Mouth region only |
-| | `hand_over_mouth` | Hand visibly covering or occluding the mouth region | Full head/face |
-| **Distraction / Inattention** | `drinking` | Active drinking from a bottle/cup/can brought to the face | Hand + bottle together |
-| | `phone_use` | Handheld phone call with phone held to the ear/head | Hand + phone at ear |
-
-</div>
 
 ---
 

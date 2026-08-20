@@ -22,49 +22,32 @@ To establish an equitable benchmark without introducing artificial hyperparamete
 
 ---
 
-## 2. Shared Training Controls
+## 2. Standardized Training Controls & Native Recipes
 
 <div align="center">
 
-<sub><b>Table 1.</b> Frozen shared training controls across all three evaluated architectures.</sub>
+<sub><b>Table 1.</b> Authoritative training specification: Shared benchmark controls vs. framework-native optimization recipes. (⭕ indicates model-specific variations).</sub>
 
-| Training Parameter | 🧊 Frozen Rule / Value | Scientific Rationale |
-| :--- | :--- | :--- |
-| **Maximum Epochs** | `220` epochs for all models | Fixed compute budget matching D-FINE custom schedule |
-| **Early Stopping** | Disabled | Ensures complete optimization trajectory without arbitrary halts |
-| **Physical Mini-Batch** | `8` for all models | Comfortably fits inside RTX 4060 8 GB VRAM at 640×640 in FP16 |
-| **Gradient Accumulation** | `4` steps (`nbs=32` / `accum=4`) | Effective batch 32; stabilizes BatchNorm and Hungarian bipartite matching |
-| **Hardware Platform** | NVIDIA RTX 4060 (8 GB VRAM) | Standardized automotive edge / workstation GPU environment |
-| **Training Precision** | Automatic Mixed Precision (FP16) | Standard Tensor Core acceleration; halves VRAM overhead |
-| **Random Seed** | `13` across PyTorch, CUDA, loaders | Enforces deterministic data ordering and bitwise reproducibility |
-| **DataLoader Workers** | `4` workers | Prevents CPU-to-GPU data starvation during streaming |
+| Parameter Dimension | Shared Controlled Benchmark Policy | Ultralytics YOLO11n Recipe | Ultralytics YOLO26n Recipe | D-FINE-N Recipe | Scientific Rationale |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **Fine-Tuning Budget** | **220 Epochs** (No Early Stopping) | 220 Epochs | 220 Epochs | 220 Epochs | Fixed compute budget matching D-FINE schedule |
+| **Mini-Batch Size** | **Physical Batch = 8** | Batch 8 | Batch 8 | Batch 8 | Comfortably fits RTX 4060 8 GB VRAM in FP16 |
+| **Gradient Accumulation** | **4 Steps (Nominal Batch 32)** | `nbs=32` | `nbs=32` | `accum=4` | Stabilizes BatchNorm & Hungarian matching |
+| **Hardware Platform** | **NVIDIA RTX 4060 (8 GB)** | RTX 4060 | RTX 4060 | RTX 4060 | Standardized automotive edge GPU environment |
+| **Training Precision** | **Automatic Mixed Precision (FP16)** | PyTorch AMP | PyTorch AMP | PyTorch AMP | Halves VRAM overhead; standard Tensor Core mode |
+| **Deterministic Seed** | **Seed = 13** across all frameworks | Seed 13 | Seed 13 | Seed 13 | Enforces deterministic data ordering |
+| **DataLoader Workers** | **4 Multi-Processing Workers** | 4 Workers | 4 Workers | 4 Workers | Prevents CPU-to-GPU data starvation |
+| **Optimizer Family** | Model-Specific Official Recipe | ⭕ SGD (`momentum=0.937`) | ⭕ SGD (`momentum=0.937`) | ⭕ AdamW | Preserves framework-native gradient dynamics |
+| **Base LR & Weight Decay** | Model-Specific Official Recipe | ⭕ `lr0=0.01, wd=0.0005` | ⭕ `lr0=0.01, wd=0.0005` | ⭕ `lr=0.00025, wd=0.0001` | Official fine-tuning hyperparameters |
+| **LR Schedule** | Model-Specific Official Recipe | ⭕ Linear / Cosine decay | ⭕ Linear / Cosine decay | ⭕ Step / Cosine annealing | Official decay schedule |
+| **Data Augmentation** | Model-Specific Official Recipe | ⭕ Mosaic, Mixup, HSV, Flips | ⭕ Mosaic, Mixup, Flips | ⭕ Multi-scale, Crop, Flips | Preserves model-native augmentation pipeline |
+| **Model Selection** | **Validation $\text{mAP}@0.5:0.95$ Checkpoint** | Peak Val mAP | Peak Val mAP | Peak Val mAP | 100% test-isolated model selection |
 
 </div>
 
 ---
 
-## 3. Architecture-Specific Optimization Recipes
-
-<div align="center">
-
-<sub><b>Table 2.</b> Controlled benchmark budget vs. architecture-native optimization recipes. (⭕ indicates model-specific variations).</sub>
-
-| Parameter Dimension | Shared Controlled Policy | YOLO11n Recipe | YOLO26n Recipe | D-FINE-N Recipe |
-| :--- | :--- | :---: | :---: | :---: |
-| **Fine-Tuning Budget** | **220 Epochs** (No Early Stopping) | 220 Epochs | 220 Epochs | 220 Epochs |
-| **Batch & Accumulation** | **Batch 8, Accum 4** (Effective 32) | Batch 8 (`nbs=32`) | Batch 8 (`nbs=32`) | Batch 8 (`accum=4`) |
-| **Hardware & Seed** | **RTX 4060 GPU, Seed = 13** | RTX 4060, Seed 13 | RTX 4060, Seed 13 | RTX 4060, Seed 13 |
-| **Training Precision** | **Automatic Mixed Precision (FP16)** | PyTorch AMP | PyTorch AMP | PyTorch AMP |
-| **Optimizer Family** | Model-Specific Official Recipe | ⭕ SGD (`lr0=0.01, mom=0.937`) | ⭕ SGD (`lr0=0.01, mom=0.937`) | ⭕ AdamW (`lr=0.00025, wd=0.0001`) |
-| **Learning Rate Schedule** | Model-Specific Official Recipe | ⭕ Linear / Cosine decay | ⭕ Linear / Cosine decay | ⭕ Step / Cosine annealing |
-| **Data Augmentation** | Model-Specific Official Recipe | ⭕ Mosaic, Mixup, HSV, Flips | ⭕ Mosaic, Mixup, Flips | ⭕ Multi-scale, Crop, Flips |
-| **Model Selection** | **Validation $\text{mAP}@0.5:0.95$ Checkpoint** | Peak Val mAP | Peak Val mAP | Peak Val mAP |
-
-</div>
-
----
-
-## 4. Execution Commands
+## 3. Execution Commands
 
 ```bash
 # 1. Train Ultralytics YOLO11n (220 Epochs, Physical Batch 8, Accum 4)

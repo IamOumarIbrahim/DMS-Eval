@@ -187,25 +187,16 @@ The benchmark split is selected via the authoritative optimization rule:
 
 ### Verified Dataset Split Statistics
 
-<p align="center"><sub><b>Table 4.</b> Frame-level composition across benchmark splits.</sub></p>
+<p align="center"><sub><b>Table 4.</b> Verified dataset split composition and warning cue distributions across 8/3/3 subject-disjoint partitions.</sub></p>
 
-| Split | Images | Negative (0 boxes) | Positive (1 box) | Positive Rate (%) |
-| :--- | ---: | ---: | ---: | ---: |
-| **Global** | **15,723** | **12,722** | **3,001** | **19.0867%** |
-| **Train** | 9,087 | 7,339 | 1,748 | 19.2363% |
-| **Validation** | 3,423 | 2,784 | 639 | 18.6678% |
-| **Test** | 3,213 | 2,599 | 614 | 19.1099% |
+| Split | Subjects | Total Frames | Negative Frames (0 boxes) | Positive Frames (1 box) | `phone_use` | `drinking` | `yawning` | `hand_over_mouth` | Max Relative Dev. |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Global** | **14** | **15,723** | **12,722 (80.91%)** | **3,001 (19.09%)** | **2,437 (81.21%)** | **264 (8.80%)** | **159 (5.30%)** | **141 (4.70%)** | — |
+| **Train ($S_{\text{train}}$)** | 8 | 9,087 | 7,339 (80.76%) | 1,748 (19.24%) | 1,417 (81.06%) | 154 (8.81%) | 94 (5.38%) | 83 (4.75%) | $\le 1.48\%$ |
+| **Val ($S_{\text{val}}$)** | 3 | 3,423 | 2,784 (81.33%) | 639 (18.67%) | 523 (81.85%) | 54 (8.45%) | 32 (5.01%) | 30 (4.69%) | $\le 5.48\%$ |
+| **Test ($S_{\text{test}}$)** | 3 | 3,213 | 2,599 (80.89%) | 614 (19.11%) | 497 (80.94%) | 56 (9.12%) | 33 (5.37%) | 28 (4.56%) | $\le 3.68\%$ |
 
-<p align="center"><sub><b>Table 5.</b> Target warning cue counts and proportional distribution across benchmark splits.</sub></p>
-
-| Split | `phone_use` | `drinking` | `yawning` | `hand_over_mouth` | Total Boxes |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Global** | **2,437 (81.2063%)** | **264 (8.7971%)** | **159 (5.2982%)** | **141 (4.6984%)** | **3,001 (100.0%)** |
-| **Train** | 1,417 (81.0641%) | 154 (8.8101%) | 94 (5.3776%) | 83 (4.7483%) | 1,748 (100.0%) |
-| **Validation** | 523 (81.8466%) | 54 (8.4507%) | 32 (5.0078%) | 30 (4.6948%) | 639 (100.0%) |
-| **Test** | 497 (80.9446%) | 56 (9.1205%) | 33 (5.3746%) | 28 (4.5603%) | 614 (100.0%) |
-
-* Maximum absolute relative deviation across all 15 split quantities: **5.4812%** (5.48%).
+* Maximum absolute relative deviation across all 15 split quantities: **5.4812%** ($\le 5.48\%$).
 * Detailed selection audit log saved at [`dataset/split_selection_report.json`](../dataset/split_selection_report.json).
 
 ---

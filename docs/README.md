@@ -43,26 +43,11 @@ flowchart TD
 
 | Protocol Document | Subject Area | Key Specifications | Status |
 | :--- | :--- | :--- | :---: |
-| [**1. Scope, Data & Splits**](./quick-start.md) | Ingestion & Subject Partitions | 81 DMD videos, 1 FPS uniform rate, $640\times 640$ crop (`272, 71, 640, 640`), 15,723 frames, 8/3/3 subject disjointness ($\le 5.48\%$ deviation). | 🧊 Frozen |
+| [**1. Scope, Data & Splits**](./quick-start.md) | Ingestion & Subject Partitions | 81 DMD videos, 1 FPS uniform rate, $640\times 640$ crop geometry, 15,723 frames, 8/3/3 subject disjointness ($\le 5.48\%$ deviation). | 🧊 Frozen |
 | [**2. Annotation & Ontology**](./annotation-protocol.md) | Warning Cues & Ground Truth | 4 visual cues (`phone_use`, `drinking`, `yawning`, `hand_over_mouth`), anatomical boundaries, single-annotation rule ($\le 1$ box/frame), 80.91% negatives. | 🧊 Frozen |
 | [**3. Manual Field Guide (PDF)**](./manual-annotation-guide.pdf) | Desktop Quick-Reference | 1-page printable reference: Label Studio keyboard shortcuts, bounding-box extents, and mutual exclusivity decision matrix. | 📋 Field Guide |
 | [**4. Training Protocol**](./training-protocol.md) | Training Controls & Optimization | RTX 4060 GPU, physical batch 8, gradient accumulation 4 (effective batch 32), 220 epochs, seed 13, AMP FP16, native optimizer recipes. | 🧊 Frozen |
 | [**5. Evaluation Protocol**](./evaluation-protocol.md) | Evaluator Harness & Profiling | COCO $\text{mAP}_{50:95}$, validation grid sweep $\tau \in [0.01, 0.99]$, background False Alarm Rate (FAR %), batch-1 CUDA-event latency ($p50/p95/p99$). | 🧊 Frozen |
-
-</div>
-
----
-
-## 🎯 Target Warning Cue Ontology
-
-<div align="center">
-
-| Category ID | Cue Name | Visual Definition | Bounding Box Extent | Mutual Exclusivity Rule |
-| :---: | :--- | :--- | :--- | :--- |
-| **1** | **`yawning`** | Visible active mouth distension / yawning | Mouth aperture region only | Excluded if mouth is covered by hand |
-| **2** | **`hand_over_mouth`** | Hand or fingers visibly covering the mouth region | Full head and face | Overrides `yawning` when covering mouth |
-| **3** | **`drinking`** | Driver actively consuming beverage from bottle/can | Interacting hand + bottle together | Passive containers in holders are excluded |
-| **4** | **`phone_use`** | Driver holding mobile phone to ear in active call | Hand + device held to ear | Texting / lap-level browsing are excluded |
 
 </div>
 
@@ -81,13 +66,13 @@ flowchart TD
 All data extraction, annotation consolidation, partitioning, and training execution scripts are documented in detail in the [**Scripts Suite Documentation**](../scripts/README.md).
 
 ```bash
-# Preprocessing & Partitioning
+# Preprocessing & Partitioning Pipeline
 python scripts/extract_and_crop_dmd.py      # Extract & crop 640x640 frames
 python scripts/assemble_master_coco.py      # Assemble master COCO JSON
 python scripts/balance_splits.py            # Exhaustive 8/3/3 split optimization
 python scripts/convert_coco_to_yolo.py      # Convert to YOLO labels
 python scripts/prepare_dfine_coco.py        # Prepare D-FINE split JSONs
 
-# Training & Profiling
+# Benchmark Training (YOLO11n example)
 python scripts/train_yolo.py --model weights/pretrained/yolo11n.pt --batch 8 --accumulate 4 --epochs 220
 ```
