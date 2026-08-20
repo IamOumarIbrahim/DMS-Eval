@@ -255,13 +255,13 @@ We benchmark three state-of-the-art nano-scale real-time object detector archite
 
 <div align="center">
 
-<sub><b>Table 2.</b> Candidate real-time detector architectures evaluated in DMS-Eval. (⭕ indicates architectural variations across models).</sub>
+<sub><b>Table 2.</b> Candidate real-time detector architectures evaluated in DMS-Eval.</sub>
 
 | Model Architecture | Architectural Family | Parameter Scale | Published GFLOPs ($640\times 640$) | Detection Paradigm / Key Feature | Repository Source |
 | :--- | :---: | :---: | :---: | :--- | :---: |
-| **Ultralytics YOLO11n** | ⭕ Single-Stage CNN | ⭕ 2.6 M | ⭕ 6.5 G | ⭕ C3k2 feature extractors & SPPF modules; optimizes CIoU + BCE + DFL | ⭕ [Ultralytics](https://github.com/ultralytics/ultralytics) |
-| **Ultralytics YOLO26n** | ⭕ End-to-End CNN | ⭕ 2.4 M | ⭕ 5.8 G | ⭕ Anchor-free, NMS-free direct bounding box prediction via dual-label assignment | ⭕ [Ultralytics](https://github.com/ultralytics/ultralytics) |
-| **D-FINE-N** | ⭕ Real-Time DETR | ⭕ 3.8 M | ⭕ 8.4 G | ⭕ HGNetv2 backbone with Fine-grained Distribution Refinement (FDR) & Hungarian set loss | ⭕ [D-FINE](https://github.com/Peterande/D-FINE) |
+| **Ultralytics YOLO11n** | Single-Stage CNN | 2.6 M | 6.5 G | C3k2 feature extractors & SPPF modules; optimizes CIoU + BCE + DFL | [Ultralytics](https://github.com/ultralytics/ultralytics) |
+| **Ultralytics YOLO26n** | End-to-End CNN | 2.4 M | 5.8 G | Anchor-free, NMS-free direct bounding box prediction via dual-label assignment | [Ultralytics](https://github.com/ultralytics/ultralytics) |
+| **D-FINE-N** | Real-Time DETR | 3.8 M | 8.4 G | HGNetv2 backbone with Fine-grained Distribution Refinement (FDR) & Hungarian set loss | [D-FINE](https://github.com/Peterande/D-FINE) |
 
 </div>
 
