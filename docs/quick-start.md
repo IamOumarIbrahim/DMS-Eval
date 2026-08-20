@@ -1,29 +1,10 @@
 # Benchmark Scope, Data & Splits
 
-[← Back to the DMS-Eval landing page](../README.md)
+[← Back to Main Landing Page](../README.md) · [Documentation Hub](./README.md) · [Annotation Protocol](./annotation-protocol.md)
 
-> [!NOTE]
-> This document contains protocol information extracted from the DMS-Eval README. Frozen decisions and unresolved values retain their original status.
-
-> **Jump to:** [Frozen scope](#frozen-benchmark-scope) · [Preprocessing](#frame-extraction--preprocessing) · [Dataset splits](#dataset-splits) · [Annotation format](#annotation-format)
-
-<details>
-<summary><strong>Show protocol-status checklist</strong></summary>
-
-- [x] Dataset, model set, input resolution, sampling policy, annotation format, and 8/3/3 subject allocation are frozen.
-- [x] The split unit is strictly subject-disjoint.
-- [x] All four target cues occur in every split with balanced proportional representation matching the complete dataset distribution.
-- [x] The dataset-wide 640×640 crop is frozen at `x = 272`, `y = 71`, `width = 640`, `height = 640`.
-- [x] The frame-extraction pipeline is implemented under `scripts/`; generated images are not committed to Git.
-- [x] Exact train, validation, and test subject IDs are frozen in `dataset/splits.json`.
-- [x] The exact exhaustive proportion-matching selection algorithm is implemented and frozen in `scripts/balance_splits.py`.
-- [ ] The exact mapping from “1 frame every 1 second” to source frames at non-integer source FPS remains unresolved.
-
-</details>
+This authoritative protocol document defines the data formulation, spatial preprocessing ($640 \times 640$), uniform 1 FPS temporal sampling, and deterministic 8/3/3 subject-disjoint partitioning for the **DMS-Eval** benchmark.
 
 ---
-
-<a id="frozen-benchmark-scope"></a>
 
 ## 🧊 Frozen Benchmark Scope
 

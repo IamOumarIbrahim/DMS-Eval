@@ -111,14 +111,14 @@ python scripts/prepare_dfine_coco.py
 ---
 
 ### 8. `train_yolo.py` — YOLO Training Engine with Gradient Accumulation
-Configures Ultralytics YOLO training with physical batch size 1, gradient accumulation (effective batch size 16-64), mixed-precision FP16, and CUDA VRAM tracking to mitigate Batch Normalization noise.
+Configures Ultralytics YOLO training with physical batch size 8, gradient accumulation over 4 steps (effective nominal batch size 32), mixed-precision FP16, and CUDA VRAM tracking on NVIDIA RTX 4060 hardware.
 
 ```bash
 # Sanity check run (2 epochs on YOLO11n)
-python scripts/train_yolo.py --epochs 2 --model yolo11n.pt --batch 1 --accumulate 32 --device 0
+python scripts/train_yolo.py --epochs 2 --model weights/pretrained/yolo11n.pt --batch 8 --accumulate 4 --device 0
 
 # Full benchmark training run (220 epochs)
-python scripts/train_yolo.py --epochs 220 --model yolo11n.pt --batch 1 --accumulate 32 --device 0
+python scripts/train_yolo.py --epochs 220 --model weights/pretrained/yolo11n.pt --batch 8 --accumulate 4 --device 0
 ```
 
 ---

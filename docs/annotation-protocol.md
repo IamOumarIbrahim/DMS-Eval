@@ -1,18 +1,8 @@
 # Annotation Protocol & Cue Ontology
 
-[← Back to the DMS-Eval landing page](../README.md)
+[← Back to Main Landing Page](../README.md) · [Documentation Hub](./README.md) · [Field Guide PDF](./manual-annotation-guide.pdf) · [Training Protocol](./training-protocol.md)
 
-> [!NOTE]
-> This document contains protocol information extracted from the DMS-Eval README. Frozen decisions and unresolved values retain their original status.
-
-> **Jump to:** [Target cues](#target-warning-cues) · [Annotation workflow](#annotation-workflow) · [Behavioral domains](#behavioral-domains--target-cue-definitions) · [Detailed rules](#annotation-rules) · [Data quality](#annotation--data-quality-controls)
-
-- [x] Four target warning cues are frozen.
-- [x] Bounding-box extents and single-frame rules are frozen.
-- [x] Removed and merged classes are documented.
-- [x] Annotation-quality controls are frozen.
-- [x] Label Studio (Community Edition) is frozen as the annotation tool, using one project (DMS-Eval) and one task per image with metadata filtering.
-- [x] Direct manual human expert annotation is established across all 15,723 frames to construct the master ground truth.
+This protocol establishes the visual warning cue ontology, anatomical bounding-box definitions, single-annotation policy, and Label Studio quality controls for the **DMS-Eval** benchmark.
 
 ---
 

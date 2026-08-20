@@ -19,8 +19,36 @@
 </p>
 
 <p align="center">
-  <strong><a href="https://raw.githubusercontent.com/IamOumarIbrahim/DMS-Eval/main/manuscript/main.pdf" download="DMS-Eval-Manuscript.pdf">Read Full Conference Manuscript (PDF)</a></strong>
+  <strong><a href="https://raw.githubusercontent.com/IamOumarIbrahim/DMS-Eval/main/manuscript/main.pdf" download="DMS-Eval-Manuscript.pdf">Read Full Conference Manuscript (PDF)</a></strong> · <strong><a href="./docs/README.md">Documentation Suite</a></strong> · <strong><a href="./scripts/README.md">Pipeline Scripts</a></strong>
 </p>
+
+---
+
+## 📑 Table of Contents
+- [Abstract](#abstract)
+- [🚀 Quick Start & Reproducibility](#-quick-start--reproducibility)
+  - [1. Environment Setup](#1-environment-setup)
+  - [2. Dataset Extraction & Preprocessing Pipeline](#2-dataset-extraction--preprocessing-pipeline)
+  - [3. Model Training One-Liners](#3-model-training-one-liners)
+  - [4. Threshold Calibration & Evaluation](#4-threshold-calibration--evaluation)
+- [1. Introduction & Benchmark Scope](#1-introduction--benchmark-scope)
+  - [1.1 Research Gap](#11-research-gap)
+  - [1.2 Key Contributions](#12-key-contributions)
+  - [1.3 Research Question](#13-research-question)
+- [2. Dataset Formulation & Annotation Protocol](#2-dataset-formulation--annotation-protocol)
+  - [2.1 Source Video Corpus & Spatial Window](#21-source-video-corpus--spatial-window)
+  - [2.2 Target Warning Cue Ontology](#22-target-warning-cue-ontology)
+  - [2.3 Single-Annotation Policy & Negative Sample Richness](#23-single-annotation-policy--negative-sample-richness)
+- [3. Methodology & Subject-Disjoint Partitioning](#3-methodology--subject-disjoint-partitioning)
+  - [3.1 Strict Subject-Disjoint Partitioning Principle](#31-strict-subject-disjoint-partitioning-principle)
+  - [3.2 Authoritative Combinatorial Optimization](#32-authoritative-combinatorial-optimization)
+  - [3.3 Verified Dataset Partition Statistics](#33-verified-dataset-partition-statistics)
+- [4. Evaluated Detector Architectures](#4-evaluated-detector-architectures)
+- [5. Experimental Setup & Master Benchmark Control Matrix](#5-experimental-setup--master-benchmark-control-matrix)
+- [6. Validation Calibration & Isolated Test Evaluation](#6-validation-calibration--isolated-test-evaluation)
+- [7. Comparative Results Framework](#7-comparative-results-framework)
+- [8. Repository Structure & Documentation Hub](#8-repository-structure--protocol-documentation)
+- [Authors, Citation & License](#authors--citation)
 
 ---
 
@@ -32,6 +60,65 @@ Driver Monitoring Systems (DMS) are critical safety components of modern Advance
   <img src="./assets/diagrams/dms_eval_pipeline.png" alt="DMS-Eval End-to-End Benchmark Framework" width="880"><br>
   <sub><b>Figure 1.</b> DMS-Eval end-to-end benchmark framework and evaluation lifecycle: from naturalistic DMD video extraction and authoritative Label Studio annotation through deterministic 8/3/3 subject-disjoint partitioning, controlled model training, validation calibration ($\tau^*$), and isolated single-pass test evaluation.</sub>
 </p>
+
+---
+
+## 🚀 Quick Start & Reproducibility
+
+### 1. Environment Setup
+
+```bash
+# Clone the benchmark repository
+git clone https://github.com/IamOumarIbrahim/DMS-Eval.git
+cd DMS-Eval
+
+# Create and activate Python virtual environment (Python 3.10+)
+python -m venv .venv
+# On Windows:
+.venv\Scripts\activate
+# On Linux/macOS:
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 2. Dataset Extraction & Preprocessing Pipeline
+
+```bash
+# Step 1: Extract 1 FPS frames from DMD videos and apply 640x640 spatial crop
+python scripts/extract_and_crop_dmd.py
+
+# Step 2: Validate master COCO annotations and optimize 8/3/3 subject-disjoint partitions
+python scripts/assemble_master_coco.py
+python scripts/balance_splits.py
+
+# Step 3: Generate YOLO label hierarchy and D-FINE split instances
+python scripts/convert_coco_to_yolo.py
+python scripts/prepare_dfine_coco.py
+```
+
+### 3. Model Training One-Liners
+
+All models are trained with **physical batch size 8** and **gradient accumulation over 4 steps** (effective nominal batch size 32) under FP16 AMP for 220 epochs on RTX 4060:
+
+```bash
+# Train Ultralytics YOLO11n
+python scripts/train_yolo.py --model weights/pretrained/yolo11n.pt --batch 8 --accumulate 4 --epochs 220 --name yolo11n_dms
+
+# Train Ultralytics YOLO26n
+python scripts/train_yolo.py --model weights/pretrained/yolo26n.pt --batch 8 --accumulate 4 --epochs 220 --name yolo26n_dms
+
+# Train D-FINE-N (Real-Time Detection Transformer)
+python -m torch.distributed.run --nproc_per_node=1 train.py -c configs/dfine/dfine_n_dms.yml --amp
+```
+
+### 4. Threshold Calibration & Evaluation
+
+```bash
+# Calibrate optimal confidence threshold tau* on validation split and run single-pass test evaluation
+python scripts/evaluate_benchmark.py --weights runs/train/yolo11n_dms/weights/best.pt --config configs/yolo/dms_eval.yaml
+```
 
 ---
 

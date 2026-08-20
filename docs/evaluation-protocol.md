@@ -1,22 +1,12 @@
-# Evaluation Protocol
+# 📊 Evaluation Protocol & Profiling Harness
 
-[← Back to the DMS-Eval landing page](../README.md)
+[← Back to Main Landing Page](../README.md) · [Documentation Hub](./README.md) · [Training Protocol](./training-protocol.md) · [Pipeline Scripts](../scripts/README.md)
 
-> [!NOTE]
-> This document contains protocol information extracted from the DMS-Eval README. Frozen decisions and unresolved values retain their original status.
-
-> **Jump to:** [Metrics](#frozen-metrics) · [Shared evaluator](#shared-evaluation-harness) · [Test usage](#validation--test-usage) · [Thresholding](#confidence-threshold-selection) · [Runtime](#runtime-profiling)
-
-- [x] Metrics, reporting granularity, shared evaluator, matching rules, and checkpoint selection are frozen.
-- [x] Validation/test isolation and one final test pass are frozen.
-- [x] Shared runtime hardware, batch size, test coverage, and median-latency reporting are frozen.
-- [x] Confidence-threshold candidate generation, selection objective, matching rules, and tie-breaking procedure are frozen.
-- [x] Native PyTorch + CUDA, FP16 inference, 10 warm-ups, model-only timing, and CUDA-event latency and throughput procedures are frozen.
-- [x] THOP-based local GFLOPs counting and final-checkpoint MB measurement procedures are frozen.
-- [ ] Exact CUDA, PyTorch, model-framework versions/commits, NVIDIA GPU-driver, and THOP versions remain unresolved.
-- [ ] Handling of unsupported/custom operators in THOP remains unresolved.
+This authoritative protocol governs the detection quality metrics, validation-only confidence threshold calibration ($\tau^*$), checkpoint selection rules, and hardware-synchronized batch-1 latency/throughput profiling for the **DMS-Eval** benchmark.
 
 ---
+
+## 🧊 Frozen Evaluation Metrics
 
 <a id="frozen-metrics"></a>
 
