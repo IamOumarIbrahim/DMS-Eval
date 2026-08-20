@@ -198,12 +198,13 @@ $$S_{\text{train}} \cap S_{\text{val}} = \emptyset, \quad S_{\text{train}} \cap 
 
 ### 3.2 Authoritative Combinatorial Optimization
 Because volunteer participants exhibit varying behavioral frequencies, random assignment leads to severe class imbalance. We formalize an authoritative selection rule implemented in [`scripts/balance_splits.py`](./scripts/balance_splits.py):
-$$\text{Select the 8/3/3 subject split whose negative/positive frame proportion and four class proportions most closely match the complete dataset distribution.}$$
 
-The algorithm exhaustively evaluates all $\binom{14}{8} \times \binom{6}{3} = 3003 \times 20 = 60,060$ candidate partitions. For each partition $\mathcal{P}$ and split $s \in \{\text{train}, \text{val}, \text{test}\}$, relative deviations across 5 quantities $\mathcal{Q} = \{\text{pos\_rate}, \text{phone}, \text{drink}, \text{yawn}, \text{hand\_mouth}\}$ are minimized:
+> **Authoritative Selection Objective:** *Select the 8/3/3 subject split whose negative/positive frame proportion and four class proportions most closely match the complete dataset distribution.*
+
+The algorithm exhaustively evaluates all $\binom{14}{8} \times \binom{6}{3} = 3003 \times 20 = 60,060$ candidate partitions. For each partition $\mathcal{P}$ and split $s \in \{\text{train}, \text{val}, \text{test}\}$, relative deviations across 5 quantities $\mathcal{Q} = \{\text{pos-rate}, \text{phone}, \text{drinking}, \text{yawning}, \text{hand-over-mouth}\}$ are minimized:
 $$\text{Dev}(q, s) = \frac{\lvert V(q, s) - V_{\text{global}}(q) \rvert}{V_{\text{global}}(q)}$$
 
-$$\mathcal{P}^* = \arg\min_{\mathcal{P} \in \Omega} \left( \max_{q \in \mathcal{Q}, s \in \mathcal{S}} \text{Dev}(q, s), \, \text{RMSE}(\mathcal{P}), \, \text{Dev}_{\text{test}}(\mathcal{P}) \right)$$
+$$\mathcal{P}^* = \arg\min_{\mathcal{P} \in \Omega} \left( \max_{q \in \mathcal{Q}, s \in \mathcal{S}} \text{Dev}(q, s), \quad \text{RMSE}(\mathcal{P}), \quad \text{Dev}_{\text{test}}(\mathcal{P}) \right)$$
 
 ### 3.3 Verified Dataset Partition Statistics
 The optimal assignment is permanently frozen in [`dataset/splits.json`](./dataset/splits.json):
