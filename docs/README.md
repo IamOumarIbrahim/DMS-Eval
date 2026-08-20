@@ -8,10 +8,10 @@ DMS-Eval is a reproducible benchmark of YOLO11n, YOLO26n, and D-FINE-N for four 
 flowchart TD
     A[81 DMD videos] --> B[15,723 manually annotated 640×640 frames]
     B --> C[8/3/3 subject-disjoint train/validation/test split]
-    C --> D[Shared: batch 8, fixed accumulation 4, 220 epochs, seed 13, no early stopping]
+    C --> D[Shared: batch 8, fixed accumulation 4, 220 epochs, seeds 13/37/73, no early stopping]
     D --> E[Pinned official architecture recipes; only seven closed adaptations]
     E --> F[Validation-only checkpoint and threshold freeze]
-    F --> G[Environment-gated single protected test pass]
+    F --> G[One environment-gated test pass per frozen model–seed run]
     G --> H[Shared metrics plus forward and tensor-to-detections profiling]
 ```
 
@@ -29,11 +29,11 @@ flowchart TD
 
 ## Foundational controls
 
-All candidates use the same underlying data and four classes, 640×640 input, physical batch 8, fixed accumulation 4, 220 epochs, seed 13, disabled early stopping, validation-only checkpoint ranking, shared evaluator, RTX 4060 environment gate, common CUDA AMP inference policy, batch-1 timing protocol, and protected test policy. Every training image is retained and the final incomplete accumulation window is sample-correct.
+All candidates use the same underlying data and four classes, 640×640 input, physical batch 8, fixed accumulation 4, 220 epochs, seeds 13/37/73, disabled early stopping, validation-only checkpoint ranking, shared evaluator, RTX 4060 environment gate, common CUDA AMP inference policy, batch-1 timing protocol, and protected test policy. Every training image is retained and the final incomplete accumulation window is sample-correct. All three runs are reported as mean ± sample SD and no best run is selected.
 
-Architecture-specific optimizer, learning-rate, scheduler, weight-decay, and augmentation settings follow pinned official recipes. The complete and closed adaptation list is: DMS-Eval dataset/classes, 640×640 input, batch 8, accumulation 4, 220 epochs, seed 13, and disabled early stopping.
+Architecture-specific optimizer, learning-rate, scheduler, weight-decay, and augmentation settings follow pinned official recipes. The complete and closed adaptation list is: DMS-Eval dataset/classes, 640×640 input, batch 8, accumulation 4, 220 epochs, training seeds 13/37/73, and disabled early stopping.
 
-These controls support a system-level comparison. Equal epochs mean equal data exposure, not equal compute; one run cannot establish statistical superiority; and native postprocessing remains part of each deployable detector system.
+These controls support a system-level comparison. Equal epochs mean equal data exposure, not equal compute; three seeds characterize limited stochastic variation but do not alone establish broad statistical superiority; and native postprocessing remains part of each deployable detector system.
 
 ## Safe readiness commands
 

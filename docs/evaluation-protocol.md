@@ -32,7 +32,7 @@ Validation has exactly two roles:
 
 Validation never reloads or otherwise changes a model's training state. The chosen checkpoint, prediction artifact, threshold, and checksums are frozen into an immutable manifest before test access.
 
-The protected test command requires an explicit `--execute-protected-test` gate, validates the manifest, rejects a repeated model/manifest in the append-only ledger, and calls the complete RTX 4060 environment validator before inference. Test images are traversed once: predictions, both timing boundaries, and peak VRAM are collected in that same pass. Test results cannot guide checkpoint, threshold, recipe, or any other training decision.
+Before any protected access, a suite artifact must validate and hash all nine model–seed manifests. The protected test command requires that suite plus an explicit `--execute-protected-test` gate, validates membership, rejects a repeated model–seed run/manifest in the append-only ledger, and calls the complete RTX 4060 environment validator before inference. Test images are traversed once per frozen run: predictions, both timing boundaries, peak VRAM, and the pre-registered qualitative/error candidates are collected in that same pass. Exactly nine passes are permitted—one for each model–seed pair. Test results cannot guide checkpoint, threshold, run selection, recipe, or any other training decision.
 
 ## Shared precision and timing
 
@@ -55,12 +55,12 @@ Raw training checkpoint size is never used as the cross-model storage comparison
 
 No numerical result is inserted before the authorized frozen runs.
 
-| Model | mAP@0.5:0.95 | mAP@0.5 | F1 | FAR/100 | Forward p50 | Tensor→detections p50 | Forward FPS | Tensor→detections FPS | Params | FLOPs (THOP / profiler) | Peak VRAM | FP16 artifact |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| YOLO11n | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
-| YOLO26n | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
-| D-FINE-N | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
+| Model | Runs | mAP@0.5:0.95 | mAP@0.5 | F1 | FAR/100 | Forward p50 | Tensor→detections p50 | Forward FPS | Tensor→detections FPS | Params | FLOPs (THOP / profiler) | Peak VRAM | FP16 artifact |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| YOLO11n | 3 | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
+| YOLO26n | 3 | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
+| D-FINE-N | 3 | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
 
 ## Interpretation boundary
 
-The benchmark compares three fully configured deployable detector systems. Equal data exposure and shared evaluation do not isolate architecture, equalize compute, or eliminate native postprocessing differences. With one run per model, any performance ordering is descriptive and must not be framed as statistically established superiority.
+The benchmark compares three fully configured deployable detector systems. Equal data exposure and shared evaluation do not isolate architecture, equalize compute, or eliminate native postprocessing differences. Three equal predeclared seeds quantify limited stochastic variation, but do not by themselves establish broad statistical superiority.

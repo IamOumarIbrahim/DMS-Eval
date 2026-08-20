@@ -128,22 +128,22 @@ python scripts/data/prepare_dfine_coco.py
 ---
 
 ### 8. `train_yolo.py` — Guarded YOLO Training Launcher
-Configures the pinned Ultralytics recipe with physical batch 8, fixed four-step accumulation from the first batch, 220 epochs, seed 13, disabled early stopping, AMP FP16, and the RTX 4060 gate. A pinned trainer patch sample-normalizes incomplete accumulation windows. YOLO retains `optimizer=auto` from Ultralytics 8.4.123 (expected to resolve to MuSGD for these plans).
+Configures the pinned Ultralytics recipe with physical batch 8, fixed four-step accumulation from the first batch, 220 epochs, an explicitly selected frozen seed from 13/37/73, disabled early stopping, AMP FP16, and the RTX 4060 gate. A pinned trainer patch sample-normalizes incomplete accumulation windows. YOLO retains `optimizer=auto` from Ultralytics 8.4.123 (expected to resolve to MuSGD for these plans).
 
 ```bash
 # Dry-run frozen plans (no training)
-python scripts/benchmark/train_yolo.py --model-id yolo11n
-python scripts/benchmark/train_yolo.py --model-id yolo26n
-python scripts/benchmark/train_dfine.py
+python scripts/benchmark/train_yolo.py --model-id yolo11n --seed 13
+python scripts/benchmark/train_yolo.py --model-id yolo26n --seed 13
+python scripts/benchmark/train_dfine.py --seed 13
 
 # Authorized full runs require --execute-training
-python scripts/benchmark/train_yolo.py --model-id yolo11n --execute-training
+python scripts/benchmark/train_yolo.py --model-id yolo11n --seed 13 --execute-training
 ```
 
 ---
 
 ### 9. `evaluate_benchmark.py` — Standardized Evaluation Harness & Profiler
-Separates validation export, validation-only checkpoint selection, validation-only confidence calibration, immutable manifest creation, and the sole protected test pass. The protected pass validates the RTX 4060 environment and collects predictions, model-forward timing, tensor-to-final-detections timing (including required postprocessing/NMS), peak VRAM, dual FLOP estimates, and standardized FP16 inference-artifact size without traversing test frames twice.
+Separates validation export, validation-only checkpoint selection, validation-only confidence calibration, immutable model–seed manifest creation, and one protected test pass per frozen run. Each pass validates the RTX 4060 environment and collects predictions, model-forward timing, tensor-to-final-detections timing (including required postprocessing/NMS), peak VRAM, dual FLOP estimates, standardized FP16 inference-artifact size, and pre-registered qualitative/error candidates without traversing that run's test frames twice.
 
 ```bash
 # Safe protocol dry-run; never defaults to test
@@ -157,7 +157,7 @@ See [`docs/benchmark-readiness.md`](../docs/benchmark-readiness.md) for the comp
 
 ### 10. `verify_training_configs.py` — Final Configuration Gate
 
-Verifies the exact seven-item recipe-adaptation list, pinned upstream recipe fingerprints, physical batch and accumulation controls, incomplete-window handling, absence of validation-guided D-FINE reloads, and all three dry-run plans. It never starts training or accesses test images.
+Verifies the exact seven-item recipe-adaptation list, pinned upstream recipe fingerprints, physical batch and accumulation controls, incomplete-window handling, absence of validation-guided D-FINE reloads, and all nine model–seed dry-run plans. It never starts training or accesses test images.
 
 ---
 
@@ -168,6 +168,7 @@ Verifies the exact seven-item recipe-adaptation list, pinned upstream recipe fin
 - **`generate_crop_geometry.py`**: Rebuilds the fixed source-to-crop schematic in both asset locations.
 - **`generate_figures.py`**: Builds the result-driven quality-versus-latency figure after aggregation.
 - **`generate_publication_tables.py`**: Converts the aggregate result artifact to Markdown and LaTeX tables.
+- **`generate_qualitative_error_analysis.py`**: Builds the fixed-seed contact sheet and three-seed error-count report from hashed protected artifacts without reading the test dataset.
 
 ### `scripts/maintenance/` (Repository Integrity)
 

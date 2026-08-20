@@ -12,16 +12,18 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from core.protocol import ProtocolError, REPO_ROOT, load_backends, load_protocol, resolve_repo_path
+from core.protocol import ProtocolError, REPO_ROOT, TRAINING_SEEDS, load_backends, load_protocol, resolve_repo_path
 from scripts.benchmark.setup_backends import ensure_dfine, ensure_weight
 
 
-def build_plan() -> dict:
+def build_plan(seed: int) -> dict:
     protocol = load_protocol()
     backend = load_backends()["dfine"]
     ensure_dfine(False)
+    if seed not in TRAINING_SEEDS:
+        raise ProtocolError(f"Training seed must be one of {list(TRAINING_SEEDS)}")
     weight = ensure_weight(backend["weight"], False)
-    output = REPO_ROOT / "runs" / "train" / "dfine_n_seed13"
+    output = REPO_ROOT / "runs" / "train" / f"dfine_n_seed{seed}"
     return {
         "model_id": "dfine_n",
         "upstream_commit": backend["commit"],
@@ -32,7 +34,7 @@ def build_plan() -> dict:
         "physical_batch_size": protocol["training"]["physical_batch_size"],
         "gradient_accumulation_steps": protocol["training"]["gradient_accumulation_steps"],
         "effective_batch_size": protocol["training"]["effective_batch_size"],
-        "seed": protocol["seed"],
+        "seed": seed,
         "amp": True,
         "device": "cuda:0",
         "recipe_policy": protocol["training"]["recipe_policy"]["type"],
@@ -43,9 +45,10 @@ def build_plan() -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--seed", required=True, type=int, choices=TRAINING_SEEDS)
     parser.add_argument("--execute-training", action="store_true", help="Explicitly start the 220-epoch training run")
     args = parser.parse_args()
-    plan = build_plan()
+    plan = build_plan(args.seed)
     print(json.dumps(plan, indent=2))
     if not args.execute_training:
         print("Dry-run only. Training was NOT started; add --execute-training to execute this frozen plan.")

@@ -20,6 +20,25 @@ def run(command: list[str], cwd: Path = REPO_ROOT) -> None:
     subprocess.run(command, cwd=cwd, check=True)
 
 
+def _run_git_patch(
+    checkout: Path,
+    patch: Path,
+    *,
+    reverse: bool = False,
+    check_only: bool = False,
+) -> subprocess.CompletedProcess[bytes]:
+    """Apply/check a patch after normalizing only its transport line endings."""
+
+    command = ["git", "apply"]
+    if reverse:
+        command.append("--reverse")
+    if check_only:
+        command.append("--check")
+    command.append("-")
+    payload = patch.read_bytes().replace(b"\r\n", b"\n")
+    return subprocess.run(command, cwd=checkout, input=payload, capture_output=True)
+
+
 def _patch_ultralytics_trainer_source(source: str) -> str:
     """Apply the frozen accumulation patch using exact pinned-version anchors."""
 
@@ -96,11 +115,17 @@ def ensure_dfine(install: bool) -> dict[str, str]:
     if sha256_file(recipe) != spec["recipe"]["sha256"]:
         raise ProtocolError("Pinned D-FINE-N official recipe fingerprint mismatch")
     patch = REPO_ROOT / "patches" / "dfine-gradient-accumulation.patch"
-    reverse = subprocess.run(["git", "apply", "--reverse", "--check", str(patch)], cwd=checkout, capture_output=True)
+    reverse = _run_git_patch(checkout, patch, reverse=True, check_only=True)
     if reverse.returncode != 0:
         if not install:
             raise ProtocolError("D-FINE gradient-accumulation patch is not applied")
-        run(["git", "apply", str(patch)], checkout)
+        applied = _run_git_patch(checkout, patch)
+        if applied.returncode != 0:
+            details = applied.stderr.decode("utf-8", errors="replace").strip()
+            raise ProtocolError(f"D-FINE gradient-accumulation patch failed: {details}")
+        verified = _run_git_patch(checkout, patch, reverse=True, check_only=True)
+        if verified.returncode != 0:
+            raise ProtocolError("D-FINE gradient-accumulation patch verification failed")
     return {"commit": head, "patch": "applied"}
 
 

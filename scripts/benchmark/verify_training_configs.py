@@ -13,6 +13,7 @@ from core.protocol import (
     ALLOWED_RECIPE_ADAPTATIONS,
     ProtocolError,
     REPO_ROOT,
+    TRAINING_SEEDS,
     load_protocol,
     load_yaml,
     validate_protocol,
@@ -35,21 +36,27 @@ def verify_training_configs() -> dict[str, Any]:
         "dfine": ensure_dfine(False),
     }
     plans = {
-        "yolo11n": build_yolo_plan("yolo11n"),
-        "yolo26n": build_yolo_plan("yolo26n"),
-        "dfine_n": build_dfine_plan(),
+        f"{model_id}_seed{seed}": (
+            build_dfine_plan(seed) if model_id == "dfine_n" else build_yolo_plan(model_id, seed)
+        )
+        for model_id in ("yolo11n", "yolo26n", "dfine_n")
+        for seed in TRAINING_SEEDS
     }
+    _expect(len(plans) == 9, "Training plan must contain exactly nine model-seed runs")
     for model_id in ("yolo11n", "yolo26n"):
-        plan = plans[model_id]
-        _expect(plan["epochs"] == 220 and plan["batch"] == 8 and plan["nbs"] == 32, f"{model_id} budget drift")
-        _expect(plan["imgsz"] == 640 and plan["seed"] == 13 and plan["patience"] == 0, f"{model_id} shared-control drift")
-        _expect(plan["optimizer"] == "auto", f"{model_id} must retain the pinned Ultralytics optimizer recipe")
-    dfine_plan = plans["dfine_n"]
-    _expect(
-        (dfine_plan["epochs"], dfine_plan["physical_batch_size"], dfine_plan["gradient_accumulation_steps"], dfine_plan["seed"])
-        == (220, 8, 4, 13),
-        "D-FINE shared-control drift",
-    )
+        for seed in TRAINING_SEEDS:
+            plan = plans[f"{model_id}_seed{seed}"]
+            _expect(plan["epochs"] == 220 and plan["batch"] == 8 and plan["nbs"] == 32, f"{model_id} budget drift")
+            _expect(plan["imgsz"] == 640 and plan["seed"] == seed and plan["patience"] == 0, f"{model_id} shared-control drift")
+            _expect(plan["optimizer"] == "auto", f"{model_id} must retain the pinned Ultralytics optimizer recipe")
+    for seed in TRAINING_SEEDS:
+        dfine_plan = plans[f"dfine_n_seed{seed}"]
+        _expect(
+            (dfine_plan["epochs"], dfine_plan["physical_batch_size"], dfine_plan["gradient_accumulation_steps"], dfine_plan["seed"])
+            == (220, 8, 4, seed),
+            "D-FINE shared-control drift",
+        )
+    _expect(len({plan.get("name", plan.get("output_dir")) for plan in plans.values()}) == 9, "Run outputs must be unique")
     dfine = load_yaml(REPO_ROOT / "configs" / "dfine" / "dfine_n_dms.yml")
     _expect(dfine["num_classes"] == 4 and dfine["eval_spatial_size"] == [640, 640], "D-FINE task adaptation drift")
     _expect(dfine["train_dataloader"]["total_batch_size"] == 8, "D-FINE physical batch drift")
@@ -78,7 +85,10 @@ def verify_training_configs() -> dict[str, Any]:
             "epochs": 220,
             "physical_batch_size": 8,
             "gradient_accumulation_steps": 4,
-            "seed": 13,
+            "training_seeds": list(TRAINING_SEEDS),
+            "runs_per_model": len(TRAINING_SEEDS),
+            "run_selection": "none",
+            "result_aggregation": "mean_and_sample_standard_deviation",
             "early_stopping": False,
             "drop_last": False,
             "validation_intervention": "checkpoint_retention_only",

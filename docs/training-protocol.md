@@ -6,7 +6,7 @@ This document is the authoritative training specification for DMS-Eval. Training
 
 ## Frozen comparison policy
 
-Every model receives the same underlying training data and four-class ontology, 640×640 input, physical batch 8, fixed four-step gradient accumulation, 220 epochs, seed 13, disabled early stopping, one run, and validation-only checkpoint ranking. All training images are retained with `drop_last=false`; the last incomplete accumulation window is sample-correct for each backend's loss reduction.
+Every model receives the same underlying training data and four-class ontology, 640×640 input, physical batch 8, fixed four-step gradient accumulation, 220 epochs, disabled early stopping, the same three predeclared training seeds (13, 37, 73), and validation-only checkpoint ranking. All training images are retained with `drop_last=false`; the last incomplete accumulation window is sample-correct for each backend's loss reduction. All three runs are reported as mean ± sample SD and best-run selection is prohibited.
 
 Architecture-specific optimizer, learning-rate, scheduler, weight-decay, and augmentation settings follow pinned upstream recipes. The only permitted recipe adaptations are the following closed list:
 
@@ -15,14 +15,14 @@ Architecture-specific optimizer, learning-rate, scheduler, weight-decay, and aug
 3. Physical batch size 8.
 4. Fixed four-step gradient accumulation.
 5. 220 epochs.
-6. Seed 13.
+6. Training seeds 13, 37, and 73.
 7. Disabled early stopping.
 
 There are zero model-specific tuning trials. Any eighth adaptation invalidates the frozen protocol until it is explicitly reviewed and documented.
 
 ## Initialization
 
-All models start from checksum-verified official pretrained checkpoints: `yolo11n.pt`, `yolo26n.pt`, and `dfine_n_coco.pth`. The full model remains trainable. Exactly one trajectory per model is planned, so later conclusions must remain single-run observations rather than claims of statistical superiority.
+All models start from checksum-verified official pretrained checkpoints: `yolo11n.pt`, `yolo26n.pt`, and `dfine_n_coco.pth`. The full model remains trainable. Exactly three trajectories per model are planned with identical seed identities; all are retained for aggregate reporting, so no favorable trajectory may be selected.
 
 ## Final model plans
 
@@ -34,7 +34,7 @@ All models start from checksum-verified official pretrained checkpoints: `yolo11
 | Physical batch | 8 | 8 | 8 | 8 |
 | Accumulation | Fixed 4 from the first batch | Fixed 4 | Fixed 4 | Fixed 4 |
 | Remainder | `drop_last=false`; sample-correct final window | Sum-reduced loss normalization | Sum-reduced loss normalization | Mean-reduced loss normalization |
-| Seed/runs | Seed 13; one run | Same | Same | Same |
+| Seeds/runs | Seeds 13, 37, 73; three runs; mean ± sample SD; no run selection | Same | Same | Same |
 | Precision | PyTorch CUDA AMP FP16 | Same policy | Same policy | Same policy |
 | Checkpoint use during training | Retention/reporting only; validation never changes training state | Continuous state | Continuous state | Predefined epoch-148 augmentation/EMA transition; continuous model/optimizer state |
 | Final selection | Validation mAP@0.5:0.95; ties by mAP@0.5 then later epoch | Same | Same | Same |
@@ -52,9 +52,9 @@ The budget equalizes epoch count and data exposure. It does not equalize paramet
 
 ```powershell
 .venv\Scripts\python.exe scripts\benchmark\verify_training_configs.py
-.venv\Scripts\python.exe scripts\benchmark\train_yolo.py --model-id yolo11n
-.venv\Scripts\python.exe scripts\benchmark\train_yolo.py --model-id yolo26n
-.venv\Scripts\python.exe scripts\benchmark\train_dfine.py
+.venv\Scripts\python.exe scripts\benchmark\train_yolo.py --model-id yolo11n --seed 13
+.venv\Scripts\python.exe scripts\benchmark\train_yolo.py --model-id yolo26n --seed 13
+.venv\Scripts\python.exe scripts\benchmark\train_dfine.py --seed 13
 ```
 
-These commands are dry-runs. Training starts only when the explicit `--execute-training` gate is added after authorization.
+These commands are dry-runs. Repeat them with seeds 37 and 73. Training starts only when the explicit `--execute-training` gate is added after authorization.

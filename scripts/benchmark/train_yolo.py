@@ -11,15 +11,17 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from core.protocol import ProtocolError, REPO_ROOT, load_backends, load_protocol, resolve_repo_path, sha256_file
+from core.protocol import ProtocolError, REPO_ROOT, TRAINING_SEEDS, load_backends, load_protocol, resolve_repo_path, sha256_file
 from scripts.benchmark.setup_backends import ensure_ultralytics
 
 
-def build_plan(model_id: str) -> dict:
+def build_plan(model_id: str, seed: int) -> dict:
     protocol = load_protocol()
     training = protocol["training"]
     optimization = training["optimization"]["ultralytics"]
     ensure_ultralytics(False)
+    if seed not in TRAINING_SEEDS:
+        raise ProtocolError(f"Training seed must be one of {list(TRAINING_SEEDS)}")
     weight = load_backends()["ultralytics"]["models"][model_id]
     checkpoint = resolve_repo_path(weight["file"])
     if not checkpoint.is_file() or sha256_file(checkpoint) != weight["sha256"]:
@@ -32,10 +34,10 @@ def build_plan(model_id: str) -> dict:
         "batch": training["physical_batch_size"],
         "nbs": training["effective_batch_size"],
         "imgsz": protocol["dataset"]["width"],
-        "seed": protocol["seed"],
+        "seed": seed,
         "device": 0,
         "project": str(REPO_ROOT / "runs" / "train"),
-        "name": f"{model_id}_seed13",
+        "name": f"{model_id}_seed{seed}",
         "exist_ok": False,
         "amp": True,
         "optimizer": optimization["optimizer"],
@@ -53,9 +55,10 @@ def build_plan(model_id: str) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model-id", required=True, choices=["yolo11n", "yolo26n"])
+    parser.add_argument("--seed", required=True, type=int, choices=TRAINING_SEEDS)
     parser.add_argument("--execute-training", action="store_true", help="Explicitly start the 220-epoch training run")
     args = parser.parse_args()
-    plan = build_plan(args.model_id)
+    plan = build_plan(args.model_id, args.seed)
     print(json.dumps(plan, indent=2))
     if not args.execute_training:
         print("Dry-run only. Training was NOT started; add --execute-training to execute this frozen plan.")

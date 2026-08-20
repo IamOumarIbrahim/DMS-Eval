@@ -1,3 +1,11 @@
+## [2026-08-20 18:00:00] - Freeze the three-seed pre-training benchmark protocol
+- Replace the single-run design with the same three predeclared seeds (13, 37, 73) for YOLO11n, YOLO26n, and D-FINE-N; require all runs and report mean plus sample standard deviation without best-run selection.
+- Bind validation predictions, checkpoint selection, calibration, manifests, protected-test ledger records, and aggregate rows to a training seed; require one hashed nine-manifest suite before any protected test access.
+- Repair exact D-FINE patch verification by normalizing patch transport line endings while preserving exact-content checking, with regression coverage for CRLF/LF environments.
+- Capture five pre-registered qualitative/error categories during the same protected pass, rank three candidates deterministically, and fix seed 13 as the publication contact-sheet reference before training.
+- Require all nine same-suite protected results for aggregation and publication; add parameters and peak allocated VRAM to the mean-plus-SD publication table and uncertainty bars to the accuracy-latency figure.
+- Reconcile the README suite, protocols, fairness audit, readiness record, pipeline figure, and six-page manuscript; verify 38 tests, 59,217 dataset checks, all nine dry-run launchers, all model smokes/profiles, and 121 link targets without starting training or accessing the test split.
+
 ## [2026-08-20] - Resolve pre-training fairness controls and freeze the closed recipe boundary
 - Fix four-step accumulation from the first batch for every model, retain every training image, and sample-normalize incomplete windows for mean- and sum-reduced losses.
 - Remove D-FINE validation-guided training-state reloads and preserve a predefined continuous stage transition; restore pinned official YOLO and D-FINE-N optimization recipes with zero model-specific tuning.

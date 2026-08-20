@@ -1,6 +1,5 @@
 schema_version: 1
 benchmark: DMS-Eval
-seed: 13
 
 models:
   - id: yolo11n
@@ -66,7 +65,10 @@ training:
   amp: true
   precision: amp_fp16
   early_stopping: false
-  single_run: true
+  runs_per_model: 3
+  run_seeds: [13, 37, 73]
+  run_selection: none
+  result_aggregation: mean_and_sample_standard_deviation
   incomplete_batch:
     drop_last: false
     normalize_partial_accumulation_window: true
@@ -80,7 +82,7 @@ training:
       - physical_batch_size_8
       - gradient_accumulation_steps_4
       - epochs_220
-      - seed_13
+      - training_seeds_13_37_73
       - early_stopping_disabled
   checkpoint_selection:
     split: val
@@ -116,7 +118,15 @@ evaluation:
     objective: micro_f1
     tie_breakers: [higher_precision, higher_threshold]
   far: 100 * false_positive_detections_on_negative_frames / negative_frames
-  test_policy: single_protected_pass_after_freeze
+  test_policy: single_protected_pass_per_frozen_model_seed_run
+  suite_freeze_policy: all_nine_manifests_frozen_before_first_protected_test
+  qualitative_error_analysis:
+    enabled: true
+    generated_during_protected_pass: true
+    examples_per_category: 3
+    publication_reference_seed: 13
+    categories: [correct_detection, false_positive_negative_frame, false_negative, class_confusion, localization_error]
+    selection: deterministic_predeclared_category_ranking
 
 profiling:
   hardware: NVIDIA GeForce RTX 4060 8GB

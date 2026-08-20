@@ -24,11 +24,22 @@ def main() -> int:
     figure, axis = plt.subplots(figsize=(7, 5), constrained_layout=True)
     for row in rows:
         latency = row["tensor_to_final_detections_p50_ms"]
-        axis.scatter(latency, row["map_50_95"], s=75)
-        axis.annotate(row["model_id"], (latency, row["map_50_95"]), xytext=(5, 5), textcoords="offset points")
+        accuracy = row["map_50_95"]
+        axis.errorbar(
+            latency["mean"],
+            accuracy["mean"],
+            xerr=latency["sample_std"],
+            yerr=accuracy["sample_std"],
+            marker="o",
+            markersize=8,
+            capsize=3,
+            linestyle="none",
+        )
+        axis.annotate(row["model_id"], (latency["mean"], accuracy["mean"]), xytext=(5, 5), textcoords="offset points")
     axis.set_xlabel("Tensor-to-final-detections p50 latency (ms), batch 1 CUDA AMP FP16")
     axis.set_ylabel("COCO mAP@0.5:0.95")
     axis.grid(True, alpha=0.25)
+    axis.set_title("Mean ± sample SD across seeds 13, 37, and 73")
     destination = resolve_repo_path(args.output)
     destination.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(destination, dpi=300)

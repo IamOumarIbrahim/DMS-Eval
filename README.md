@@ -54,11 +54,11 @@
 
 ## Abstract
 
-Driver Monitoring Systems (DMS) are critical safety components of modern Advanced Driver Assistance Systems (ADAS). Automotive edge deployments motivate lightweight, low-latency detectors that localize warning cues in individual frames. **DMS-Eval** is a reproducible empirical benchmark of compact convolutional detectors (**Ultralytics YOLO11n** and **YOLO26n**) and a lightweight Real-Time Detection Transformer (**D-FINE-N**). It uses 15,723 manually annotated $640 \times 640$ frames derived from 81 driver-facing DMD recordings across 14 subjects, with four warning cues and 12,722 naturalistic negative frames. A frozen 8/3/3 subject-disjoint split prevents identity leakage. All models use the same data/classes, resolution, physical batch 8, fixed accumulation 4, 220 epochs, seed 13, disabled early stopping, shared evaluator, RTX 4060 environment gate, FP32 model/input storage under CUDA AMP FP16, batch-1 timing protocol, and protected test policy. Architecture-specific optimization and augmentation settings follow pinned official recipes; the closed adaptation list is dataset/classes, 640×640 input, batch 8, accumulation 4, 220 epochs, seed 13, and disabled early stopping. Results remain pending until authorized frozen runs are completed.
+Driver Monitoring Systems (DMS) are critical safety components of modern Advanced Driver Assistance Systems (ADAS). Automotive edge deployments motivate lightweight, low-latency detectors that localize warning cues in individual frames. **DMS-Eval** is a reproducible empirical benchmark of compact convolutional detectors (**Ultralytics YOLO11n** and **YOLO26n**) and a lightweight Real-Time Detection Transformer (**D-FINE-N**). It uses 15,723 manually annotated $640 \times 640$ frames derived from 81 driver-facing DMD recordings across 14 subjects, with four warning cues and 12,722 naturalistic negative frames. A frozen 8/3/3 subject-disjoint split prevents identity leakage. All models use the same data/classes, resolution, physical batch 8, fixed accumulation 4, 220 epochs, disabled early stopping, three predeclared training seeds (13, 37, 73), shared evaluator, RTX 4060 environment gate, FP32 model/input storage under CUDA AMP FP16, batch-1 timing protocol, and protected test policy. Every seed is reported and per-model results use mean ± sample SD; best-run selection is prohibited. Architecture-specific optimization and augmentation settings follow pinned official recipes; the closed adaptation list is dataset/classes, 640×640 input, batch 8, accumulation 4, 220 epochs, the three training seeds, and disabled early stopping. Results remain pending until authorized frozen runs are completed.
 
 <p align="center">
   <img src="./assets/diagrams/dms_eval_pipeline.png" alt="DMS-Eval End-to-End Benchmark Framework" width="880"><br>
-  <sub><b>Figure 1.</b> DMS-Eval end-to-end benchmark framework and evaluation lifecycle: from naturalistic DMD video extraction and authoritative Label Studio annotation through deterministic 8/3/3 subject-disjoint partitioning, controlled model training, validation calibration ($\tau^*$), and isolated single-pass test evaluation.</sub>
+  <sub><b>Figure 1.</b> DMS-Eval end-to-end benchmark framework and evaluation lifecycle: from naturalistic DMD video extraction and authoritative Label Studio annotation through deterministic 8/3/3 subject-disjoint partitioning, controlled three-seed model training, validation calibration ($\tau^*$), and one isolated test pass per frozen model–seed run.</sub>
 </p>
 
 ---
@@ -95,17 +95,17 @@ The protected master annotations and split are already frozen. Conversion script
 
 ### 3. Model Training One-Liners
 
-All models use **physical batch size 8**, **fixed four-step accumulation** (effective batch 32), FP16 AMP, seed 13, disabled early stopping, and 220 epochs on the RTX 4060. Every image is retained and incomplete accumulation windows are sample-correct.
+All models use **physical batch size 8**, **fixed four-step accumulation** (effective batch 32), FP16 AMP, disabled early stopping, and 220 epochs on the RTX 4060 for each of the fixed seeds **13, 37, and 73**. Every image is retained and incomplete accumulation windows are sample-correct.
 
 ```bash
-# Train Ultralytics YOLO11n
-python scripts/benchmark/train_yolo.py --model-id yolo11n --execute-training
+# Train Ultralytics YOLO11n, seed 13 (repeat identically for --seed 37 and --seed 73)
+python scripts/benchmark/train_yolo.py --model-id yolo11n --seed 13 --execute-training
 
 # Train Ultralytics YOLO26n
-python scripts/benchmark/train_yolo.py --model-id yolo26n --execute-training
+python scripts/benchmark/train_yolo.py --model-id yolo26n --seed 13 --execute-training
 
 # Train D-FINE-N (Real-Time Detection Transformer)
-python scripts/benchmark/train_dfine.py --execute-training
+python scripts/benchmark/train_dfine.py --seed 13 --execute-training
 ```
 
 ### 4. Threshold Calibration & Evaluation
@@ -265,7 +265,7 @@ These are setup-only diagnostics of pinned COCO checkpoints and are not benchmar
 
 ## 5. Experimental Setup & Benchmark Controls
 
-DMS-Eval holds the data/classes, subject split, resolution, annotations, physical batch, fixed accumulation, epoch/data exposure, seed, early-stopping rule, hardware, precision policy, evaluator, checkpoint rule, and protected test access constant. Architecture-specific optimizer, scheduler, weight decay, and augmentation settings follow pinned official recipes. The only recipe adaptations are dataset/classes, 640×640 input, batch 8, accumulation 4, 220 epochs, seed 13, and disabled early stopping; no model-specific tuning is performed.
+DMS-Eval holds the data/classes, subject split, resolution, annotations, physical batch, fixed accumulation, epoch/data exposure, three training seeds (13, 37, 73), early-stopping rule, hardware, precision policy, evaluator, checkpoint rule, and protected test access constant. Architecture-specific optimizer, scheduler, weight decay, and augmentation settings follow pinned official recipes. The only recipe adaptations are dataset/classes, 640×640 input, batch 8, accumulation 4, 220 epochs, the three training seeds, and disabled early stopping; no model-specific tuning is performed and no run is selected as "best."
 
 > [!IMPORTANT]
 > **Controlled Training & Gradient Dynamics:**
@@ -304,9 +304,9 @@ DMS-Eval holds the data/classes, subject split, resolution, annotations, physica
 | | **Gradient Accumulation** | Fixed 4 steps | Fixed 4 steps | Fixed 4 steps | Effective batch 32 from the first update window |
 | | **Training Remainder** | `drop_last=false`; sample-correct | `drop_last=false`; sample-correct | `drop_last=false`; sample-correct | Every training image is retained |
 | | **Training Precision** | FP16 AMP | FP16 AMP | FP16 AMP | Shared AMP policy implemented by each pinned framework |
-| | **Random Seed** | `13` | `13` | `13` | Shared seed; framework-specific samplers and kernels need not produce identical trajectories |
+| | **Training Seeds** | `13, 37, 73` | `13, 37, 73` | `13, 37, 73` | Three predeclared equal seeds; framework-specific kernels need not produce identical trajectories |
 | | **Hardware Platform** | NVIDIA RTX 4060 | NVIDIA RTX 4060 | NVIDIA RTX 4060 | Dedicated GPU with 8 GB VRAM |
-| | **Training Runs** | 1 single run | 1 single run | 1 single run | Single training trajectory (no multi-seed averaging) |
+| | **Training Runs** | 3 | 3 | 3 | All runs reported as mean ± sample SD; no best-run selection |
 | | **Optimizer Family** | ⭕ Ultralytics `auto` → expected MuSGD | ⭕ AdamW | ⭕ Ultralytics `auto` → expected MuSGD | Pinned official architecture recipes; zero model-specific tuning trials |
 | | **Base LR & Weight Decay** | ⭕ Package default `lr0=0.01, wd=0.0005` | ⭕ Official N recipe `lr=0.0008, backbone_lr=0.0004, wd=0.0001` | ⭕ Package default `lr0=0.01, wd=0.0005` | Pinned upstream values except the closed shared adaptations |
 | | **LR Schedule** | ⭕ Ultralytics linear decay | ⭕ Pinned D-FINE `MultiStepLR` (milestone 500) | ⭕ Ultralytics linear decay | Exact model-specific schedule from each pinned backend |
@@ -317,7 +317,7 @@ DMS-Eval holds the data/classes, subject split, resolution, annotations, physica
 | | **Threshold Objective** | Max Validation F1 | Max Validation F1 | Max Validation F1 | Uniform objective maximizing micro-averaged validation F1 score |
 | | **Calibrated Threshold (τ*)** | ⭕ τ* (YOLO11n) | ⭕ τ* (D-FINE-N) | ⭕ τ* (YOLO26n) | Model-specific optimal confidence threshold calibrated on validation split |
 | | **Threshold Tie-Breaker** | Higher Precision | Higher Precision | Higher Precision | 1st tie-breaker: Higher Precision; 2nd tie-breaker: Higher confidence value |
-| | **Parameter Freezing** | Checkpoint & τ* | Checkpoint & τ* | Checkpoint & τ* | Selected checkpoint weights and τ* frozen prior to single test pass |
+| | **Parameter Freezing** | Checkpoint & τ* per seed | Checkpoint & τ* per seed | Checkpoint & τ* per seed | Each model–seed checkpoint and τ* is frozen before its one protected test pass |
 | **Runtime & Profiling** | **Runtime Backend** | PyTorch + CUDA | PyTorch + CUDA | PyTorch + CUDA | Native PyTorch (no TensorRT / ONNX Runtime / OpenVINO exports) |
 | | **Runtime Hardware** | NVIDIA RTX 4060 | NVIDIA RTX 4060 | NVIDIA RTX 4060 | Consistent 8 GB VRAM GPU environment |
 | | **Runtime Precision** | FP32 model/input + CUDA AMP FP16 | FP32 model/input + CUDA AMP FP16 | FP32 model/input + CUDA AMP FP16 | Identical storage and autocast policy |
@@ -325,7 +325,7 @@ DMS-Eval holds the data/classes, subject split, resolution, annotations, physica
 | | **Warm-up Protocol** | 10 passes | 10 passes | 10 passes | Untimed warm-up passes on 640×640 frames before latency capture |
 | | **Timing Scope / Boundary** | Forward + tensor→final detections | Forward + tensor→final detections | Forward + tensor→final detections | Second boundary includes architecture-required postprocessing/NMS |
 | | **Timing Mechanism** | CUDA events + synchronized wall clock | Same | Same | CUDA events for forward; high-resolution wall clock for tensor→detections |
-| | **Test Set Coverage** | 3,213 test frames | 3,213 test frames | 3,213 test frames | Complete unseen test split evaluated in a single pass |
+| | **Test Set Coverage** | 3,213 frames/run | 3,213 frames/run | 3,213 frames/run | One complete pass for each of the nine frozen model–seed runs |
 | | **Latency Metrics** | p50, p95, p99 (ms) | p50, p95, p99 (ms) | p50, p95, p99 (ms) | Median, 95th, and 99th percentile inference latency |
 | | **Throughput Profiling** | Sustained FPS | Sustained FPS | Sustained FPS | Continuous test split pass (FPS = 3,213 / T_total) |
 | | **VRAM Measurement** | Peak allocated MB | Peak allocated MB | Peak allocated MB | Captured via `torch.cuda.max_memory_allocated()` |
@@ -354,13 +354,13 @@ To evaluate real-world operating performance ($P, R, F_1$), each detector's conf
 $$\tau^* = \arg\max_{\tau \in [0.01, 0.99]} F_1(\tau; S_{\text{val}}) = \frac{2 \cdot P(\tau) \cdot R(\tau)}{P(\tau) + R(\tau)}$$
 under COCO one-to-one $\text{IoU} \ge 0.50$ matching. Once identified, $\tau^*$ and the selected checkpoint weights are permanently frozen.
 
-### 6.3 Isolated Single-Pass Test Evaluation
+### 6.3 Isolated Per-Run Single-Pass Test Evaluation
 
 > [!CAUTION]
 > **Strict Zero-Test-Access Protocol:**
-> Neither candidate model weights nor confidence thresholds ($\tau^*$) have access to the $3,213$ test frames during training, tuning, or calibration. The unseen test split is evaluated exactly once in a single frozen pass to prevent optimistic metric contamination.
+> Neither candidate model weights nor confidence thresholds ($\tau^*$) have access to the $3,213$ test frames during training, tuning, or calibration. Each of the nine predeclared frozen model–seed runs receives exactly one test pass; test results cannot select runs or change any configuration.
 
-The unseen Test split ($S_{\text{test}}$, 3,213 frames) is evaluated exactly once without post-hoc tuning:
+The unseen Test split ($S_{\text{test}}$, 3,213 frames) is evaluated once per frozen model–seed run without post-hoc tuning:
 - **Detection Accuracy:** $\text{mAP}@0.5:0.95$ and $\text{mAP}@0.5$ computed against master COCO ground truth.
 - **Operating Performance:** Precision, Recall, and $F_1$ score evaluated at the frozen threshold $\tau^*$.
 - **Background False Alarm Rate (FAR):** false-positive detections per 100 negative test frames, with $N_{\text{neg}}=2{,}599$.

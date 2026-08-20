@@ -43,7 +43,7 @@ Sharjah, United Arab Emirates \\
 \maketitle
 
 \begin{abstract}
-Lightweight single-frame detectors can localize observable driver-warning cues without the latency of a temporal stack, but comparisons across detector families are easily confounded by subject leakage and inconsistent training or runtime protocols. This paper presents \textbf{DMS-Eval}, a system-level benchmark of two compact convolutional detectors (YOLO11n and YOLO26n) and a lightweight Real-Time Detection Transformer (D-FINE-N). The benchmark contains 15,723 manually annotated $640\times640$ frames derived from 81 Driver Monitoring Dataset recordings across 14 subjects, including 12,722 naturalistic negative frames and four warning cues. A frozen 8/3/3 subject-disjoint split isolates unseen drivers. Shared controls include physical batch 8, fixed four-step accumulation, 220 epochs, seed 13, disabled early stopping, validation-only checkpoint selection, an RTX 4060 gate, common CUDA AMP, two batch-1 timing boundaries, and protected test access. Architecture-specific recipes are pinned; the only adaptations are DMS-Eval data/classes, $640\times640$ input, batch 8, accumulation 4, 220 epochs, seed 13, and disabled early stopping, with no model-specific tuning. Results remain pending; eventual evidence will support configured-system trade-offs, not architecture-only causation or statistical superiority from one run.
+Lightweight single-frame detectors can localize observable driver-warning cues without the latency of a temporal stack, but comparisons across detector families are easily confounded by subject leakage and inconsistent training or runtime protocols. This paper presents \textbf{DMS-Eval}, a system-level benchmark of two compact convolutional detectors (YOLO11n and YOLO26n) and a lightweight Real-Time Detection Transformer (D-FINE-N). The benchmark contains 15,723 manually annotated $640\times640$ frames derived from 81 Driver Monitoring Dataset recordings across 14 subjects, including 12,722 naturalistic negative frames and four warning cues. A frozen 8/3/3 subject-disjoint split isolates unseen drivers. Shared controls include physical batch 8, fixed four-step accumulation, 220 epochs, disabled early stopping, three predeclared seeds (13, 37, 73), validation-only checkpoint selection, an RTX 4060 gate, common CUDA AMP, two batch-1 timing boundaries, and protected test access. Every run is reported as mean $\pm$ sample standard deviation, without best-run selection. Architecture-specific recipes are pinned; the only adaptations are DMS-Eval data/classes, $640\times640$ input, batch 8, accumulation 4, 220 epochs, the three seeds, and disabled early stopping, with no model-specific tuning. Results remain pending; eventual evidence will support configured-system trade-offs, not architecture-only causation.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -191,7 +191,7 @@ Because 1~FPS extraction from continuous driving video introduces temporal corre
 
 \begin{figure*}[htbp]
 \centerline{\includegraphics[width=\textwidth]{dms_eval_pipeline.png}}
-\caption{DMS-Eval lifecycle: $640\times640$ extraction and manual annotation; deterministic 8/3/3 subject-disjoint splitting; RTX 4060 training with batch 8, fixed accumulation 4, 220 epochs, seed 13, disabled early stopping, and pinned official recipes; validation-only checkpoint/threshold freezing without training-state intervention; and environment-gated single-pass test evaluation with two timing boundaries.}
+\caption{DMS-Eval lifecycle: $640\times640$ extraction and manual annotation; deterministic 8/3/3 subject-disjoint splitting; RTX 4060 training with batch 8, accumulation 4, 220 epochs, seeds 13/37/73, no early stopping, and pinned recipes; validation-only freezing; and one environment-gated test pass per model--seed run.}
 \label{fig_pipeline}
 \end{figure*}
 
@@ -213,16 +213,16 @@ We evaluate three state-of-the-art nano-scale real-time object detectors:
 \end{enumerate}
 
 \subsection{Standardized Training Protocol}
-All models use the same training split/classes, $640\times640$ input, physical batch 8, fixed four-step accumulation from the first batch, 220 epochs, seed 13, disabled early stopping, FP16 AMP, one run, and the RTX 4060. Every image is retained with \texttt{drop\_last=false}; the final incomplete accumulation window is sample-correct for each backend's mean- or sum-reduced loss. Validation may retain and rank checkpoints but never reloads or otherwise changes training state. D-FINE's epoch-148 augmentation/EMA transition is predefined and continues the current model and optimizer state.
+All models use the same training split/classes, $640\times640$ input, physical batch 8, fixed four-step accumulation from the first batch, 220 epochs, disabled early stopping, FP16 AMP, the three predeclared seeds 13/37/73, and the RTX 4060. Every image is retained with \texttt{drop\_last=false}; the final incomplete accumulation window is sample-correct for each backend's mean- or sum-reduced loss. Every run is retained, and model results use mean $\pm$ sample standard deviation without best-run selection. Validation may retain and rank checkpoints but never reloads or otherwise changes training state. D-FINE's epoch-148 augmentation/EMA transition is predefined and continues the current model and optimizer state.
 
-Architecture-specific optimizer, learning-rate, scheduler, weight-decay, and augmentation settings follow pinned official recipes. Ultralytics 8.4.123 retains \texttt{optimizer=auto} (expected MuSGD for the planned iteration count), its default learning rate and linear schedule; D-FINE-N retains AdamW with base/backbone learning rates $0.0008/0.0004$ and weight decay $0.0001$. The closed adaptation list is: DMS-Eval dataset/classes, $640\times640$ input, batch 8, accumulation 4, 220 epochs, seed 13, and disabled early stopping. No model-specific tuning is performed. Equal epochs therefore mean equal data exposure, not equal FLOPs, wall time, capacity, or stochastic trajectory.
+Architecture-specific optimizer, learning-rate, scheduler, weight-decay, and augmentation settings follow pinned official recipes. Ultralytics 8.4.123 retains \texttt{optimizer=auto} (expected MuSGD for the planned iteration count), its default learning rate and linear schedule; D-FINE-N retains AdamW with base/backbone learning rates $0.0008/0.0004$ and weight decay $0.0001$. The closed adaptation list is: DMS-Eval dataset/classes, $640\times640$ input, batch 8, accumulation 4, 220 epochs, seeds 13/37/73, and disabled early stopping. No model-specific tuning is performed. Equal epochs therefore mean equal data exposure, not equal FLOPs, wall time, or capacity.
 
 \subsection{Validation Calibration and Test Isolation}
 To prevent data snooping, model checkpoints and confidence thresholds ($\tau$) are selected strictly on the Validation split. For each model, we sweep confidence thresholds $\tau \in [0.01, 0.99]$ with a step of $0.01$ and identify the threshold $\tau^*$ that maximizes the micro-averaged $F_1$ score:
 \begin{equation}
 \tau^* = \arg\max_{\tau \in [0.01, 0.99]} F_1(\tau; S_{\text{val}}) = \frac{2 \cdot P(\tau) \cdot R(\tau)}{P(\tau) + R(\tau)}
 \end{equation}
-where $P(\tau) = \frac{\text{TP}(\tau)}{\text{TP}(\tau) + \text{FP}(\tau)}$ and $R(\tau) = \frac{\text{TP}(\tau)}{\text{TP}(\tau) + \text{FN}(\tau)}$ under same-class greedy one-to-one IoU $\ge 0.50$ matching. The optimal validation checkpoint and threshold $\tau^*$ are permanently frozen. Final benchmark evaluation is executed in a single pass on the unseen Test split ($S_{\text{test}}$) without further tuning.
+where $P(\tau) = \frac{\text{TP}(\tau)}{\text{TP}(\tau) + \text{FP}(\tau)}$ and $R(\tau) = \frac{\text{TP}(\tau)}{\text{TP}(\tau) + \text{FN}(\tau)}$ under same-class greedy one-to-one IoU $\ge 0.50$ matching. Each run's optimal validation checkpoint and threshold $\tau^*$ are permanently frozen. Each of the nine model--seed manifests receives exactly one Test-split pass without further tuning.
 
 \subsection{Latency, Memory, and False-Alarm Profiling}
 The protected command first rejects a nonconforming RTX 4060 environment. All adapters keep FP32 model weights and input tensors and execute forward under CUDA autocast FP16 at batch size 1. After 10 untimed full-path warm-ups, synchronized CUDA events measure tensor-to-raw-output model forward, while a synchronized high-resolution wall clock measures tensor-to-final detections including required postprocessing/NMS. Both boundaries report $p50$, $p95$, $p99$, and sustained FPS; disk I/O, decode, preprocessing, metrics, and serialization remain excluded. The same test pass measures peak allocated VRAM. THOP and \texttt{torch.profiler} provide separately identified, tool-dependent FLOP estimates, and storage uses a standardized inference-only FP16 state dictionary rather than raw training checkpoints. False-alarm suppression is evaluated on 2,599 negative test frames:
@@ -232,18 +232,18 @@ The protected command first rejects a nonconforming RTX 4060 environment. All ad
 and is interpreted as false detections per 100 negative test frames rather than a percentage bounded by 100.
 
 \section{Results and Discussion Framework}
-No result is available before the authorized frozen runs. Table~\ref{tab_results} pre-registers the system-level quality--efficiency comparison, and Table~\ref{tab_per_class} pre-registers per-class AP. The aggregate pipeline will generate an original mAP-versus-tensor-to-detections latency figure after the protected pass; no placeholder is presented as evidence.
+No result is available before the authorized frozen runs. Table~\ref{tab_results} pre-registers the system-level quality--efficiency comparison, and Table~\ref{tab_per_class} pre-registers per-class AP. The aggregate pipeline requires all nine results and reports mean $\pm$ sample standard deviation; no placeholder is presented as evidence.
 
 \IfFileExists{figures/accuracy_latency.png}{%
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\columnwidth]{accuracy_latency.png}
-\caption{Protected-test detection quality versus tensor-to-final-detections median latency. The figure is generated only from the complete three-model aggregate artifact.}
+\caption{Protected-test quality versus tensor-to-final-detections median latency (mean $\pm$ sample standard deviation over three seeds).}
 \label{fig_accuracy_latency}
 \end{figure}}{}
 
 \begin{table*}[htbp]
-\caption{Pre-Registered Comparison (RTX 4060, Batch 1, CUDA AMP FP16; All Fields Pending)}
+\caption{Pre-Registered Comparison (RTX 4060, Batch 1, CUDA AMP FP16; Mean $\pm$ Sample SD; All Fields Pending)}
 \begin{center}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccccccccccccc}
@@ -261,7 +261,7 @@ D-FINE-N & Pending & Pending & Pending & Pending & Pending & Pending & Pending &
 \end{table*}
 
 \begin{table}[htbp]
-\caption{Per-Class Detection Performance Framework ($mAP@0.5:0.95$ / $mAP@0.5$ on Test Split)}
+\caption{Per-Class AP@0.5:0.95 Framework (Mean $\pm$ Sample SD on Test Split)}
 \begin{center}
 \resizebox{\columnwidth}{!}{
 \begin{tabular}{lcccc}
@@ -284,22 +284,22 @@ D-FINE-N & Not run & Not run & Not run & Not run \\
 The planned evaluation will compare configured detector systems rather than infer that architecture alone caused a difference. Discussion will be organized around measured quality--latency trade-offs, per-class behavior, false alarms on negative frames, native postprocessing, peak memory, and standardized artifact size. No comparative empirical conclusion is asserted before the protected test pass.
 
 \subsection{Taxonomy of Edge-Case Failure Modes}
-The post-test error analysis is pre-registered around three anticipated edge-case categories:
+The protected-pass qualitative/error generator uses five outcome-defined categories fixed before training:
 \begin{itemize}
-\item \textbf{High-Frequency Motion Blur:} Test whether rapid gestures and steering transitions correspond to missed detections or localization jitter.
-\item \textbf{Extreme Ambient Illumination Transitions:} Test whether glare and cabin shadows correspond to false-positive facial-cue detections.
-\item \textbf{Oblique Head Yaw and Occlusion:} Test whether lateral head turns and partial occlusion challenge single-frame localization.
+\item correct detections and false-positive detections on negative frames;
+\item false-negative, class-confusion, and localization-error images.
 \end{itemize}
+Three candidates per category are ranked deterministically during each test pass. The publication contact sheet uses predeclared reference seed 13, while error counts use all seeds; no post-hoc example search rereads the test set.
 
 \subsection{Threats to Validity}
 \begin{itemize}
-\item \textbf{Internal Validity:} Shared data exposure, fixed accumulation, sample-correct remainders, validation-only selection without trajectory intervention, pinned official recipes, and protected testing limit avoidable asymmetry but do not isolate architecture. One run does not quantify stochastic variance.
+\item \textbf{Internal Validity:} Shared data exposure, fixed accumulation, sample-correct remainders, validation-only selection without trajectory intervention, pinned official recipes, and protected testing limit avoidable asymmetry but do not isolate architecture. Three seeds quantify limited, not exhaustive, stochastic variance.
 \item \textbf{Runtime Construct Validity:} The common AMP policy and tensor-to-detections boundary improve comparability, but native postprocessing differs and neither timing boundary includes image preprocessing or application logic. FLOP tools have architecture-dependent operator coverage.
 \item \textbf{External Validity:} Performance may vary under extreme nighttime illumination or across unobserved camera mounting angles.
 \end{itemize}
 
 \section{Conclusion}
-This paper defines \textbf{DMS-Eval}, a reproducible benchmark for three lightweight in-cabin detector systems. Its 15,723-frame dataset, four warning cues, negative-frame emphasis, subject-disjoint split, closed training adaptations, shared evaluator, dual runtime boundaries, and protected test procedure address key leakage and comparability risks. The research question cannot be answered until the frozen runs produce evidence. Even then, conclusions will be restricted to single-run quality--efficiency trade-offs among the configured systems, not architecture-only causation or statistically established superiority.
+This paper defines \textbf{DMS-Eval}, a reproducible benchmark for three lightweight in-cabin detector systems. Its 15,723-frame dataset, four warning cues, negative-frame emphasis, subject-disjoint split, closed training adaptations, shared evaluator, dual runtime boundaries, three-seed reporting, and protected test procedure address key leakage and comparability risks. The research question cannot be answered until the frozen runs produce evidence. Even then, conclusions concern the configured systems, not architecture-only causation or broad statistical superiority.
 
 \section*{Acknowledgment}
 We acknowledge the open-source Ultralytics YOLO \cite{yolo11_ultralytics,yolo26_ultralytics}, D-FINE \cite{peng2024dfine}, and Label Studio \cite{label_studio,label_studio_converter} projects.

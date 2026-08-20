@@ -13,7 +13,7 @@ from core.environment import require_benchmark_environment
 from core.profiling import latency_summary
 from core.protocol import ProtocolError, REPO_ROOT
 from core.training import accumulation_loss_scale
-from scripts.benchmark.setup_backends import _patch_ultralytics_trainer_source
+from scripts.benchmark.setup_backends import _patch_ultralytics_trainer_source, _run_git_patch
 
 
 @pytest.mark.parametrize(
@@ -119,3 +119,21 @@ def test_dfine_patch_removes_validation_guided_reload_and_normalizes_loss():
     assert '+                self.load_resume_state(str(self.output_dir / "best_stg1.pth"))' not in patch
     assert 'batch_loss_reduction="mean"' in patch
     assert "drop_last: true" not in (REPO_ROOT / "configs" / "dfine" / "dfine_n_dms.yml").read_text(encoding="utf-8")
+
+
+def test_git_patch_verification_is_independent_of_patch_line_endings(tmp_path: Path):
+    source = tmp_path / "sample.txt"
+    source.write_text("alpha\n", encoding="utf-8", newline="\n")
+    patch = tmp_path / "sample.patch"
+    patch.write_bytes(
+        b"diff --git a/sample.txt b/sample.txt\r\n"
+        b"--- a/sample.txt\r\n"
+        b"+++ b/sample.txt\r\n"
+        b"@@ -1 +1 @@\r\n"
+        b"-alpha\r\n"
+        b"+beta\r\n"
+    )
+    assert _run_git_patch(tmp_path, patch, check_only=True).returncode == 0
+    assert _run_git_patch(tmp_path, patch).returncode == 0
+    assert source.read_text(encoding="utf-8") == "beta\n"
+    assert _run_git_patch(tmp_path, patch, reverse=True, check_only=True).returncode == 0

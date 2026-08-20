@@ -13,13 +13,14 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BENCHMARK_CONFIG = REPO_ROOT / "configs" / "benchmark.yaml"
 BACKEND_CONFIG = REPO_ROOT / "configs" / "backends.yaml"
+TRAINING_SEEDS = (13, 37, 73)
 ALLOWED_RECIPE_ADAPTATIONS = [
     "dataset_and_classes",
     "input_size_640x640",
     "physical_batch_size_8",
     "gradient_accumulation_steps_4",
     "epochs_220",
-    "seed_13",
+    "training_seeds_13_37_73",
     "early_stopping_disabled",
 ]
 
@@ -89,8 +90,8 @@ def model_spec(model_id: str) -> tuple[dict[str, Any], dict[str, Any]]:
 
 def validate_protocol() -> dict[str, Any]:
     protocol = load_protocol()
-    if protocol["seed"] != 13:
-        raise ProtocolError("Frozen seed must be 13")
+    if protocol["dataset"]["ordering"].get("train_seed") != 13:
+        raise ProtocolError("Frozen dataset-ordering seed must be 13")
     classes = {int(k): v for k, v in protocol["dataset"]["classes"].items()}
     if classes != {1: "yawning", 2: "hand_over_mouth", 3: "drinking", 4: "phone_use"}:
         raise ProtocolError("Frozen ontology mismatch")
@@ -101,6 +102,12 @@ def validate_protocol() -> dict[str, Any]:
         raise ProtocolError("Physical batch and accumulation do not equal effective batch")
     if training["early_stopping"] is not False:
         raise ProtocolError("Frozen early-stopping policy must be disabled")
+    if training.get("runs_per_model") != len(TRAINING_SEEDS) or tuple(training.get("run_seeds", ())) != TRAINING_SEEDS:
+        raise ProtocolError("Every model must use the three frozen training seeds 13, 37, and 73")
+    if training.get("run_selection") != "none":
+        raise ProtocolError("Run selection is prohibited; all frozen seeds must be reported")
+    if training.get("result_aggregation") != "mean_and_sample_standard_deviation":
+        raise ProtocolError("Multi-run results must use mean and sample standard deviation")
     if training["recipe_policy"]["allowed_adaptations"] != ALLOWED_RECIPE_ADAPTATIONS:
         raise ProtocolError("Recipe adaptations must equal the frozen seven-item closed list")
     if training["recipe_policy"]["model_specific_tuning_trials"] != 0:
@@ -117,5 +124,25 @@ def validate_protocol() -> dict[str, Any]:
     threshold = protocol["evaluation"]["threshold"]
     if (threshold["start"], threshold["stop"], threshold["step"]) != (0.01, 0.99, 0.01):
         raise ProtocolError("Frozen threshold grid mismatch")
+    if protocol["evaluation"].get("test_policy") != "single_protected_pass_per_frozen_model_seed_run":
+        raise ProtocolError("Protected test policy drift")
+    if protocol["evaluation"].get("suite_freeze_policy") != "all_nine_manifests_frozen_before_first_protected_test":
+        raise ProtocolError("All nine manifests must be frozen before first protected test access")
+    qualitative = protocol["evaluation"].get("qualitative_error_analysis", {})
+    if qualitative != {
+        "enabled": True,
+        "generated_during_protected_pass": True,
+        "examples_per_category": 3,
+        "publication_reference_seed": 13,
+        "categories": [
+            "correct_detection",
+            "false_positive_negative_frame",
+            "false_negative",
+            "class_confusion",
+            "localization_error",
+        ],
+        "selection": "deterministic_predeclared_category_ranking",
+    }:
+        raise ProtocolError("Qualitative/error-analysis pre-registration drift")
     verify_authoritative_fingerprints(protocol)
     return protocol
