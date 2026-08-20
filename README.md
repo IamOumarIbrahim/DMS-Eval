@@ -93,6 +93,8 @@ python scripts/benchmark/validate_backends.py --synthetic
 
 The protected master annotations and split are already frozen. Conversion scripts only regenerate deterministic derived YOLO and D-FINE artifacts; extraction refuses non-empty output directories and resolves duplicate source recordings deterministically.
 
+Derived adapter formats are verified against real loader behavior: YOLO lists resolve from `dataset/yolo` to canonical `dataset/images/...` files, while D-FINE's derived COCO uses paths relative to its configured `dataset/images` root and contiguous internal labels 0–3. Both adapters return the authoritative evaluator category IDs 1–4.
+
 ### 3. Model Training One-Liners
 
 All models use **physical batch size 8**, **fixed four-step accumulation** (effective batch 32), FP16 AMP, disabled early stopping, and 220 epochs on the RTX 4060 for each of the fixed seeds **13, 37, and 73**. Every image is retained and incomplete accumulation windows are sample-correct.

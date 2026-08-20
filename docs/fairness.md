@@ -38,6 +38,7 @@ This paragraph is the goal enforced by configuration and verification. It does n
 | FLOP tools have incomplete/operator-dependent coverage | CNN/transformer estimates may disagree for tooling reasons | Report both estimates and avoid false precision |
 | Official recipes originated under different upstream tasks/batches | Recipe faithfulness does not make optimization mathematically identical | State the closed adaptation list and avoid unrestricted fairness claims |
 | Early stopping is disabled | A model can overtrain by epoch 220, but all retained checkpoints remain eligible under the same validation-only rule | Report selected validation epoch and never use test performance to diagnose or correct overtraining |
+| Common AMP scaling can skip different initial update attempts when gradients overflow | Identical AMP policy does not guarantee an identical count of successful numerical updates | Keep the scaler policy unchanged for all models, retain full logs, and describe any observed skips as architecture/loss-dependent numerical behavior rather than a tuned budget difference |
 
 ## Verdict boundary
 

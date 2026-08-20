@@ -120,6 +120,8 @@ python scripts/data/convert_coco_to_yolo.py
 ### 7. `prepare_dfine_coco.py` — D-FINE-N / DETR COCO Split Partitioning
 Splits [`dataset/annotations.json`](../dataset/annotations.json) into standalone COCO JSON instances per split (`dataset/coco/instances_train.json`, `instances_val.json`, `instances_test.json`) and writes the D-FINE configuration at `dataset/coco/dfine_dataset.yml`.
 
+The authoritative master retains canonical `images/...` paths and COCO category IDs 1–4. The derived D-FINE files remove the already-configured `dataset/images` root component and map categories contiguously to 0–3, as required by D-FINE's custom-dataset loss. The D-FINE adapter maps predictions back to shared evaluator IDs 1–4. Preflight resolves every derived path and verifies both mappings.
+
 ```bash
 # Generate partitioned COCO JSON splits for D-FINE-N
 python scripts/data/prepare_dfine_coco.py
@@ -158,6 +160,10 @@ See [`docs/benchmark-readiness.md`](../docs/benchmark-readiness.md) for the comp
 ### 10. `verify_training_configs.py` — Final Configuration Gate
 
 Verifies the exact seven-item recipe-adaptation list, pinned upstream recipe fingerprints, physical batch and accumulation controls, incomplete-window handling, absence of validation-guided D-FINE reloads, and all nine model–seed dry-run plans. It never starts training or accesses test images.
+
+### 11. `smoke_training.py` — Guarded Real Training-Path Gate
+
+Runs complete four-minibatch accumulation windows and requires verified trainable-parameter movement for each backend under the frozen batch, AMP, recipe, and no-drop controls. The probe permits up to sixteen windows because real initial `GradScaler` attempts can be skipped on overflow; scaler values plus attempted and successful steps are recorded without changing scaler behavior. The command requires `--execute-training-smoke`, uses the training partition for optimizer work, may initialize framework-required validation loaders without running validation inference, refuses existing outputs, and records that it is not a 220-epoch benchmark run or protected test pass.
 
 ---
 

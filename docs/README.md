@@ -25,7 +25,8 @@ flowchart TD
 | [Training protocol](./training-protocol.md) | Closed adaptation list, shared budget, and pinned official recipes | Frozen |
 | [Evaluation protocol](./evaluation-protocol.md) | Shared metrics, protected test, precision, timing, and resources | Frozen |
 | [Fairness audit](./fairness.md) | Implemented corrections and residual scope limits | Pre-training audited |
-| [Benchmark readiness](./benchmark-readiness.md) | Requirement-to-code traceability and latest verification evidence | Regenerated before training |
+| [Benchmark readiness](./benchmark-readiness.md) | Human-readable requirement-to-code traceability and latest verification evidence | Verified before training |
+| [Readiness evidence (JSON)](./benchmark-readiness.json) | Machine-readable Phase 4 audit result and smoke trail | Verified before training |
 
 ## Foundational controls
 
@@ -43,6 +44,7 @@ These controls support a system-level comparison. Equal epochs mean equal data e
 .venv\Scripts\python.exe scripts\benchmark\validate_dataset.py
 .venv\Scripts\python.exe scripts\benchmark\validate_backends.py --synthetic
 .venv\Scripts\python.exe scripts\benchmark\verify_training_configs.py
+.venv\Scripts\python.exe scripts\benchmark\smoke_training.py --output-root NEW_OUTPUT --report NEW_REPORT.json --execute-training-smoke
 .venv\Scripts\python.exe -m pytest -q
 ```
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -14,6 +15,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from core.protocol import ProtocolError, REPO_ROOT, TRAINING_SEEDS, load_backends, load_protocol, resolve_repo_path
 from scripts.benchmark.setup_backends import ensure_dfine, ensure_weight
+
+
+def subprocess_environment() -> dict[str, str]:
+    """Expose the shared benchmark helpers to the pinned D-FINE subprocess."""
+
+    environment = os.environ.copy()
+    existing = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = str(REPO_ROOT) + (os.pathsep + existing if existing else "")
+    return environment
 
 
 def build_plan(seed: int) -> dict:
@@ -68,7 +78,7 @@ def main() -> int:
         "--use-amp",
         "--output-dir", plan["output_dir"],
     ]
-    subprocess.run(command, cwd=REPO_ROOT, check=True)
+    subprocess.run(command, cwd=REPO_ROOT, env=subprocess_environment(), check=True)
     return 0
 
 

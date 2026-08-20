@@ -21,6 +21,13 @@ def test_yolo_and_dfine_formats():
         with open(p, "r", encoding="utf-8") as f:
             lines = [line.strip() for line in f if line.strip()]
         assert len(lines) == exp_count, f"Expected {exp_count} lines in {split_file}, found {len(lines)}"
+        images_root = (repo_root / "dataset" / "images").resolve()
+        resolved = [(p.parent / line).resolve() for line in lines]
+        assert all(path.is_relative_to(images_root) for path in resolved), (
+            f"{split_file} contains a path outside the canonical image directory"
+        )
+        missing = [path for path in resolved if not path.is_file()]
+        assert not missing, f"{split_file} contains missing image paths; first missing path: {missing[0]}"
 
     # 2. Test D-FINE COCO split JSONs
     coco_dir = repo_root / "dataset" / "coco"
@@ -38,6 +45,19 @@ def test_yolo_and_dfine_formats():
         assert len(data["images"]) == exp["imgs"], f"{fname} image count mismatch: {len(data['images'])} vs {exp['imgs']}"
         assert len(data["annotations"]) == exp["anns"], f"{fname} annotation count mismatch: {len(data['annotations'])} vs {exp['anns']}"
         assert len(data["categories"]) == 4, f"{fname} category count mismatch"
+        assert [category["id"] for category in data["categories"]] == [0, 1, 2, 3], (
+            f"{fname} must expose contiguous zero-based labels to D-FINE"
+        )
+        assert {annotation["category_id"] for annotation in data["annotations"]} <= {0, 1, 2, 3}, (
+            f"{fname} contains a D-FINE label outside 0..3"
+        )
+        images_root = (repo_root / "dataset" / "images").resolve()
+        resolved = [(images_root / image["file_name"]).resolve() for image in data["images"]]
+        assert all(path.is_relative_to(images_root) for path in resolved), (
+            f"{fname} contains a path outside the configured D-FINE image root"
+        )
+        missing = [path for path in resolved if not path.is_file()]
+        assert not missing, f"{fname} contains missing image paths; first missing path: {missing[0]}"
 
     # 3. Test Config files
     yolo_cfg = repo_root / "configs" / "yolo" / "dms_eval.yaml"

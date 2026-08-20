@@ -142,7 +142,11 @@ def convert_coco_to_yolo():
 
         # Split-list paths are relative to dataset/yolo/*.txt and deliberately
         # begin with './' so Ultralytics resolves them against the list file.
-        img_rel_to_list = "./" + str((Path("..") / Path(*Path(rel_file_name).parts[1:])).as_posix())
+        # Preserve the canonical leading ``images`` component. Ultralytics
+        # resolves each entry relative to dataset/yolo/*.txt, so removing it
+        # would incorrectly target dataset/subject_* instead of
+        # dataset/images/subject_*.
+        img_rel_to_list = "./" + str((Path("..") / Path(rel_file_name)).as_posix())
         split_image_paths[split_name].append(img_rel_to_list)
 
     # Only the training order is randomized. Validation and test retain the

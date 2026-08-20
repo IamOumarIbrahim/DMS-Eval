@@ -4,8 +4,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
+
+# The benchmark environment is dependency-locked; Ultralytics must never
+# mutate it by installing optional packages during a run.
+os.environ["YOLO_AUTOINSTALL"] = "false"
 
 import torch
 

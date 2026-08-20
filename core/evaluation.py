@@ -178,6 +178,26 @@ def select_checkpoint_candidate(candidates: Iterable[dict[str, Any]]) -> dict[st
     return max(candidates, key=lambda item: (item["map_50_95"], item["map_50"], item["epoch"]))
 
 
+def validate_checkpoint_candidate_coverage(
+    candidates: Iterable[dict[str, Any]], expected_epochs: int
+) -> list[dict[str, Any]]:
+    """Require one unique validation artifact for every retained training epoch."""
+
+    candidates = list(candidates)
+    epochs = sorted(int(item["epoch"]) for item in candidates)
+    valid_numberings = [list(range(expected_epochs)), list(range(1, expected_epochs + 1))]
+    if len(candidates) != expected_epochs or epochs not in valid_numberings:
+        raise ProtocolError(
+            f"Checkpoint selection requires exactly {expected_epochs} consecutive retained epochs "
+            "numbered either 0..epochs-1 or 1..epochs"
+        )
+    checkpoints = [str(item["checkpoint"]) for item in candidates]
+    predictions = [str(item["validation_predictions"]) for item in candidates]
+    if len(set(checkpoints)) != expected_epochs or len(set(predictions)) != expected_epochs:
+        raise ProtocolError("Each retained epoch requires a unique checkpoint and validation-prediction artifact")
+    return candidates
+
+
 def coco_metrics(ground_truth: dict[str, Any], predictions: Iterable[dict[str, Any]]) -> dict[str, Any]:
     """Compute COCO mAP with the official ``pycocotools`` implementation."""
     try:

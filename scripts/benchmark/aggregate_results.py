@@ -115,13 +115,16 @@ def main() -> int:
     parser.add_argument("results", nargs="+", help="The nine protected test result JSON files")
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
+    output = resolve_repo_path(args.output)
+    if output.exists():
+        raise ProtocolError(f"Refusing to overwrite existing aggregate result: {output}")
     loaded = []
     for source in args.results:
         path = resolve_repo_path(source)
         with path.open("r", encoding="utf-8") as handle:
             loaded.append((json.load(handle), path))
     artifact = build_aggregate(loaded)
-    write_json_atomic(args.output, artifact)
+    write_json_atomic(output, artifact)
     print(json.dumps(artifact, indent=2))
     return 0
 

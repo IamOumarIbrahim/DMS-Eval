@@ -26,6 +26,7 @@ from core.evaluation import (
     operating_point_metrics,
     read_prediction_envelope,
     select_checkpoint_candidate,
+    validate_checkpoint_candidate_coverage,
 )
 from core.isolation import (
     TestRunLedger,
@@ -38,6 +39,16 @@ from core.isolation import (
 from core.profiling import CudaForwardProfiler, model_flop_estimates
 from core.qualitative import QualitativeErrorCollector
 from core.protocol import TRAINING_SEEDS, ProtocolError, REPO_ROOT, resolve_repo_path, sha256_file, validate_protocol, verify_authoritative_fingerprints
+
+
+def require_new_output(path: str | Path, description: str, *, directory: bool = False) -> Path:
+    """Refuse to overwrite any benchmark lifecycle artifact."""
+
+    resolved = resolve_repo_path(path)
+    if resolved.exists():
+        kind = "directory" if directory else "file"
+        raise ProtocolError(f"Refusing to overwrite existing {description} {kind}: {resolved}")
+    return resolved
 
 
 @torch.inference_mode()
@@ -61,6 +72,7 @@ def _predict_split(adapter, ground_truth: dict, profile: bool = False) -> tuple[
 def export_validation(args: argparse.Namespace) -> int:
     if not args.execute_validation_export:
         raise ProtocolError("Refusing real validation inference without --execute-validation-export")
+    output = require_new_output(args.output, "validation-prediction")
     checkpoint = resolve_repo_path(args.checkpoint)
     adapter = create_adapter(args.model_id, checkpoint, args.device).load()
     protocol = validate_protocol()
@@ -80,12 +92,14 @@ def export_validation(args: argparse.Namespace) -> int:
         "coco_metrics": metrics,
         "predictions": predictions,
     }
-    write_json_atomic(args.output, envelope)
+    write_json_atomic(output, envelope)
     print(json.dumps({key: value for key, value in envelope.items() if key != "predictions"}, indent=2))
     return 0
 
 
 def select_checkpoint(args: argparse.Namespace) -> int:
+    output = require_new_output(args.output, "checkpoint-selection")
+    protocol = validate_protocol()
     candidates = []
     for path in args.validation_predictions:
         resolved = resolve_repo_path(path)
@@ -111,6 +125,7 @@ def select_checkpoint(args: argparse.Namespace) -> int:
                 "validation_predictions_sha256": sha256_file(resolved),
             }
         )
+    candidates = validate_checkpoint_candidate_coverage(candidates, protocol["training"]["epochs"])
     selected = select_checkpoint_candidate(candidates)
     artifact = {
         "schema_version": 1,
@@ -122,7 +137,7 @@ def select_checkpoint(args: argparse.Namespace) -> int:
         "candidates": candidates,
         "selected": selected,
     }
-    write_json_atomic(args.output, artifact)
+    write_json_atomic(output, artifact)
     print(json.dumps(selected, indent=2))
     return 0
 
@@ -130,6 +145,7 @@ def select_checkpoint(args: argparse.Namespace) -> int:
 def calibrate(args: argparse.Namespace) -> int:
     if not args.execute_validation_calibration:
         raise ProtocolError("Refusing real validation calibration without --execute-validation-calibration")
+    output = require_new_output(args.output, "validation-calibration")
     envelope_path = resolve_repo_path(args.validation_predictions)
     envelope = read_prediction_envelope(envelope_path, required_split="val")
     protocol = validate_protocol()
@@ -148,12 +164,13 @@ def calibrate(args: argparse.Namespace) -> int:
         "tie_breakers": ["higher_precision", "higher_threshold"],
         "selected": selected,
     }
-    write_json_atomic(args.output, artifact)
+    write_json_atomic(output, artifact)
     print(json.dumps(selected, indent=2))
     return 0
 
 
 def freeze(args: argparse.Namespace) -> int:
+    output = require_new_output(args.output, "frozen manifest")
     selection_path = resolve_repo_path(args.selection)
     with selection_path.open("r", encoding="utf-8") as handle:
         selection = json.load(handle)
@@ -163,7 +180,7 @@ def freeze(args: argparse.Namespace) -> int:
         checkpoint=selected.get("checkpoint", ""),
         validation_predictions=selected.get("validation_predictions", ""),
         calibration=args.calibration,
-        output=args.output,
+        output=output,
         training_seed=selection.get("training_seed"),
         selection=selection_path,
     )
@@ -172,7 +189,8 @@ def freeze(args: argparse.Namespace) -> int:
 
 
 def freeze_suite(args: argparse.Namespace) -> int:
-    suite = create_frozen_suite(args.manifests, args.output)
+    output = require_new_output(args.output, "frozen suite")
+    suite = create_frozen_suite(args.manifests, output)
     print(json.dumps(suite, indent=2))
     return 0
 
@@ -192,16 +210,29 @@ def protected_test(args: argparse.Namespace) -> int:
         raise ProtocolError("Protected manifest is not a member of the frozen nine-run suite")
     ledger = TestRunLedger()
     ledger.refuse_if_seen(manifest["manifest_id"], manifest["model_id"], manifest["training_seed"])
+    result_output = require_new_output(args.output, "protected-test result")
+    artifact_path = (
+        require_new_output(args.artifact_output, "standardized inference artifact")
+        if args.artifact_output
+        else require_new_output(
+            REPO_ROOT
+            / "results"
+            / "inference-artifacts"
+            / f"{manifest['model_id']}-seed{manifest['training_seed']}-{manifest['checkpoint_sha256'][:12]}-fp16.pt",
+            "standardized inference artifact",
+        )
+    )
+    qualitative_output = (
+        require_new_output(args.qualitative_output, "qualitative analysis", directory=True)
+        if args.qualitative_output
+        else require_new_output(
+            REPO_ROOT / "results" / "qualitative" / f"{manifest['model_id']}_seed{manifest['training_seed']}",
+            "qualitative analysis",
+            directory=True,
+        )
+    )
     adapter = create_adapter(manifest["model_id"], manifest["checkpoint"], args.device).load()
     flop_estimates = model_flop_estimates(adapter)
-    artifact_path = (
-        resolve_repo_path(args.artifact_output)
-        if args.artifact_output
-        else REPO_ROOT
-        / "results"
-        / "inference-artifacts"
-        / f"{manifest['model_id']}-seed{manifest['training_seed']}-{manifest['checkpoint_sha256'][:12]}-fp16.pt"
-    )
     adapter.export_inference_artifact(artifact_path)
     inference_artifact = {
         "path": str(artifact_path),
@@ -212,10 +243,6 @@ def protected_test(args: argparse.Namespace) -> int:
     profiler = CudaForwardProfiler(adapter, warmups=10)
     profiler.prepare(adapter.synthetic_input())
     protocol = validate_protocol()
-    ground_truth = load_ground_truth(protocol["dataset"]["annotations"], "test", protocol["dataset"]["splits"])
-    truths_by_image: dict[int, list[dict]] = defaultdict(list)
-    for annotation in ground_truth["annotations"]:
-        truths_by_image[int(annotation["image_id"])].append(annotation)
     qualitative_config = protocol["evaluation"]["qualitative_error_analysis"]
     class_names = {int(key): value for key, value in protocol["dataset"]["classes"].items()}
     qualitative = QualitativeErrorCollector(
@@ -226,8 +253,12 @@ def protected_test(args: argparse.Namespace) -> int:
         qualitative_config["examples_per_category"],
     )
 
-    # The irreversible boundary is immediately before the first real test frame.
+    # The irreversible boundary precedes the first test annotation or image read.
     ledger.start(manifest)
+    ground_truth = load_ground_truth(protocol["dataset"]["annotations"], "test", protocol["dataset"]["splits"])
+    truths_by_image: dict[int, list[dict]] = defaultdict(list)
+    for annotation in ground_truth["annotations"]:
+        truths_by_image[int(annotation["image_id"])].append(annotation)
     predictions: list[dict] = []
     for image in ground_truth["images"]:
         with Image.open(REPO_ROOT / "dataset" / image["file_name"]) as source:
@@ -237,11 +268,6 @@ def protected_test(args: argparse.Namespace) -> int:
         image_predictions = profiler.finalize(raw_outputs, [int(image["id"])])
         predictions.extend(image_predictions)
         qualitative.observe(image, retained_image, truths_by_image[int(image["id"])], image_predictions)
-    qualitative_output = (
-        resolve_repo_path(args.qualitative_output)
-        if args.qualitative_output
-        else REPO_ROOT / "results" / "qualitative" / f"{manifest['model_id']}_seed{manifest['training_seed']}"
-    )
     qualitative_artifact = qualitative.finalize(qualitative_output)
     result = {
         "schema_version": 1,
@@ -262,8 +288,8 @@ def protected_test(args: argparse.Namespace) -> int:
         "qualitative_analysis": qualitative_artifact,
         "predictions": predictions,
     }
-    write_json_atomic(args.output, result)
-    ledger.complete(manifest, args.output)
+    write_json_atomic(result_output, result)
+    ledger.complete(manifest, result_output)
     print(json.dumps({key: value for key, value in result.items() if key != "predictions"}, indent=2))
     return 0
 

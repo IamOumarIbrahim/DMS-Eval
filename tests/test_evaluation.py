@@ -14,6 +14,7 @@ from core.evaluation import (
     select_checkpoint_candidate,
     select_threshold_candidate,
     threshold_grid,
+    validate_checkpoint_candidate_coverage,
 )
 from core.protocol import ProtocolError
 
@@ -81,6 +82,24 @@ def test_checkpoint_selection_tie_break_order():
         {"map_50_95": 0.6, "map_50": 0.8, "epoch": 110},
     ]
     assert select_checkpoint_candidate(candidates)["epoch"] == 110
+
+
+def test_checkpoint_selection_requires_every_retained_epoch():
+    zero_based = [
+        {"epoch": epoch, "checkpoint": f"c{epoch}", "validation_predictions": f"p{epoch}"}
+        for epoch in range(3)
+    ]
+    one_based = [
+        {"epoch": epoch, "checkpoint": f"c{epoch}", "validation_predictions": f"p{epoch}"}
+        for epoch in range(1, 4)
+    ]
+    assert validate_checkpoint_candidate_coverage(zero_based, 3) == zero_based
+    assert validate_checkpoint_candidate_coverage(one_based, 3) == one_based
+    with pytest.raises(ProtocolError):
+        validate_checkpoint_candidate_coverage(zero_based[:2], 3)
+    duplicate = [*zero_based[:2], {**zero_based[2], "checkpoint": "c1"}]
+    with pytest.raises(ProtocolError):
+        validate_checkpoint_candidate_coverage(duplicate, 3)
 
 
 def test_official_coco_map_perfect_known_answer():

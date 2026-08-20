@@ -76,8 +76,14 @@ def _validate_yolo(report: DatasetValidationReport, master: dict[str, Any], spli
             report.check(False, f"YOLO {split} list exists")
             continue
         actual_lines = list_path.read_text(encoding="utf-8").splitlines()
-        expected_lines = ["./" + (Path("..") / Path(*Path(image["file_name"]).parts[1:])).as_posix() for image in expected_images]
+        expected_lines = ["./" + (Path("..") / Path(image["file_name"])).as_posix() for image in expected_images]
         report.check(actual_lines == expected_lines, f"YOLO {split} order and membership match frozen policy")
+        images_root = (REPO_ROOT / "dataset" / "images").resolve()
+        resolved_images = [(list_path.parent / line).resolve() for line in actual_lines]
+        report.check(
+            all(path.is_relative_to(images_root) and path.is_file() for path in resolved_images),
+            f"YOLO {split} list entries resolve to existing canonical images",
+        )
 
     for image in master["images"]:
         relative = Path(*Path(image["file_name"]).parts[1:]).with_suffix(".txt")
@@ -110,14 +116,32 @@ def _validate_dfine(report: DatasetValidationReport, master: dict[str, Any], spl
             continue
         with path.open("r", encoding="utf-8") as handle:
             derived = json.load(handle)
-        expected_images = _canonical_split_images(master, split_subjects[split], shuffle=split == "train")
+        canonical_images = _canonical_split_images(master, split_subjects[split], shuffle=split == "train")
+        expected_images = []
+        for canonical_image in canonical_images:
+            expected_image = dict(canonical_image)
+            expected_image["file_name"] = Path(*Path(canonical_image["file_name"]).parts[1:]).as_posix()
+            expected_images.append(expected_image)
         image_rank = {int(image["id"]): rank for rank, image in enumerate(expected_images)}
-        expected_annotations = [annotation for annotation in master["annotations"] if int(annotation["image_id"]) in image_rank]
+        expected_annotations = []
+        for canonical_annotation in master["annotations"]:
+            if int(canonical_annotation["image_id"]) not in image_rank:
+                continue
+            expected_annotation = dict(canonical_annotation)
+            expected_annotation["category_id"] = int(canonical_annotation["category_id"]) - 1
+            expected_annotations.append(expected_annotation)
         if split == "train":
             expected_annotations.sort(key=lambda annotation: (image_rank[int(annotation["image_id"])], int(annotation["id"])))
+        expected_categories = [{**category, "id": int(category["id"]) - 1} for category in master["categories"]]
         report.check(derived.get("images") == expected_images, f"D-FINE {split} image order and content match")
         report.check(derived.get("annotations") == expected_annotations, f"D-FINE {split} annotations match")
-        report.check(derived.get("categories") == master["categories"], f"D-FINE {split} ontology matches")
+        report.check(derived.get("categories") == expected_categories, f"D-FINE {split} zero-based ontology mapping matches")
+        images_root = (REPO_ROOT / "dataset" / "images").resolve()
+        resolved_images = [(images_root / image["file_name"]).resolve() for image in derived.get("images", [])]
+        report.check(
+            all(path.is_relative_to(images_root) and path.is_file() for path in resolved_images),
+            f"D-FINE {split} image names resolve under the configured dataset root",
+        )
 
 
 def validate_dataset(full_image_scan: bool = True, workers: int = 8) -> DatasetValidationReport:

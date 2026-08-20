@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,8 @@ from core.profiling import latency_summary
 from core.protocol import ProtocolError, REPO_ROOT
 from core.training import accumulation_loss_scale
 from scripts.benchmark.setup_backends import _patch_ultralytics_trainer_source, _run_git_patch
+from scripts.benchmark.train_dfine import subprocess_environment
+from scripts.benchmark import train_yolo
 
 
 @pytest.mark.parametrize(
@@ -137,3 +140,13 @@ def test_git_patch_verification_is_independent_of_patch_line_endings(tmp_path: P
     assert _run_git_patch(tmp_path, patch).returncode == 0
     assert source.read_text(encoding="utf-8") == "beta\n"
     assert _run_git_patch(tmp_path, patch, reverse=True, check_only=True).returncode == 0
+
+
+def test_dfine_subprocess_can_import_shared_training_helper():
+    python_path = subprocess_environment()["PYTHONPATH"].split(os.pathsep)
+    assert python_path[0] == str(REPO_ROOT)
+
+
+def test_ultralytics_launcher_disables_environment_mutation():
+    assert os.environ["YOLO_AUTOINSTALL"] == "false"
+    assert 'os.environ["YOLO_AUTOINSTALL"] = "false"' in Path(train_yolo.__file__).read_text(encoding="utf-8")

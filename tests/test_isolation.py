@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import inspect
+
 import pytest
 
 import core.isolation as isolation
 from core.isolation import TestRunLedger as RunLedger
 from core.protocol import ProtocolError
+from scripts.benchmark.evaluate_benchmark import protected_test
 
 
 def test_test_ledger_refuses_repeated_started_manifest(tmp_path):
@@ -60,3 +63,10 @@ def test_complete_suite_is_required_before_test_access(tmp_path, monkeypatch):
     assert isolation.validate_frozen_suite(suite_path)["suite_id"] == suite["suite_id"]
     with pytest.raises(ProtocolError, match="all nine"):
         isolation.create_frozen_suite(manifests[:-1], tmp_path / "incomplete.json")
+
+
+def test_protected_ledger_starts_before_test_annotations_are_loaded():
+    source = inspect.getsource(protected_test)
+    assert source.index("ledger.start(manifest)") < source.index(
+        'load_ground_truth(protocol["dataset"]["annotations"], "test"'
+    )

@@ -75,7 +75,13 @@ def prepare_dfine_coco():
             "licenses": master_coco.get("licenses", []),
             "images": [],
             "annotations": [],
-            "categories": master_coco.get("categories", [])
+            # D-FINE custom datasets use contiguous zero-based training
+            # labels. The shared evaluator continues to consume the
+            # authoritative one-based ontology and adapters map outputs back.
+            "categories": [
+                {**category, "id": int(category["id"]) - 1}
+                for category in master_coco.get("categories", [])
+            ]
         }
         split_box_counts[split_name] = Counter()
 
@@ -93,10 +99,17 @@ def prepare_dfine_coco():
         if not split_name:
             raise ValueError(f"Subject {subject_id} not recognized in splits.json!")
 
-        split_coco[split_name]["images"].append(img)
+        # The D-FINE dataset root is ``dataset/images``. Derived COCO names
+        # therefore start at the subject directory, while the authoritative
+        # master retains its canonical ``images/...`` names.
+        derived_img = dict(img)
+        derived_img["file_name"] = Path(*parts[1:]).as_posix()
+        split_coco[split_name]["images"].append(derived_img)
         anns = img_to_anns.get(img_id, [])
         for ann in anns:
-            split_coco[split_name]["annotations"].append(ann)
+            derived_ann = dict(ann)
+            derived_ann["category_id"] = int(ann["category_id"]) - 1
+            split_coco[split_name]["annotations"].append(derived_ann)
             split_box_counts[split_name][ann["category_id"]] += 1
 
     # D-FINE consumes this array through a shuffled sampler, but the derived

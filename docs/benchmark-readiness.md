@@ -1,12 +1,12 @@
 # Benchmark Readiness and Traceability
 
-**Status:** READY FOR BENCHMARK TRAINING; TRAINING NOT STARTED
+**Status:** READY FOR BENCHMARK TRAINING; PROTECTED TEST NOT READY UNTIL NINE POST-TRAINING MANIFESTS ARE FROZEN
 
-**Verified:** 2026-08-20 18:00 GST (+04:00)
+**Verified:** 2026-08-20 19:19 GST (+04:00)
 
-**Publication target:** `main`
+**Machine-readable evidence:** [`benchmark-readiness.json`](./benchmark-readiness.json)
 
-`configs/benchmark.yaml` is the machine-readable source of truth. Dataset master artifacts remain protected by pinned SHA-256 fingerprints. No training, validation export/calibration, protected test inference, or test metric computation was run while producing this report.
+`configs/benchmark.yaml` remains the machine-readable protocol source of truth. The readiness audit verified the actual derived datasets, backend code, pinned configurations, launcher behavior, real training batches, evaluator tests, and isolation gates. It did not start any 220-epoch benchmark run or any protected test inference/metric pass. Read-only integrity validation did decode and hash every dataset image, including the test partition.
 
 ## Frozen claim boundary
 
@@ -14,85 +14,79 @@ All models use the same underlying data/classes, subject-disjoint split, 640×64
 
 Architecture-specific optimizer, learning-rate, scheduler, weight-decay, and augmentation settings follow pinned official recipes. The only recipe adaptations are dataset/classes, 640×640 input, batch 8, accumulation 4, 220 epochs, the three training seeds, and disabled early stopping.
 
-## Verification evidence
+## Readiness verdict by requirement
 
-| Check | Result |
-|---|---|
-| Full preflight | PASS; protocol, environment, backends, weights, and 59,217 dataset checks |
-| Dataset validation | PASS; 15,723 distinct decoded images; exact global/train/val/test counts; 0 failures |
-| Environment | PASS; Python 3.12.10, Torch 2.4.1+cu121, RTX 4060 8 GB, CUDA FP16 smoke |
-| Backend provenance | PASS; Ultralytics 8.4.123 recipe hash and patch; D-FINE commit `956d170...`, official N recipe hash, and patch |
-| Final plan verifier | VERIFIED; exact seven-item adaptation list and all nine model–seed dry-run configurations |
-| Adapter smoke | PASS for YOLO11n, YOLO26n, and D-FINE-N with FP32 input under CUDA AMP |
-| Dual-boundary synthetic profiler | PASS for all three adapters; three timed synthetic frames after 10 warm-ups, dual FLOP estimators exercised |
-| Test suite | PASS; 38 tests |
-| Link integrity | PASS; 108 local targets and 13 unique HTTP(S) targets; 0 broken |
-| Training launchers | PASS as dry-runs; each explicitly reported that training was not started |
-| Manuscript production | PASS; stable multi-pass compile, 6 letter-size pages, 0 errors, 0 undefined references, 0 overfull boxes, and 10 harmless underfull spacing notices; all pages visually inspected with no clipping/overlap |
-| Protected test | NOT RUN by design |
+| Requirement | Result | Direct evidence |
+|---|---|---|
+| Authoritative data and ontology | PASS | Pinned master/split SHA-256 values; 15,723 images, 3,001 boxes, four classes, at most one box/frame |
+| Subject isolation and class coverage | PASS | Exact 8/3/3 subjects, no overlap, expected class counts in every split |
+| Image and annotation compatibility | PASS | 15,723 distinct JPEG decodes/hashes; all boxes bounded; all YOLO and D-FINE paths resolve |
+| Adapter-facing class mapping | PASS | Master IDs 1–4 map to YOLO and D-FINE labels 0–3; adapters map predictions back to shared IDs 1–4 |
+| Pinned model availability | PASS | Ultralytics 8.4.123; D-FINE commit `956d170...`; all three official weight hashes and sizes match |
+| Locked environment and hardware | PASS | Python 3.12.10, Torch 2.4.1+cu121, RTX 4060 8 GB, CUDA AMP smoke, 73-package compatibility check |
+| Frozen shared training controls | PASS | Nine-plan verifier: epochs 220, batch 8, accumulation 4, seeds 13/37/73, no early stop/drop, unique outputs |
+| Pinned architecture recipes | PASS | YOLO `optimizer=auto` resolves to MuSGD; D-FINE AdamW uses base/backbone LR `0.0008/0.0004` |
+| Real training-path smoke | PASS | Complete four-batch windows until verified trainable-parameter movement; one successful update/model; finite losses; peak allocated VRAM ≤2.490 GB |
+| Validation/checkpoint lifecycle | PASS | Every one of 220 retained epochs is required; selection and threshold calibration are validation-only and immutable |
+| Protected test isolation | PASS, not yet eligible | Exactly nine hash-verified manifests and a frozen suite are required; ledger starts before any test annotation/image read |
+| Output safety and auditability | PASS | Run/output reuse and aggregate overwrite are rejected; every model–seed result is required and retained |
+| Shared evaluator and aggregation | PASS | Known-answer COCO/F1/FAR tests; all seed results preserved; mean ± sample SD uses the `n-1` denominator |
+| Inference protocol/resources | PASS | Synthetic adapters and dual-boundary profiler pass at batch 1 with common AMP; parameters, VRAM, dual FLOPs, artifact bytes supported |
+| Qualitative/error analysis | PASS | Five pre-registered categories, deterministic ranking, three candidates/category, reference seed 13, same-pass collection |
+| Repository verification | PASS | 42 tests, 110 local links, 13/13 external links, dependency check, Git object integrity, and diff whitespace check |
+| Capacity for execution | PASS | 34.19 GB physical RAM and 436.43 GB free disk; smoke peak is below the 8 GB GPU budget |
 
-Synthetic profiler values are setup diagnostics only and must not be used as benchmark results.
+## Smoke-gate audit trail
+
+The readiness smoke was intentionally fail-closed. Audit-only attempts exposed derived-data defects and then tightened the definition of a successful AMP update; none was a benchmark run or protected test pass.
+
+| Attempt | Outcome | Finding |
+|---|---|---|
+| `training-smoke-20260820T184619+0400` | FAIL | YOLO lists omitted the canonical `images/` path component |
+| `training-smoke-20260820T185007+0400` | FAIL | D-FINE derived COCO names duplicated the configured image root |
+| `training-smoke-20260820T185322+0400` | FAIL | D-FINE received one-based class IDs for a zero-based four-class loss |
+| `training-smoke-20260820T185612+0400` | SUPERSEDED | Finite backward paths passed, but the earlier harness did not prove that AMP had not skipped the step |
+| `training-smoke-20260820T190752+0400` through `T191501+0400` | FAIL / DIAGNOSTIC | Stricter instrumentation exposed skipped initial `GradScaler` attempts and replaced unreliable counters with direct optimizer-state and parameter-change checks |
+| `training-smoke-20260820T191304+0400` and `T191619+0400` | DIAGNOSTIC PASS | D-FINE-N and YOLO11n individually proved successful updates under the stricter probe |
+| `training-smoke-20260820T191715+0400` | PASS | Canonical all-three smoke proved one successful update/model under frozen controls |
+
+The canonical passing report has SHA-256 `0dc700f8fa12a96cd59a0e81d40ca602e0319d1019728eb19f079912ca26f16a`. YOLO11n, YOLO26n, and D-FINE-N required 9, 7, and 8 attempted four-batch windows respectively before their first verified parameter update; their unchanged scalers stabilized from 65,536 to 256, 1,024, and 512. Regression checks also resolve every derived image path and verify D-FINE’s internal 0–3 mapping against the authoritative 1–4 ontology.
 
 ## Requirement traceability
 
-| Requirement | Configuration / source | Enforcement |
+| Frozen control | Configuration / source | Enforcement |
 |---|---|---|
-| Three pinned models and official initialization | `configs/backends.yaml` | Setup hashes, versions, commit, and adapter smoke |
-| Four classes, 640×640, subject-disjoint 8/3/3 split | `configs/benchmark.yaml`, protected dataset artifacts | Protocol fingerprints and full dataset validator |
-| Batch 8, fixed accumulation 4, 220 epochs, seeds 13/37/73, no early stopping | `configs/benchmark.yaml`, nine model–seed plans | Patched backends, protocol assertions, config verifier, dry-runs |
-| No dropped images; sample-correct short window | `training.incomplete_batch` | Backend patches and accumulation regression tests |
-| Validation cannot change training state | `validation_intervention: checkpoint_retention_only` | D-FINE reload removal and config-verifier source check |
-| Pinned official architecture recipes | Recipe hashes and optimization blocks | YOLO `optimizer=auto` (expected MuSGD); D-FINE AdamW `0.0008/0.0004` |
-| Closed seven-item recipe adaptation list | `training.recipe_policy.allowed_adaptations` | Exact ordered-list assertion; zero tuning trials |
-| Validation-only checkpoint/threshold selection | Evaluation configuration | Immutable artifacts, fixed ranking/grid/ties, unit tests |
-| One protected pass per frozen model–seed run | `test_policy` | Seed-bound manifests, explicit gate, append-only ledger; exactly nine unique runs |
-| No best-run selection | `run_selection: none` | Aggregate requires all nine runs and reports mean ± sample SD |
-| Pre-registered qualitative/error analysis | Five frozen categories; three candidates/category; reference seed 13 | Candidates captured in the same protected pass; hashed artifacts and deterministic generator |
-| RTX 4060 enforcement | Environment manifest | Protected command calls full validator before test access |
-| Common inference precision | Profiling configuration | FP32 weights/input and CUDA autocast FP16 in every adapter |
-| Forward and tensor-to-final-detections timing | Profiling boundaries | CUDA events plus synchronized high-resolution wall clock in the same pass |
-| Comparable storage | Standardized artifact policy | Inference-only FP16 state dictionary; hash and bytes recorded |
-| FLOP uncertainty visible | Dual-estimator policy | THOP and `torch.profiler` methods/status recorded |
-| Results remain pending | Documentation/manuscript | No empirical field populated before authorized runs |
+| Three pinned models and official initialization | `configs/backends.yaml` | Package/commit/recipe/weight hashes plus adapter and training smokes |
+| Four classes, 640×640, subject-disjoint 8/3/3 split | `configs/benchmark.yaml`, authoritative data | Fingerprints, full decode/hash scan, split/coverage tests |
+| Batch 8, fixed accumulation 4, 220 epochs, seeds 13/37/73, no early stop | Training protocol and nine plans | Patched backends, source/config assertions, real optimizer-step smoke |
+| No dropped images; sample-correct short window | `training.incomplete_batch` | Loader assertions and accumulation known-answer tests |
+| Validation cannot change training state | `validation_intervention: checkpoint_retention_only` | D-FINE reload removal and source verifier |
+| Pinned official architecture recipes | Recipe hashes and optimization blocks | YOLO MuSGD resolution; D-FINE AdamW `0.0008/0.0004` |
+| Closed seven-item adaptation list | `training.recipe_policy.allowed_adaptations` | Exact ordered-list assertion; zero tuning trials |
+| Validation-only checkpoint/threshold selection | Evaluation configuration | Complete 220-epoch coverage, immutable artifacts, fixed ranking/grid/ties |
+| One protected pass per frozen model–seed run | `test_policy` | Seed-bound manifests, nine-run suite, RTX gate, append-only ledger |
+| No best-run selection | `run_selection: none` | Aggregate requires all nine and reports mean ± sample SD |
+| Pre-registered qualitative/error analysis | Frozen qualitative configuration | Same protected pass, deterministic collector, hashes, generator tests |
+| Common inference precision and timing | Profiling configuration | FP32 storage/input, CUDA AMP FP16, synchronized dual timing boundaries |
+| Comparable resources | Standard artifact/resource policy | Parameters, peak VRAM, dual FLOP estimates, inference-only FP16 artifact bytes |
 
-## Safe commands
+## Safe readiness commands
 
 ```powershell
 .venv\Scripts\python.exe scripts\benchmark\preflight.py
 .venv\Scripts\python.exe scripts\benchmark\validate_backends.py --synthetic
 .venv\Scripts\python.exe scripts\benchmark\verify_training_configs.py
+.venv\Scripts\python.exe scripts\benchmark\smoke_training.py --output-root NEW_OUTPUT --report NEW_REPORT.json --execute-training-smoke
 .venv\Scripts\python.exe scripts\maintenance\check_links.py --external
 .venv\Scripts\python.exe -m pytest -q
-
-# Dry-run only
-.venv\Scripts\python.exe scripts\benchmark\train_yolo.py --model-id yolo11n --seed 13
-.venv\Scripts\python.exe scripts\benchmark\train_yolo.py --model-id yolo26n --seed 13
-.venv\Scripts\python.exe scripts\benchmark\train_dfine.py --seed 13
 ```
 
-Do not add `--execute-training` until the frozen Paragraph A and this readiness evidence have been approved.
-
-Repeat the three launcher commands with `--seed 37` and `--seed 73`; add `--execute-training` only for the actual authorized run. Do not reuse a run directory.
-
-## Per-run validation and protected-evaluation template
-
-Run this lifecycle separately for every model–seed pair, substituting the retained checkpoint paths and epochs. Calibration must consume the validation-prediction file named by the selected checkpoint artifact.
-
-```powershell
-.venv\Scripts\python.exe scripts\benchmark\evaluate_benchmark.py export-validation --model-id MODEL --seed SEED --checkpoint CHECKPOINT --epoch EPOCH --output VAL_PREDICTIONS --execute-validation-export
-.venv\Scripts\python.exe scripts\benchmark\evaluate_benchmark.py select-checkpoint --model-id MODEL --seed SEED --validation-predictions ALL_RETAINED_VAL_PREDICTION_FILES --output SELECTION_JSON
-.venv\Scripts\python.exe scripts\benchmark\evaluate_benchmark.py calibrate --validation-predictions SELECTED_VAL_PREDICTIONS --output CALIBRATION_JSON --execute-validation-calibration
-.venv\Scripts\python.exe scripts\benchmark\evaluate_benchmark.py freeze --selection SELECTION_JSON --calibration CALIBRATION_JSON --output MANIFEST_JSON
-.venv\Scripts\python.exe scripts\benchmark\evaluate_benchmark.py freeze-suite --manifests ALL_NINE_MANIFEST_FILES --output FROZEN_SUITE_JSON
-.venv\Scripts\python.exe scripts\benchmark\evaluate_benchmark.py test --manifest MANIFEST_JSON --suite FROZEN_SUITE_JSON --output PROTECTED_RESULT_JSON --execute-protected-test
-```
-
-Freeze all nine manifests before the first protected test. After all nine unique results exist, `aggregate_results.py` requires the complete set. Then `generate_publication_tables.py`, `generate_figures.py`, and `generate_qualitative_error_analysis.py` produce the mean ± sample-SD tables (including parameters and peak VRAM), uncertainty figure, and fixed-seed qualitative/error report.
+Training launchers are dry-runs unless `--execute-training` is present. Never reuse a run directory. After all nine trainings finish, export validation predictions for every retained epoch, select/checkpoint and calibrate on validation only, freeze all nine manifests into one suite, then perform exactly one protected pass per run.
 
 ## Post-training lifecycle
 
-After explicit authorization: train every model at seeds 13, 37, and 73; for each run export retained validation predictions, rank checkpoints by validation mAP, calibrate the confidence threshold on validation, and freeze a seed-bound manifest. Then run one environment-gated protected test pass for each of the nine frozen runs. Each pass produces quality metrics, both timing boundaries, peak VRAM, dual FLOP estimates, the standardized FP16 artifact, and pre-registered qualitative/error candidates without a second traversal. Aggregate only after all nine results exist; report mean ± sample SD and never select a best seed.
+For each model–seed pair, export validation predictions for all 220 retained checkpoints; select by validation mAP50–95 with frozen tie-breakers; calibrate the operating threshold on the selected validation predictions; and freeze the manifest. The first protected test pass remains blocked until the suite contains exactly YOLO11n, YOLO26n, and D-FINE-N at seeds 13, 37, and 73 with valid hashes. After the nine single passes, aggregate all individual results as mean ± sample SD and generate tables, figures, and qualitative/error artifacts from the preserved results.
 
 ## Interpretation limits
 
-Implementation readiness does not make the manuscript publishable by itself. Equal epochs mean equal data exposure rather than equal compute. Native postprocessing and architecture capacity differ, FLOP tools have incomplete coverage, and three seeds provide limited rather than exhaustive uncertainty evidence. The final paper still requires authorized empirical results, bounded analysis, PI review, and venue review.
+Implementation readiness does not make the manuscript publishable by itself. Equal epochs mean equal data exposure rather than equal compute or an identical count of successful AMP updates. Native postprocessing and architecture capacity differ, three seeds provide limited uncertainty evidence, and FLOP estimators have operator-dependent coverage. Final scientific claims still require the complete benchmark, artifact verification, bounded analysis, PI review, and venue review.

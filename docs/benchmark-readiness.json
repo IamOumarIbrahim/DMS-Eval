@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "artifact": "dms_eval_benchmark_readiness",
+  "verified_at": "2026-08-20T19:19:22+04:00",
+  "status": "READY_FOR_BENCHMARK_TRAINING",
+  "ready_for_training": true,
+  "ready_for_protected_test": false,
+  "protected_test_blocker_is_expected": "Nine post-training model-seed manifests and their frozen suite do not exist before training.",
+  "benchmark_training_started": false,
+  "protected_test_inference_started": false,
+  "test_ledger_records": 0,
+  "contract": {
+    "models": ["yolo11n", "yolo26n", "dfine_n"],
+    "seeds": [13, 37, 73],
+    "planned_runs": 9,
+    "epochs": 220,
+    "physical_batch_size": 8,
+    "gradient_accumulation_steps": 4,
+    "effective_batch_size": 32,
+    "early_stopping": false,
+    "drop_last": false,
+    "precision": "fp32_model_and_input_storage_under_cuda_amp_fp16",
+    "input_shape": [1, 3, 640, 640],
+    "run_selection": "none",
+    "aggregation": "mean_and_sample_standard_deviation_n_minus_1"
+  },
+  "authoritative_fingerprints": {
+    "dataset/annotations.json": "917e438c535f6e5b79eaf01ade96d5b90b0e3041b3318a98d11bb0fc0dc02f46",
+    "dataset/splits.json": "8b2f0787294db362b9b8ffbfa985078e4fc0f2c3b331c1c6c4b21718ae7b10f4"
+  },
+  "checks": {
+    "full_preflight": {"status": "PASS", "passed_checks": 59223, "failures": 0, "decoded_distinct_images": 15723},
+    "dataset": {
+      "status": "PASS",
+      "images": 15723,
+      "annotations": 3001,
+      "negatives": 12722,
+      "split_images": {"train": 9087, "val": 3423, "test": 3213},
+      "split_annotations": {"train": 1748, "val": 639, "test": 614},
+      "yolo_paths_resolve": true,
+      "dfine_paths_resolve": true,
+      "dfine_internal_labels": [0, 1, 2, 3],
+      "shared_evaluator_labels": [1, 2, 3, 4]
+    },
+    "environment": {
+      "status": "PASS",
+      "python": "3.12.10",
+      "torch": "2.4.1+cu121",
+      "cuda_runtime": "12.1",
+      "gpu": "NVIDIA GeForce RTX 4060",
+      "gpu_total_bytes": 8585216000,
+      "cuda_fp16": true,
+      "physical_memory_bytes": 34191253504,
+      "available_memory_bytes": 13420068864,
+      "disk_free_bytes": 436433092608,
+      "locked_packages_checked": 73
+    },
+    "backends": {
+      "status": "PASS",
+      "ultralytics_version": "8.4.123",
+      "ultralytics_recipe_verified": true,
+      "dfine_commit": "956d1709314c2c6a4df6f34de232054578a7449f",
+      "patches_verified": true,
+      "official_weights_verified": 3,
+      "synthetic_adapters_passed": 3
+    },
+    "training_plans": {"status": "PASS", "verified_unique_plans": 9, "dry_run_launchers_passed": 9, "dry_runs_confirmed_training_not_started": true},
+    "training_smoke": {
+      "status": "PASS",
+      "report": "runs/readiness/training-smoke-20260820T191715+0400.json",
+      "sha256": "0dc700f8fa12a96cd59a0e81d40ca602e0319d1019728eb19f079912ca26f16a",
+      "optimizer_data_split": "train",
+      "optimizer_batches_from_training_split_only": true,
+      "validation_loader_initialized": true,
+      "validation_inference_performed": false,
+      "test_annotations_or_images_accessed": false,
+      "models": {
+        "yolo11n": {"optimizer": "MuSGD", "smoke_batches": 36, "optimizer_update_attempts": 9, "successful_optimizer_steps": 1, "amp_scaler_initial": 65536.0, "amp_scaler_final": 256.0, "finite_losses": true, "peak_allocated_vram_bytes": 2489825792},
+        "yolo26n": {"optimizer": "MuSGD", "smoke_batches": 28, "optimizer_update_attempts": 7, "successful_optimizer_steps": 1, "amp_scaler_initial": 65536.0, "amp_scaler_final": 1024.0, "finite_losses": true, "peak_allocated_vram_bytes": 2280275968},
+        "dfine_n": {"optimizer": "AdamW", "smoke_batches": 32, "optimizer_update_attempts": 8, "successful_optimizer_steps": 1, "amp_scaler_initial": 65536.0, "amp_scaler_final": 512.0, "finite_losses": true, "peak_allocated_vram_bytes": 2103045120}
+      }
+    },
+    "evaluation_and_isolation": {
+      "status": "PASS",
+      "all_220_epoch_candidates_required": true,
+      "validation_only_selection": true,
+      "nine_manifest_suite_required": true,
+      "ledger_precedes_test_annotation_or_image_read": true,
+      "single_pass_per_model_seed": true,
+      "overwrite_guards": true,
+      "all_nine_results_required_for_aggregation": true,
+      "sample_standard_deviation_denominator": "n-1"
+    },
+    "profiling": {"status": "PASS", "models_profiled": 3, "timed_synthetic_frames_per_model": 3, "warmups": 10, "batch_size": 1, "dual_timing_boundaries": true, "dual_flop_estimators": true},
+    "repository": {"status": "PASS", "tests_passed": 42, "local_links_checked": 110, "external_links_checked": 13, "broken_links": 0, "git_object_integrity": "PASS", "diff_whitespace": "PASS", "secrets_scan": "PASS"}
+  },
+  "audit_smoke_failures_preserved": [
+    {"attempt": "training-smoke-20260820T184619+0400", "reason": "YOLO derived image paths omitted images/"},
+    {"attempt": "training-smoke-20260820T185007+0400", "reason": "D-FINE derived image paths duplicated the configured image root"},
+    {"attempt": "training-smoke-20260820T185322+0400", "reason": "D-FINE received one-based labels for a zero-based four-class loss"},
+    {"attempt": "training-smoke-20260820T185612+0400", "reason": "Superseded harness did not prove that AMP performed rather than skipped the reported step"},
+    {"attempts": ["training-smoke-20260820T190752+0400", "training-smoke-20260820T191003+0400", "training-smoke-20260820T191043+0400", "training-smoke-20260820T191212+0400", "training-smoke-20260820T191345+0400", "training-smoke-20260820T191501+0400"], "reason": "Stricter fail-closed instrumentation iterations exposed initial GradScaler skips and refined direct parameter-update verification"}
+  ],
+  "non_blocking_interpretation_limits": [
+    "Equal epochs and data exposure do not imply equal FLOPs, parameter capacity, or wall time.",
+    "Native postprocessing remains architecture-specific and is included in the deployable-system timing boundary.",
+    "Three seeds provide limited run-to-run uncertainty evidence.",
+    "A common AMP scaler policy can skip different initial update attempts when architecture-specific gradients overflow.",
+    "FLOP estimates are tool- and operator-coverage-dependent."
+  ],
+  "defensible_paragraph": "All models use the same underlying data and classes, subject-disjoint split, 640x640 input, physical batch 8, exactly four gradient-accumulation steps, 220 epochs, disabled early stopping, retention of every training image with sample-correct incomplete-window normalization, the same predeclared seeds 13, 37, and 73, validation-only checkpoint selection that never changes training state, RTX 4060 hardware, FP32 model/input storage under CUDA AMP FP16, shared annotations and evaluator, batch-1 dual-boundary inference profiling, and a protected single-pass test policy. Every run is retained, individual seed results are preserved, per-model results are reported as mean plus or minus sample standard deviation with the n-1 denominator, and best-run selection is prohibited. Architecture-specific optimization and augmentation settings follow pinned official recipes with only the closed adaptations for dataset/classes, 640x640 input, batch 8, accumulation 4, 220 epochs, the three seeds, and disabled early stopping; no model-specific tuning is performed."
+}
