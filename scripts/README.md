@@ -19,8 +19,18 @@ scripts/
 ├── create_shuffled_annotations.py     # [Stage 5] Generates Training/Val/Test hierarchy with seed-13 shuffle
 ├── convert_coco_to_yolo.py            # [Stage 6] Converts master COCO JSON to YOLO format labels & YAML
 ├── prepare_dfine_coco.py              # [Stage 7] Partitions master COCO JSON into D-FINE/DETR split JSONs
-├── train_yolo.py                      # [Stage 8] YOLO training engine with gradient accumulation & telemetry
-├── evaluate_benchmark.py              # [Stage 9] Evaluator harness, validation threshold sweep & profiler
+├── preflight.py                       # Read-only protocol/environment/backend/dataset preflight
+├── validate_environment.py            # Frozen Python/CUDA/RTX 4060 validation
+├── validate_dataset.py                # Full deterministic dataset and derived-format validation
+├── setup_backends.py                  # Pinned checkout and official-weight setup/verification
+├── validate_backends.py               # Backend loading and optional synthetic FP16 smoke
+├── train_yolo.py                      # [Stage 8] Guarded YOLO11n/YOLO26n launcher
+├── train_dfine.py                     # [Stage 8] Guarded pinned D-FINE-N launcher
+├── evaluate_benchmark.py              # [Stage 9] Shared guarded evaluation lifecycle
+├── profile_runtime.py                 # Synthetic-only shared CUDA profiler smoke
+├── aggregate_results.py               # Protected result aggregation
+├── generate_publication_tables.py     # Aggregate-to-Markdown/LaTeX tables
+├── generate_figures.py                # Aggregate-to-publication figure
 │
 ├── charts/                            # [Gitignored] Publication chart & diagram generators
 │   ├── generate_distribution_charts.py
@@ -111,29 +121,33 @@ python scripts/prepare_dfine_coco.py
 
 ---
 
-### 8. `train_yolo.py` — YOLO Training Engine with Gradient Accumulation
-Configures Ultralytics YOLO training with physical batch size 8, gradient accumulation over 4 steps (effective nominal batch size 32), mixed-precision FP16, and CUDA VRAM tracking on NVIDIA RTX 4060 hardware.
+### 8. `train_yolo.py` — Guarded YOLO Training Launcher
+Configures Ultralytics YOLO training with physical batch size 8, `nbs=32`, mixed-precision FP16, and the RTX 4060 gate. Ultralytics ramps accumulation from 1 toward 4 during warm-up before settling at four, so 32 is a nominal effective batch rather than an identical fixed update schedule relative to D-FINE. See the [training protocol](../docs/training-protocol.md) and [fairness audit](../docs/fairness.md).
 
 ```bash
-# Sanity check run (2 epochs on YOLO11n)
-python scripts/train_yolo.py --epochs 2 --model weights/pretrained/yolo11n.pt --batch 8 --accumulate 4 --device 0
+# Dry-run frozen plans (no training)
+python scripts/train_yolo.py --model-id yolo11n
+python scripts/train_yolo.py --model-id yolo26n
+python scripts/train_dfine.py
 
-# Full benchmark training run (220 epochs)
-python scripts/train_yolo.py --epochs 220 --model weights/pretrained/yolo11n.pt --batch 8 --accumulate 4 --device 0
+# Authorized full runs require --execute-training
+python scripts/train_yolo.py --model-id yolo11n --execute-training
 ```
 
 ---
 
 ### 9. `evaluate_benchmark.py` — Standardized Evaluation Harness & Profiler
-Runs the frozen DMS-Eval evaluation protocol: performs validation-only confidence threshold grid sweep ($\tau \in [0.01, 0.99]$) to find $\tau^*$ maximizing micro-averaged $F_1$, executes single-pass evaluation on the unseen test split, and profiles hardware-synchronized batch-1 CUDA-event latency ($p50/p95/p99$), sustained FPS, and peak VRAM.
+Separates validation export, validation-only checkpoint selection, validation-only confidence calibration, immutable manifest creation, and the sole protected test pass. The protected pass also performs the full-test-set model-only CUDA profile so test frames are not traversed twice.
 
 ```bash
-# Full validation calibration and single-pass test evaluation
-python scripts/evaluate_benchmark.py --weights runs/train/yolo11n_dms/weights/best.pt --config configs/yolo/dms_eval.yaml --device 0
+# Safe protocol dry-run; never defaults to test
+python scripts/evaluate_benchmark.py
 
-# Fast test split evaluation with fixed confidence threshold
-python scripts/evaluate_benchmark.py --weights runs/train/yolo11n_dms/weights/best.pt --split test --threshold 0.45 --device 0
+# List guarded lifecycle commands
+python scripts/evaluate_benchmark.py --help
 ```
+
+See [`docs/benchmark-readiness.md`](../docs/benchmark-readiness.md) for the complete future command sequence. No shortcut for repeated test evaluation exists.
 
 ---
 

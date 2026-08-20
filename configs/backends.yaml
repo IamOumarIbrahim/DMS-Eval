@@ -1,0 +1,27 @@
+schema_version: 1
+ultralytics:
+  package: ultralytics
+  version: 8.4.123
+  source: https://github.com/ultralytics/ultralytics
+  models:
+    yolo11n:
+      file: weights/pretrained/yolo11n.pt
+      url: https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n.pt
+      size_bytes: 5613764
+      sha256: 0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1
+    yolo26n:
+      file: weights/pretrained/yolo26n.pt
+      url: https://github.com/ultralytics/assets/releases/download/v8.4.0/yolo26n.pt
+      size_bytes: 5544453
+      sha256: 9b09cc8bf347f0fc8a5f7657480587f25db09b34bf33b0652110fb03a8ad4fef
+dfine:
+  repository: https://github.com/Peterande/D-FINE.git
+  commit: 956d1709314c2c6a4df6f34de232054578a7449f
+  checkout: third_party/D-FINE
+  model: dfine_n
+  weight:
+    file: weights/pretrained/dfine_n_coco.pth
+    url: https://github.com/Peterande/storage/releases/download/dfinev1.0/dfine_n_coco.pth
+    size_bytes: 15489558
+    sha256: 41973938d2784d38a9836990d805b8392855ebf611aba55f0f7add90e110744c
+  config: configs/dfine/dfine_n_dms.yml

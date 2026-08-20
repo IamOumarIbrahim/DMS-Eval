@@ -1,247 +1,254 @@
-"""
-DMS-Eval Authoritative Evaluation Harness & Runtime Profiler
-============================================================
-Evaluates trained detector weights under the standardized DMS-Eval protocol:
-  1. Validation-only confidence threshold calibration (tau in [0.01, 0.99] sweep maximizing F1)
-  2. Isolated single-pass test evaluation at calibrated threshold tau*
-  3. Calculation of COCO mAP@0.5:0.95, mAP@0.5, Precision, Recall, F1
-  4. Calculation of Background False Alarm Rate (FAR %) on negative frames
-  5. Hardware-synchronized PyTorch CUDA-event batch-1 latency (p50, p95, p99) and sustained FPS
-  6. Peak VRAM allocation tracking via torch.cuda.max_memory_allocated()
+"""Guarded DMS-Eval prediction, calibration, freeze, and test workflow.
 
-Usage:
-  # Calibrate tau* on validation split and evaluate test split
-  python scripts/evaluate_benchmark.py --weights runs/train/yolo11n_dms/weights/best.pt --config configs/yolo/dms_eval.yaml --device 0
-
-  # Evaluate specific split
-  python scripts/evaluate_benchmark.py --weights runs/train/yolo11n_dms/weights/best.pt --split test --threshold 0.45 --device 0
+Running this script without a subcommand performs only a protocol dry-run.
+No subcommand defaults to the test split.
 """
 
-import os
-import sys
-import json
-import time
+from __future__ import annotations
+
 import argparse
+import json
+import sys
 from pathlib import Path
-from collections import defaultdict
 
-import numpy as np
 import torch
+from PIL import Image
 
-try:
-    from ultralytics import YOLO
-    HAS_ULTRALYTICS = True
-except ImportError:
-    HAS_ULTRALYTICS = False
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-
-CLASS_MAP_COCO_TO_NAME = {
-    1: "yawning",
-    2: "hand_over_mouth",
-    3: "drinking",
-    4: "phone_use"
-}
-
-CLASS_MAP_YOLO_TO_COCO = {
-    0: 1,  # yawning
-    1: 2,  # hand_over_mouth
-    2: 3,  # drinking
-    3: 4   # phone_use
-}
+from core.adapters import create_adapter
+from core.evaluation import (
+    calibrate_threshold,
+    coco_metrics,
+    load_ground_truth,
+    operating_point_metrics,
+    read_prediction_envelope,
+    select_checkpoint_candidate,
+)
+from core.isolation import TestRunLedger, create_frozen_manifest, validate_frozen_manifest, write_json_atomic
+from core.profiling import CudaForwardProfiler, model_flops
+from core.protocol import ProtocolError, REPO_ROOT, resolve_repo_path, sha256_file, validate_protocol, verify_authoritative_fingerprints
 
 
-def compute_iou(box1, box2):
-    """Compute IoU between [x1, y1, x2, y2] and [x1, y1, x2, y2]."""
-    x1 = max(box1[0], box2[0])
-    y1 = max(box1[1], box2[1])
-    x2 = min(box1[2], box2[2])
-    y2 = min(box1[3], box2[3])
-
-    inter_w = max(0.0, x2 - x1)
-    inter_h = max(0.0, y2 - y1)
-    inter_area = inter_w * inter_h
-
-    area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
-    area2 = (box2[2] - box2[0]) * (box2[3] - box2[0])
-    union_area = area1 + area2 - inter_area
-
-    if union_area <= 0.0:
-        return 0.0
-    return inter_area / union_area
+@torch.inference_mode()
+def _predict_split(adapter, ground_truth: dict, profile: bool = False) -> tuple[list[dict], dict | None]:
+    predictions: list[dict] = []
+    profiler = CudaForwardProfiler(adapter, warmups=10) if profile else None
+    if profiler:
+        profiler.prepare(adapter.synthetic_input())
+    for image in ground_truth["images"]:
+        image_path = REPO_ROOT / "dataset" / image["file_name"]
+        with Image.open(image_path) as source:
+            batch = adapter.preprocess(source)
+        raw_outputs = profiler.forward(batch) if profiler else adapter.raw_forward(batch)
+        predictions.extend(adapter.normalize(raw_outputs, [int(image["id"])]))
+    return predictions, profiler.finish() if profiler else None
 
 
-def evaluate_detections_at_threshold(ground_truths, predictions, threshold, iou_thresh=0.50):
-    """
-    Evaluates detections against ground truths under COCO greedy 1-to-1 matching at IoU >= 0.50.
-    Returns: TP, FP, FN, Precision, Recall, F1, and Negative Frame False Alarms (FP_neg).
-    """
-    tp = 0
-    fp = 0
-    fn = 0
-    fp_neg = 0
-    total_neg_frames = 0
-
-    for img_id, gts in ground_truths.items():
-        preds = predictions.get(img_id, [])
-        filtered_preds = [p for p in preds if p['score'] >= threshold]
-        filtered_preds.sort(key=lambda x: x['score'], reverse=True)
-
-        is_neg_frame = (len(gts) == 0)
-        if is_neg_frame:
-            total_neg_frames += 1
-            if len(filtered_preds) > 0:
-                fp_neg += len(filtered_preds)
-
-        matched_gt = set()
-        for p in filtered_preds:
-            p_cat = p['category_id']
-            p_box = p['bbox_xyxy']
-
-            best_iou = 0.0
-            best_gt_idx = -1
-            for gt_idx, gt in enumerate(gts):
-                if gt_idx in matched_gt:
-                    continue
-                if gt['category_id'] == p_cat:
-                    iou = compute_iou(p_box, gt['bbox_xyxy'])
-                    if iou > best_iou:
-                        best_iou = iou
-                        best_gt_idx = gt_idx
-
-            if best_iou >= iou_thresh and best_gt_idx != -1:
-                tp += 1
-                matched_gt.add(best_gt_idx)
-            else:
-                fp += 1
-
-        fn += (len(gts) - len(matched_gt))
-
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
-    far = (fp_neg / total_neg_frames * 100.0) if total_neg_frames > 0 else 0.0
-
-    return {
-        "tp": tp, "fp": fp, "fn": fn,
-        "precision": precision, "recall": recall, "f1": f1,
-        "fp_neg": fp_neg, "total_neg_frames": total_neg_frames, "far": far
+def export_validation(args: argparse.Namespace) -> int:
+    if not args.execute_validation_export:
+        raise ProtocolError("Refusing real validation inference without --execute-validation-export")
+    checkpoint = resolve_repo_path(args.checkpoint)
+    adapter = create_adapter(args.model_id, checkpoint, args.device).load()
+    protocol = validate_protocol()
+    ground_truth = load_ground_truth(protocol["dataset"]["annotations"], "val", protocol["dataset"]["splits"])
+    predictions, _ = _predict_split(adapter, ground_truth)
+    metrics = coco_metrics(ground_truth, predictions)
+    envelope = {
+        "schema_version": 1,
+        "artifact": "validation_predictions",
+        "model_id": args.model_id,
+        "checkpoint": str(checkpoint),
+        "checkpoint_sha256": sha256_file(checkpoint),
+        "checkpoint_epoch": args.epoch,
+        "split": "val",
+        "dataset_fingerprints": verify_authoritative_fingerprints(),
+        "coco_metrics": metrics,
+        "predictions": predictions,
     }
+    write_json_atomic(args.output, envelope)
+    print(json.dumps({key: value for key, value in envelope.items() if key != "predictions"}, indent=2))
+    return 0
 
 
-def calibrate_optimal_threshold(ground_truths, predictions):
-    """
-    Exhaustive grid sweep tau in [0.01, 0.99] with step 0.01.
-    Finds optimal tau* maximizing micro-averaged F1 with deterministic tie-breaking.
-    """
-    best_tau = 0.50
-    best_f1 = -1.0
-    best_precision = -1.0
-    best_stats = None
-
-    thresholds = [round(t, 2) for t in np.arange(0.01, 1.00, 0.01)]
-    for tau in thresholds:
-        stats = evaluate_detections_at_threshold(ground_truths, predictions, threshold=tau)
-        f1 = stats["f1"]
-        prec = stats["precision"]
-
-        # Deterministic Tie-Breaking Logic:
-        # 1. Higher F1
-        # 2. Higher Precision
-        # 3. Higher confidence threshold value
-        if f1 > best_f1:
-            best_f1 = f1
-            best_precision = prec
-            best_tau = tau
-            best_stats = stats
-        elif abs(f1 - best_f1) < 1e-6:
-            if prec > best_precision:
-                best_precision = prec
-                best_tau = tau
-                best_stats = stats
-            elif abs(prec - best_precision) < 1e-6 and tau > best_tau:
-                best_tau = tau
-                best_stats = stats
-
-    return best_tau, best_stats
-
-
-def profile_cuda_latency_and_fps(model, sample_input, num_warmup=10, num_repeats=100, device="cuda"):
-    """
-    Hardware-synchronized batch-1 FP16 forward-pass latency profiling via torch.cuda.Event.
-    Reports: p50, p95, p99 latency (ms), sustained throughput (FPS), and peak allocated VRAM.
-    """
-    if not torch.cuda.is_available() or device == "cpu":
-        return {"p50_ms": 0.0, "p95_ms": 0.0, "p99_ms": 0.0, "fps": 0.0, "peak_vram_mb": 0.0}
-
-    torch.cuda.reset_peak_memory_stats()
-    torch.cuda.empty_cache()
-
-    # 10 untimed warm-up passes
-    with torch.no_grad():
-        for _ in range(num_warmup):
-            _ = model(sample_input)
-    torch.cuda.synchronize()
-
-    # Timed passes with hardware events
-    start_events = [torch.cuda.Event(enable_timing=True) for _ in range(num_repeats)]
-    end_events = [torch.cuda.Event(enable_timing=True) for _ in range(num_repeats)]
-
-    with torch.no_grad():
-        for i in range(num_repeats):
-            start_events[i].record()
-            _ = model(sample_input)
-            end_events[i].record()
-
-    torch.cuda.synchronize()
-    latencies_ms = [s.elapsed_time(e) for s, e in zip(start_events, end_events)]
-
-    p50 = float(np.median(latencies_ms))
-    p95 = float(np.percentile(latencies_ms, 95))
-    p99 = float(np.percentile(latencies_ms, 99))
-    fps = 1000.0 / p50 if p50 > 0 else 0.0
-    peak_vram_mb = torch.cuda.max_memory_allocated() / (1024 * 1024)
-
-    return {
-        "p50_ms": round(p50, 3),
-        "p95_ms": round(p95, 3),
-        "p99_ms": round(p99, 3),
-        "fps": round(fps, 2),
-        "peak_vram_mb": round(peak_vram_mb, 2)
+def select_checkpoint(args: argparse.Namespace) -> int:
+    candidates = []
+    for path in args.validation_predictions:
+        resolved = resolve_repo_path(path)
+        envelope = read_prediction_envelope(resolved, required_split="val")
+        if envelope.get("model_id") != args.model_id:
+            raise ProtocolError(f"Model mismatch in {resolved}")
+        checkpoint = resolve_repo_path(envelope["checkpoint"])
+        if sha256_file(checkpoint) != envelope.get("checkpoint_sha256"):
+            raise ProtocolError(f"Checkpoint changed for {resolved}")
+        metrics = envelope.get("coco_metrics", {})
+        if not all(key in metrics for key in ("map_50_95", "map_50")) or not isinstance(envelope.get("checkpoint_epoch"), int):
+            raise ProtocolError(f"Incomplete validation metrics in {resolved}")
+        candidates.append(
+            {
+                "checkpoint": str(checkpoint),
+                "checkpoint_sha256": envelope["checkpoint_sha256"],
+                "epoch": envelope["checkpoint_epoch"],
+                "map_50_95": float(metrics["map_50_95"]),
+                "map_50": float(metrics["map_50"]),
+                "validation_predictions": str(resolved),
+                "validation_predictions_sha256": sha256_file(resolved),
+            }
+        )
+    selected = select_checkpoint_candidate(candidates)
+    artifact = {
+        "schema_version": 1,
+        "artifact": "validation_only_checkpoint_selection",
+        "model_id": args.model_id,
+        "primary": "map_50_95",
+        "tie_breakers": ["map_50", "later_epoch"],
+        "candidates": candidates,
+        "selected": selected,
     }
+    write_json_atomic(args.output, artifact)
+    print(json.dumps(selected, indent=2))
+    return 0
 
 
-def main():
-    parser = argparse.ArgumentParser(description="DMS-Eval Standardized Evaluation Harness & Profiler")
-    parser.add_argument("--weights", type=str, required=True, help="Path to model checkpoint (.pt)")
-    parser.add_argument("--config", type=str, default="configs/yolo/dms_eval.yaml", help="Dataset configuration YAML")
-    parser.add_argument("--annotations", type=str, default="dataset/annotations.json", help="Master COCO ground truth")
-    parser.add_argument("--splits", type=str, default="dataset/splits.json", help="Frozen splits JSON")
-    parser.add_argument("--device", type=str, default="0", help="CUDA device index or 'cpu'")
-    parser.add_argument("--split", type=str, default="test", choices=["val", "test", "all"], help="Evaluation split")
-    parser.add_argument("--calibrate", action="store_true", default=True, help="Run validation confidence grid sweep (tau*)")
-    parser.add_argument("--threshold", type=float, default=None, help="Fixed threshold override")
+def calibrate(args: argparse.Namespace) -> int:
+    if not args.execute_validation_calibration:
+        raise ProtocolError("Refusing real validation calibration without --execute-validation-calibration")
+    envelope_path = resolve_repo_path(args.validation_predictions)
+    envelope = read_prediction_envelope(envelope_path, required_split="val")
+    protocol = validate_protocol()
+    ground_truth = load_ground_truth(protocol["dataset"]["annotations"], "val", protocol["dataset"]["splits"])
+    selected = calibrate_threshold(ground_truth, envelope["predictions"])
+    artifact = {
+        "schema_version": 1,
+        "artifact": "validation_threshold_calibration",
+        "model_id": envelope["model_id"],
+        "checkpoint_sha256": envelope["checkpoint_sha256"],
+        "validation_predictions": str(envelope_path),
+        "validation_predictions_sha256": sha256_file(envelope_path),
+        "grid": {"start": 0.01, "stop": 0.99, "step": 0.01},
+        "objective": "micro_f1",
+        "tie_breakers": ["higher_precision", "higher_threshold"],
+        "selected": selected,
+    }
+    write_json_atomic(args.output, artifact)
+    print(json.dumps(selected, indent=2))
+    return 0
+
+
+def freeze(args: argparse.Namespace) -> int:
+    selection_path = resolve_repo_path(args.selection)
+    with selection_path.open("r", encoding="utf-8") as handle:
+        selection = json.load(handle)
+    selected = selection.get("selected", {})
+    manifest = create_frozen_manifest(
+        model_id=selection.get("model_id"),
+        checkpoint=selected.get("checkpoint", ""),
+        validation_predictions=selected.get("validation_predictions", ""),
+        calibration=args.calibration,
+        output=args.output,
+        selection=selection_path,
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def protected_test(args: argparse.Namespace) -> int:
+    if not args.execute_protected_test:
+        raise ProtocolError("Refusing test inference without --execute-protected-test")
+    manifest = validate_frozen_manifest(args.manifest)
+    ledger = TestRunLedger()
+    ledger.refuse_if_seen(manifest["manifest_id"], manifest["model_id"])
+    adapter = create_adapter(manifest["model_id"], manifest["checkpoint"], args.device).load()
+    flops = model_flops(adapter)
+    profiler = CudaForwardProfiler(adapter, warmups=10)
+    profiler.prepare(adapter.synthetic_input())
+    protocol = validate_protocol()
+    ground_truth = load_ground_truth(protocol["dataset"]["annotations"], "test", protocol["dataset"]["splits"])
+
+    # The irreversible boundary is immediately before the first real test frame.
+    ledger.start(manifest)
+    predictions: list[dict] = []
+    for image in ground_truth["images"]:
+        with Image.open(REPO_ROOT / "dataset" / image["file_name"]) as source:
+            batch = adapter.preprocess(source)
+        raw_outputs = profiler.forward(batch)
+        predictions.extend(adapter.normalize(raw_outputs, [int(image["id"])]))
+    result = {
+        "schema_version": 1,
+        "artifact": "protected_test_result",
+        "manifest_id": manifest["manifest_id"],
+        "model_id": manifest["model_id"],
+        "checkpoint_sha256": manifest["checkpoint_sha256"],
+        "threshold": manifest["threshold"],
+        "coco_metrics": coco_metrics(ground_truth, predictions),
+        "operating_point": operating_point_metrics(ground_truth, predictions, manifest["threshold"]),
+        "runtime_profile": profiler.finish(),
+        "parameters": adapter.parameter_count(),
+        "flops": flops,
+        "flop_method": "THOP MACs * 2",
+        "checkpoint_bytes": Path(manifest["checkpoint"]).stat().st_size,
+        "predictions": predictions,
+    }
+    write_json_atomic(args.output, result)
+    ledger.complete(manifest, args.output)
+    print(json.dumps({key: value for key, value in result.items() if key != "predictions"}, indent=2))
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    subparsers = parser.add_subparsers(dest="command")
+
+    export = subparsers.add_parser("export-validation", help="Export predictions from the real validation split")
+    export.add_argument("--model-id", required=True, choices=["yolo11n", "yolo26n", "dfine_n"])
+    export.add_argument("--checkpoint", required=True)
+    export.add_argument("--epoch", required=True, type=int)
+    export.add_argument("--output", required=True)
+    export.add_argument("--device", default="cuda:0")
+    export.add_argument("--execute-validation-export", action="store_true", required=True)
+    export.set_defaults(func=export_validation)
+
+    select = subparsers.add_parser("select-checkpoint", help="Apply frozen validation-only checkpoint ranking")
+    select.add_argument("--model-id", required=True, choices=["yolo11n", "yolo26n", "dfine_n"])
+    select.add_argument("--validation-predictions", nargs="+", required=True)
+    select.add_argument("--output", required=True)
+    select.set_defaults(func=select_checkpoint)
+
+    calibration = subparsers.add_parser("calibrate", help="Search the frozen threshold grid on validation only")
+    calibration.add_argument("--validation-predictions", required=True)
+    calibration.add_argument("--output", required=True)
+    calibration.add_argument("--execute-validation-calibration", action="store_true", required=True)
+    calibration.set_defaults(func=calibrate)
+
+    freeze_parser = subparsers.add_parser("freeze", help="Freeze selected checkpoint, validation predictions, and threshold")
+    freeze_parser.add_argument("--selection", required=True)
+    freeze_parser.add_argument("--calibration", required=True)
+    freeze_parser.add_argument("--output", required=True)
+    freeze_parser.set_defaults(func=freeze)
+
+    test = subparsers.add_parser("test", help="Run the protected single test pass")
+    test.add_argument("--manifest", required=True)
+    test.add_argument("--output", required=True)
+    test.add_argument("--device", default="cuda:0")
+    test.add_argument("--execute-protected-test", action="store_true", required=True)
+    test.set_defaults(func=protected_test)
+    return parser
+
+
+def main() -> int:
+    parser = build_parser()
     args = parser.parse_args()
-
-    repo_root = Path(__file__).resolve().parent.parent
-    weights_path = Path(args.weights)
-    if not weights_path.is_absolute():
-        weights_path = repo_root / weights_path
-
-    print("=" * 72)
-    print("DMS-Eval: Standardized Benchmark Evaluator & Hardware Profiler")
-    print("=" * 72)
-    print(f"Model Checkpoint : {weights_path}")
-    print(f"Dataset Config   : {args.config}")
-    print(f"Target Split     : {args.split}")
-    print(f"Compute Device   : {args.device}")
-
-    if not weights_path.exists():
-        print(f"\n[INFO] Checkpoint file {weights_path} not found.")
-        print("[INFO] Evaluation harness ready for completed training runs.")
-        return
-
-    print("\n[OK] Checkpoint located. Proceeding with validation sweep and test evaluation...")
+    if not args.command:
+        protocol = validate_protocol()
+        print(f"Protocol dry-run PASSED for {protocol['benchmark']}; no images were loaded and no inference ran.")
+        parser.print_help()
+        return 0
+    try:
+        return args.func(args)
+    except (ProtocolError, FileNotFoundError, ValueError, KeyError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

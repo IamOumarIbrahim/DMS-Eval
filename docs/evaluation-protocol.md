@@ -1,6 +1,6 @@
 # 📊 Evaluation Protocol & Profiling Harness
 
-[← Back to Main Landing Page](../README.md) · [Documentation Hub](./README.md) · [Training Protocol](./training-protocol.md) · [Pipeline Scripts](../scripts/README.md)
+[← Back to Main Landing Page](../README.md) · [Documentation Hub](./README.md) · [Training Protocol](./training-protocol.md) · [Fairness Audit](./fairness.md) · [Pipeline Scripts](../scripts/README.md)
 
 This authoritative protocol governs the detection quality metrics, validation-only confidence threshold calibration ($\tau^*$), checkpoint selection rules, and hardware-synchronized batch-1 latency/throughput profiling for the **DMS-Eval** benchmark.
 
@@ -23,35 +23,35 @@ This authoritative protocol governs the detection quality metrics, validation-on
 | | Precision | Full Test Set | Evaluated at validation-optimal F1 confidence threshold using IoU = 0.50 |
 | | Recall | Full Test Set | Evaluated at validation-optimal F1 confidence threshold using IoU = 0.50 |
 | | F1-Score | Full Test Set | Primary criterion for per-model validation confidence-threshold selection |
-| | False Alarm Rate (FAR %) | Full Test Set (Negative Frames) | Quantifies false alarms on background frames: FAR = (FP_neg / N_neg) × 100% |
+| | False Alarm Rate (FAR per 100 negative frames) | Test Negative Frames | `100 × false-positive detections on negative test frames / 2,599 negative test frames`; may exceed 100 |
 | **Runtime Efficiency** | Latency Percentiles (ms) | Full Test Set | Median (p50), 95th (p95), and 99th (p99) latency; batch size 1; PyTorch CUDA events |
 | | Sustained Throughput (FPS) | Full Test Set | Measured continuously across all 3,213 test frames at batch size 1 |
-| **Deployment Profile** | Parameters (M) | Architectural | Official published parameter count |
+| **Deployment Profile** | Parameters (M) | Architectural | Exact parameter count of the loaded four-class model |
 | | Computational Workload (GFLOPs) | Architectural | Calculated with THOP at `1 × 3 × 640 × 640` using `1 MAC = 2 FLOPs` |
 | | Peak GPU Memory (MB) | Full Test Set | Measured via `torch.cuda.max_memory_allocated()` at batch size 1 |
-| | Model File Size (MB) | Final Selected Checkpoint | Locally measured weight artifact on disk |
+| | Raw Checkpoint Size (MB) | Final Selected Checkpoint | Descriptive serialized training artifact; not a standardized deployment package |
 
 > [!NOTE]
 > DMS-Eval uses **mAP as the benchmark's detection-accuracy measure**. A separate generic classification `Accuracy` metric is not included.
 
 ### Reporting Structure
 
-* **Overall test-set reporting:** `mAP@0.5:0.95`, `mAP@0.5`, Precision, Recall, F1-score, Latency ($p50, p95, p99$), sustained FPS, Parameters (M), GFLOPs, Peak VRAM (MB), checkpoint file size (MB), and Background False Alarm Rate (FAR %).
+* **Overall test-set reporting:** `mAP@0.5:0.95`, `mAP@0.5`, Precision, Recall, F1-score, model-forward latency ($p50, p95, p99$), sustained model-forward FPS, Parameters (M), THOP GFLOPs, Peak VRAM (MB), raw checkpoint size (MB), and FAR per 100 negative test frames.
 * **Per-class reporting:** `mAP@0.5:0.95` and `mAP@0.5` across all 4 target warning cues.
 
 <p align="center"><sub><b>Table 2.</b> Benchmark comparative evaluation matrix framework (NVIDIA RTX 4060, Batch Size 1, FP16).</sub></p>
 
-| Model Architecture | Params (M) | FLOPs (G) | Peak VRAM (MB) | Latency p50 (ms) | Latency p95 (ms) | Latency p99 (ms) | Throughput (FPS) | FAR (%) | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
+| Model Architecture | Params (M) | FLOPs (G) | Peak VRAM (MB) | Latency p50 (ms) | Latency p95 (ms) | Latency p99 (ms) | Throughput (FPS) | FAR / 100 negatives | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Ultralytics YOLO11n** | 2.6M | 6.5G | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| **Ultralytics YOLO26n** | 2.4M | 5.8G | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| **D-FINE-N** | 3.8M | 8.4G | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| **Ultralytics YOLO11n** | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| **Ultralytics YOLO26n** | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| **D-FINE-N** | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 
 ---
 
 ### Shared Evaluation Harness
 
-> Architectural fairness guarantee via a unified ground-truth evaluation pipeline:
+> Shared metric control through a unified ground-truth evaluation pipeline:
 
 All benchmark models are evaluated using **one shared evaluation harness** rather than relying on each model repository's evaluator for the final reported detection metrics.
 
@@ -67,8 +67,8 @@ reported benchmark metrics
 
 * The **master COCO annotations** (`dataset/annotations.json`) are used directly as ground truth.
 * Each model's predictions are converted into a **common COCO-style detection format** before evaluation.
-* The shared evaluator computes mAP, Precision, Recall, F1-score, and FAR %.
-* Precision, Recall, and F1-score use an **IoU threshold of 0.50** with **COCO-style one-to-one greedy matching** in descending confidence order.
+* The shared evaluator computes mAP, Precision, Recall, micro-F1, and false detections per 100 negative test frames.
+* Precision, Recall, and micro-F1 use an **IoU threshold of 0.50** with **same-class one-to-one greedy matching** in descending confidence order.
 
 ---
 
@@ -128,17 +128,21 @@ flowchart LR
 ### Runtime Latency & Throughput Profiling
 
 * **Hardware:** Dedicated NVIDIA RTX 4060 GPU (8 GB VRAM).
-* **Backend:** Native PyTorch + CUDA in FP16 precision.
+* **Backend:** Native PyTorch + CUDA under a shared FP16 execution policy. YOLO uses FP16 weights and input; D-FINE uses an FP16 input under CUDA autocast, so operator-level precision is not identical.
 * **Batch Size:** `1` (single-frame streaming edge inference).
 * **Warm-up Protocol:** 10 untimed forward passes before starting timers.
-* **Timing Scope:** Forward inference pass only (excludes disk I/O, image decode, pre-processing, post-processing/NMS, & metrics).
+* **Timing Scope:** Model forward only. Disk I/O, decoding, preprocessing, postprocessing/NMS, and metrics are excluded. The resulting numbers are not end-to-end deployable latency, and exclusion of external NMS particularly affects interpretation of YOLO11n.
 * **Timing Mechanism:** Hardware-synchronized `torch.cuda.Event` timers.
-* **Reporting:** Median ($p50$), 95th ($p95$), and 99th ($p99$) latency (ms), and sustained continuous throughput (FPS = $3,213 / T_{\text{total}}$).
+* **Reporting:** Median ($p50$), 95th ($p95$), and 99th ($p99$) latency (ms), and sustained model-forward throughput ($\text{FPS}=3{,}213/\sum_i t_{\text{GPU-forward},i}$).
 
 ---
 
 ### Deployment Footprint & Computational Workload
 
-* **Computational Workload (GFLOPs):** Calculated locally using THOP at tensor shape $1 \times 3 \times 640 \times 640$ with the standard convention $1 \text{ MAC} = 2 \text{ FLOPs}$ ($\text{GFLOPs} = 2 \times \text{MACs} / 10^9$).
+* **Computational Workload (GFLOPs):** Calculated locally using THOP at tensor shape $1 \times 3 \times 640 \times 640$ with $1 \text{ MAC} = 2 \text{ FLOPs}$. Cross-family interpretation is qualified because THOP operator coverage may differ for convolutional and transformer-specific operations.
 * **Peak GPU VRAM:** Measured directly via `torch.cuda.max_memory_allocated()` during test inference.
-* **Model Checkpoint Size:** Measured directly from the saved `.pt` artifact file on disk (MB).
+* **Raw Checkpoint Size:** Measured from the selected `.pt` or `.pth` artifact. Ultralytics and D-FINE serialize different training state, dtype, optimizer, and EMA payloads, so this is descriptive and must not be presented as a standardized deployment-size comparison.
+
+### Fairness and interpretation boundary
+
+The shared evaluator removes metric-implementation differences, but it does not erase architecture-native postprocessing, precision, training, serialization, or compute differences. The current limitations and likely directional effects are maintained in the [fairness audit](./fairness.md). Technical readiness therefore does not by itself establish causal architectural superiority or publication-ready evidence.

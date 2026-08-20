@@ -1,0 +1,116 @@
+schema_version: 1
+benchmark: DMS-Eval
+seed: 13
+
+models:
+  - id: yolo11n
+    adapter: ultralytics
+    architecture: YOLO11n
+  - id: yolo26n
+    adapter: ultralytics
+    architecture: YOLO26n
+  - id: dfine_n
+    adapter: dfine
+    architecture: D-FINE-N
+
+dataset:
+  annotations: dataset/annotations.json
+  annotations_sha256: 917e438c535f6e5b79eaf01ade96d5b90b0e3041b3318a98d11bb0fc0dc02f46
+  splits: dataset/splits.json
+  splits_sha256: 8b2f0787294db362b9b8ffbfa985078e4fc0f2c3b331c1c6c4b21718ae7b10f4
+  images: dataset/images
+  width: 640
+  height: 640
+  subjects: 14
+  max_annotations_per_image: 1
+  classes:
+    1: yawning
+    2: hand_over_mouth
+    3: drinking
+    4: phone_use
+  expected:
+    global:
+      images: 15723
+      annotations: 3001
+      negatives: 12722
+      per_class: {1: 159, 2: 141, 3: 264, 4: 2437}
+    train:
+      subjects: [subject_01, subject_04, subject_06, subject_07, subject_08, subject_09, subject_13, subject_14]
+      images: 9087
+      annotations: 1748
+      negatives: 7339
+      per_class: {1: 94, 2: 83, 3: 154, 4: 1417}
+    val:
+      subjects: [subject_02, subject_03, subject_11]
+      images: 3423
+      annotations: 639
+      negatives: 2784
+      per_class: {1: 32, 2: 30, 3: 54, 4: 523}
+    test:
+      subjects: [subject_05, subject_10, subject_12]
+      images: 3213
+      annotations: 614
+      negatives: 2599
+      per_class: {1: 33, 2: 28, 3: 56, 4: 497}
+  ordering:
+    train: deterministic_global_shuffle
+    train_seed: 13
+    val: master_native
+    test: master_native
+
+training:
+  epochs: 220
+  physical_batch_size: 8
+  gradient_accumulation_steps: 4
+  effective_batch_size: 32
+  workers: 4
+  amp: true
+  precision: fp16
+  early_stopping: false
+  single_run: true
+  checkpoint_selection:
+    split: val
+    primary: map_50_95
+    tie_breakers: [map_50, later_epoch]
+  optimization:
+    ultralytics:
+      optimizer: SGD
+      lr0: 0.01
+      momentum: 0.937
+      weight_decay: 0.0005
+      cos_lr: false
+    dfine:
+      optimizer: AdamW
+      lr: 0.00025
+      weight_decay: 0.0001
+      scheduler: MultiStepLR
+      milestones: [500]
+      augmentation_stop_epoch: 148
+
+evaluation:
+  implementation: pycocotools
+  map_metrics: [map_50_95, map_50, per_class_ap]
+  operating_iou: 0.50
+  matching: greedy_one_to_one_descending_score_same_category
+  threshold:
+    split: val
+    start: 0.01
+    stop: 0.99
+    step: 0.01
+    objective: micro_f1
+    tie_breakers: [higher_precision, higher_threshold]
+  far: 100 * false_positive_detections_on_negative_frames / negative_frames
+  test_policy: single_protected_pass_after_freeze
+
+profiling:
+  hardware: NVIDIA GeForce RTX 4060 8GB
+  batch_size: 1
+  precision: fp16
+  input_shape: [1, 3, 640, 640]
+  warmup_passes: 10
+  timing: synchronized_cuda_events
+  boundary: model_forward_only
+  excluded: [disk_io, decode, preprocessing, postprocessing, nms, metrics]
+  latency_percentiles: [50, 95, 99]
+  sustained_fps: timed_frames / total_gpu_forward_seconds
+  resources: [parameters, flops, peak_allocated_vram, checkpoint_bytes]

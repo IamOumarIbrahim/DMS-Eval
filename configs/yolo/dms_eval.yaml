@@ -1,7 +1,7 @@
 # DMS-Eval Benchmark YOLO Dataset Configuration
 # ===============================================
 
-path: dataset  # dataset root directory relative to repository root
+path: dataset  # launchers run from the repository root
 
 # Dataset Split Definitions
 train: yolo/train.txt

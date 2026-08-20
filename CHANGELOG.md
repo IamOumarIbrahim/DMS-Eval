@@ -1,3 +1,9 @@
+## [2026-08-20] - Complete benchmark-readiness implementation and disclose fairness limits
+- Add pinned backend setup, protocol configuration, adapters, full dataset validation, shared evaluation, runtime profiling, test-isolation controls, guarded training/evaluation launchers, aggregation, and publication generators.
+- Correct derived YOLO and D-FINE manifests and add reproducible Python/lockfile metadata plus automated protocol, metric, and isolation tests.
+- Align the landing page, technical documentation, fairness audit, and manuscript with the implemented accumulation, remainder, optimizer, precision, timing, FAR, checkpoint-serialization, and single-run boundaries.
+- Keep all empirical result fields pending until the authorized frozen training, validation, calibration, and protected single-pass test lifecycle has completed.
+
 ## [2026-08-20 00:19:00] - Converge documentation suite and internal ledgers on unified metrics and asset catalogs
 - Synchronize Table 1 and Table 2 in `docs/evaluation-protocol.md` with manuscript Table II ($p50, p95, p99$ latency, sustained FPS, Peak VRAM, and Background False Alarm Rate)
 - Update `docs/internal/resolve_later.md` Table E with latency percentiles, Peak VRAM, and FAR tracking

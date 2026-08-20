@@ -56,6 +56,10 @@ __pycache__/
 
 # Experiment outputs, run logs, and model checkpoints
 runs/
+predictions/
+results/
+generated/
+third_party/
 *.pt
 *.pth
 *.onnx
@@ -83,3 +87,6 @@ scripts/presentation/
 # Internal annotation ledger logs
 tools/label-studio/annotation_progress_ledger.json
 tools/label-studio/annotation_decision_log.json
+
+# Local render and verification scratch space
+/tmp/

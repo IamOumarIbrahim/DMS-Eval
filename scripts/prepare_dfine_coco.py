@@ -19,6 +19,7 @@ Features:
 
 import os
 import json
+import random
 from collections import defaultdict, Counter
 from pathlib import Path
 
@@ -97,6 +98,12 @@ def prepare_dfine_coco():
         for ann in anns:
             split_coco[split_name]["annotations"].append(ann)
             split_box_counts[split_name][ann["category_id"]] += 1
+
+    # D-FINE consumes this array through a shuffled sampler, but the derived
+    # artifact itself is also frozen to the protocol's seed-13 train order.
+    random.Random(13).shuffle(split_coco["train"]["images"])
+    train_rank = {image["id"]: rank for rank, image in enumerate(split_coco["train"]["images"])}
+    split_coco["train"]["annotations"].sort(key=lambda annotation: (train_rank[annotation["image_id"]], annotation["id"]))
 
     total_images_written = 0
     total_boxes_written = 0

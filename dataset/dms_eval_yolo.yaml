@@ -1,8 +1,8 @@
 # DMS-Eval YOLO Dataset Configuration
-path: C:/Dev/repos/Public repos/DMS-Eval
-train: dataset/yolo/train.txt
-val: dataset/yolo/val.txt
-test: dataset/yolo/test.txt
+path: dataset
+train: yolo/train.txt
+val: yolo/val.txt
+test: yolo/test.txt
 
 names:
   0: yawning

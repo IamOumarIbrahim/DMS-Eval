@@ -54,7 +54,7 @@
 
 ## Abstract
 
-Driver Monitoring Systems (DMS) are critical safety components of modern Advanced Driver Assistance Systems (ADAS). While commercial systems often employ complex temporal pipelines, automotive edge deployments demand lightweight, low-latency 2D object detectors capable of real-time single-frame inference. **DMS-Eval** establishes a rigorous, reproducible empirical benchmark comparing compact convolutional detectors (**Ultralytics YOLO11n** and **YOLO26n**) against lightweight Real-Time Detection Transformers (**D-FINE-N**). Formulated on 81 driver-facing RGB video recordings comprising 68 behavioral sessions across 14 subjects from the Driver Monitoring Dataset (DMD), our benchmark establishes a standardized dataset of 15,723 frames ($640 \times 640$ spatial window). Ground truth is constructed via 100% manual human annotation in Label Studio targeting four visual warning cues: `phone_use`, `drinking`, `yawning`, and `hand_over_mouth`, incorporating 12,722 naturalistic negative frames (80.91%) to enforce false-positive suppression. To eliminate identity leakage, we formalize an authoritative 8/3/3 subject-disjoint split via deterministic exhaustive combinatorial search across 60,060 candidate assignments, ensuring all splits preserve identical class proportions ($\le 5.48\%$ relative divergence). Under a strictly controlled comparison on dedicated RTX 4060 hardware (physical training batch 8 with gradient accumulation over 4 steps, effective batch 32; single-frame batch-1 runtime profiling) across 220 fine-tuning epochs, candidate models are calibrated via validation-only $F_1$ score maximization prior to single-pass test evaluation.
+Driver Monitoring Systems (DMS) are critical safety components of modern Advanced Driver Assistance Systems (ADAS). While commercial systems often employ complex temporal pipelines, automotive edge deployments demand lightweight, low-latency 2D object detectors capable of real-time single-frame inference. **DMS-Eval** establishes a reproducible empirical benchmark comparing compact convolutional detectors (**Ultralytics YOLO11n** and **YOLO26n**) against a lightweight Real-Time Detection Transformer (**D-FINE-N**). Formulated on 81 driver-facing RGB video recordings comprising 68 behavioral sessions across 14 subjects from the Driver Monitoring Dataset (DMD), the benchmark contains 15,723 frames at $640 \times 640$. Ground truth is constructed through manual Label Studio annotation for `yawning`, `hand_over_mouth`, `drinking`, and `phone_use`, including 12,722 negative frames. A frozen 8/3/3 subject-disjoint split prevents identity leakage. All candidates use the same underlying data, protected annotations, physical batch size, 220-epoch ceiling, RTX 4060 environment, FP16 execution policy, shared evaluator, and single-pass test policy. The nominal effective batch is 32, while backend-specific accumulation behavior, optimization recipes, postprocessing, and precision modes are explicitly documented rather than described as identical.
 
 <p align="center">
   <img src="./assets/diagrams/dms_eval_pipeline.png" alt="DMS-Eval End-to-End Benchmark Framework" width="880"><br>
@@ -72,56 +72,50 @@ Driver Monitoring Systems (DMS) are critical safety components of modern Advance
 git clone https://github.com/IamOumarIbrahim/DMS-Eval.git
 cd DMS-Eval
 
-# Create and activate Python virtual environment (Python 3.10+)
-python -m venv .venv
-# On Windows:
-.venv\Scripts\activate
-# On Linux/macOS:
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
+# Create and synchronize the exact frozen Windows/Python 3.12 environment
+uv venv --python 3.12.10 .venv
+uv pip sync --python .venv\Scripts\python.exe requirements.lock.txt
 ```
 
-> [!TIP]
-> **Hardware Recommendation:** We recommend an NVIDIA GPU with at least 8 GB VRAM (such as an RTX 4060 / RTX 3060) to run full FP16 Automatic Mixed Precision (AMP) training. For CPU-only environments, append `--device cpu` to training scripts.
+> [!IMPORTANT]
+> The frozen benchmark environment is an NVIDIA RTX 4060 (8 GB), CUDA FP16, and Python 3.12.10. Training launchers reject a nonmatching device and remain dry-runs unless the explicit execution gate is supplied.
 
 ### 2. Dataset Extraction & Preprocessing Pipeline
 
 ```bash
-# Step 1: Extract 1 FPS frames from DMD videos and apply 640x640 spatial crop
-python scripts/extract_and_crop_dmd.py
+# Read-only full preflight (including all 15,723 image decodes and content hashes)
+python scripts/preflight.py
 
-# Step 2: Validate master COCO annotations and optimize 8/3/3 subject-disjoint partitions
-python scripts/assemble_master_coco.py
-python scripts/balance_splits.py
-
-# Step 3: Generate YOLO label hierarchy and D-FINE split instances
-python scripts/convert_coco_to_yolo.py
-python scripts/prepare_dfine_coco.py
+# Verify pinned model checkouts, weights, and synthetic FP16 inference
+python scripts/setup_backends.py
+python scripts/validate_backends.py --synthetic
 ```
+
+The protected master annotations and split are already frozen. Conversion scripts only regenerate deterministic derived YOLO and D-FINE artifacts; extraction refuses non-empty output directories and resolves duplicate source recordings deterministically.
 
 ### 3. Model Training One-Liners
 
-All models are trained with **physical batch size 8** and **gradient accumulation over 4 steps** (effective nominal batch size 32) under FP16 AMP for 220 epochs on RTX 4060:
+All models use **physical batch size 8**, a **nominal effective batch size of 32**, FP16 AMP, and a 220-epoch ceiling on RTX 4060. D-FINE uses fixed four-step accumulation; Ultralytics ramps accumulation from 1 toward 4 during warm-up before settling at 4.
 
 ```bash
 # Train Ultralytics YOLO11n
-python scripts/train_yolo.py --model weights/pretrained/yolo11n.pt --batch 8 --accumulate 4 --epochs 220 --name yolo11n_dms
+python scripts/train_yolo.py --model-id yolo11n --execute-training
 
 # Train Ultralytics YOLO26n
-python scripts/train_yolo.py --model weights/pretrained/yolo26n.pt --batch 8 --accumulate 4 --epochs 220 --name yolo26n_dms
+python scripts/train_yolo.py --model-id yolo26n --execute-training
 
 # Train D-FINE-N (Real-Time Detection Transformer)
-python -m torch.distributed.run --nproc_per_node=1 train.py -c configs/dfine/dfine_n_dms.yml --amp
+python scripts/train_dfine.py --execute-training
 ```
 
 ### 4. Threshold Calibration & Evaluation
 
 ```bash
-# Calibrate optimal confidence threshold tau* on validation split and run single-pass test evaluation
-python scripts/evaluate_benchmark.py --weights runs/train/yolo11n_dms/weights/best.pt --config configs/yolo/dms_eval.yaml
+# Safe default: fingerprinted protocol dry-run only
+python scripts/evaluate_benchmark.py
 ```
+
+Checkpoint selection, calibration, freeze, protected test, aggregation, and publication commands are documented in [`docs/benchmark-readiness.md`](docs/benchmark-readiness.md). There is intentionally no casual test-split command.
 
 ---
 
@@ -130,7 +124,7 @@ python scripts/evaluate_benchmark.py --weights runs/train/yolo11n_dms/weights/be
 In-cabin Driver Monitoring Systems (DMS) aim to prevent roadway collisions through early visual detection of driver drowsiness and inattention. While high-level driver state assessment frequently leverages complex multi-frame temporal models, automotive edge deployments impose strict constraints on compute, on-chip SRAM, and per-frame latency. Consequently, there is an urgent practical demand for lightweight 2D object detectors capable of real-time single-frame inference on embedded automotive hardware.
 
 ### 1.1 Research Gap
-Despite substantial progress in driver monitoring, **no existing study provides a controlled, head-to-head comparison between nano-scale convolutional detectors and nano-scale Real-Time Detection Transformers for in-cabin driver cue localization under identical hardware, data, and training constraints.** Existing work leaves this gap unaddressed along four axes:
+Despite substantial progress in driver monitoring, **no existing study provides a reproducible, head-to-head comparison between nano-scale convolutional detectors and nano-scale Real-Time Detection Transformers for in-cabin driver cue localization under shared data, hardware, and evaluation controls with model-specific training choices disclosed.** Existing work leaves this gap unaddressed along four axes:
 1. **Classification without spatial localization:** Previous benchmarks classify full images into posture categories without bounding boxes localizing specific objects or facial cues. Spatial localization is essential for downstream tracking and alert subsystems.
 2. **Multi-stage pipelines with compounding latency:** Chaining detectors with pose estimators and recurrent LSTM networks introduces multi-model latency penalties that preclude real-time edge execution.
 3. **Single-family evaluations:** Lightweight CNN detectors and real-time DETRs are benchmarked exclusively on general-purpose COCO datasets and never compared against each other within the in-cabin DMS domain.
@@ -139,14 +133,14 @@ Despite substantial progress in driver monitoring, **no existing study provides 
 ### 1.2 Key Contributions
 - **First Cross-Paradigm Nano-Scale DMS Benchmark:** The first controlled comparison between nano-scale CNNs (YOLO11n, YOLO26n) and a nano-scale DETR (D-FINE-N) for in-cabin driver cue detection with spatial bounding box localization.
 - **Rigorous Subject-Disjoint Data Curation:** 15,723 frames ($640\times640$) with 100% manual annotation across 4 warning cues and 80.91% naturalistic negatives, partitioned via exhaustive combinatorial optimization ($\le 5.48\%$ divergence).
-- **Unified Precision–Efficiency Protocol:** Identical hardware (RTX 4060), physical training batch 8 with gradient accumulation across 4 steps (effective batch 32), 220 epochs, FP16 AMP, with detection accuracy and hardware-synchronized batch-1 latency ($p50/p95/p99$) reported jointly.
+- **Unified Precision–Efficiency Protocol:** Shared RTX 4060 hardware, physical batch 8, nominal effective batch 32, 220 epochs, an FP16 execution policy, and hardware-synchronized batch-1 model-forward latency ($p50/p95/p99$), with backend-specific execution modes disclosed.
 - **Open Reproducibility:** Public release of all COCO annotations, partitioning scripts, configuration recipes, and evaluation tooling.
 
 ### 1.3 Research Question
 
 > [!NOTE]
 > **Core Benchmark Research Question (RQ):**
-> *Under a controlled, compute-constrained evaluation, how do sub-5M-parameter detectors from fundamentally different paradigms—convolutional single-stage detectors versus Real-Time Detection Transformers—compare in detection accuracy, inference latency, and false-alarm suppression when identifying spatial visual cues of driver distraction and drowsiness on edge hardware?*
+> *Under a shared-data, shared-hardware evaluation, how do sub-5M-parameter detectors from fundamentally different paradigms—convolutional single-stage detectors versus Real-Time Detection Transformers—compare in detection accuracy, model-forward latency, and false-alarm suppression when identifying spatial visual cues of driver distraction and drowsiness?*
 
 ---
 
@@ -257,28 +251,30 @@ We benchmark three state-of-the-art nano-scale real-time object detector archite
 
 <sub><b>Table 2.</b> Candidate real-time detector architectures evaluated in DMS-Eval.</sub>
 
-| Model Architecture | Architectural Family | Parameter Scale | Published GFLOPs (640×640) | Detection Paradigm / Key Feature | Repository Source |
+| Model Architecture | Architectural Family | Pinned COCO Params | Local THOP GFLOPs (640×640) | Detection Paradigm / Key Feature | Repository Source |
 | :--- | :---: | :---: | :---: | :--- | :---: |
-| **Ultralytics YOLO11n** | Single-Stage CNN | 2.6 M | 6.5 G | C3k2 feature extractors & SPPF modules; optimizes CIoU + BCE + DFL | [Ultralytics](https://github.com/ultralytics/ultralytics) |
-| **Ultralytics YOLO26n** | End-to-End CNN | 2.4 M | 5.8 G | Anchor-free, NMS-free direct bounding box prediction via dual-label assignment | [Ultralytics](https://github.com/ultralytics/ultralytics) |
-| **D-FINE-N** | Real-Time DETR | 3.8 M | 8.4 G | HGNetv2 backbone with Fine-grained Distribution Refinement (FDR) & Hungarian set loss | [D-FINE](https://github.com/Peterande/D-FINE) |
+| **Ultralytics YOLO11n** | Single-Stage CNN | 2.624 M | 6.612 G | C3k2 feature extractors & SPPF modules; optimizes CIoU + BCE + DFL | [Ultralytics](https://github.com/ultralytics/ultralytics) |
+| **Ultralytics YOLO26n** | End-to-End CNN | 2.572 M | 6.117 G | Anchor-free, NMS-free direct bounding box prediction via dual-label assignment | [Ultralytics](https://github.com/ultralytics/ultralytics) |
+| **D-FINE-N** | Real-Time DETR | 3.724 M | 7.436 G | HGNetv2 backbone with Fine-grained Distribution Refinement (FDR) & Hungarian set loss | [D-FINE](https://github.com/Peterande/D-FINE) |
 
 </div>
+
+These are diagnostic measurements of the verified pinned COCO checkpoints using the shared synthetic adapter/profiler (`1 MAC = 2 FLOPs`). The comparative results table remains pending until each fine-tuned four-class checkpoint is loaded and profiled.
 
 ---
 
 ## 5. Experimental Setup & Benchmark Controls
 
-To guarantee architectural fairness without distorting framework-native optimizations, DMS-Eval enforces the **Controlled-Comparison Principle**: all models share identical training budgets, hardware, data partitions, resolution, evaluation harnesses, and test access policies, while retaining their official optimizer families, learning rate schedules, and data augmentations.
+DMS-Eval's **Controlled-Comparison Principle** holds the underlying data, subject split, resolution, protected annotations, physical batch, epoch ceiling, hardware target, shared evaluator, checkpoint-ranking rule, and test-access policy constant. Architecture-specific optimization and augmentation configurations are benchmark-pinned and documented; they are not claimed to reproduce every upstream default or to equalize optimizer steps, total compute, or postprocessing cost. See the [fairness audit](docs/fairness.md) for the resulting limitations.
 
 > [!IMPORTANT]
 > **Controlled Training & Gradient Dynamics:**
-> Training is strictly executed with physical mini-batch size 8 and gradient accumulation over 4 steps (effective nominal batch size 32) under FP16 AMP. This stabilizes Batch Normalization statistics and transformer bipartite matching while keeping memory strictly within the 8 GB VRAM envelope.
+> Training uses physical mini-batch size 8 and nominal effective batch size 32 under FP16 AMP. D-FINE accumulation is fixed at four steps; Ultralytics ramps accumulation during warm-up and then settles at four. Gradient accumulation does not change the physical batch observed by normalization layers.
 
 ### 5.1 Master Benchmark Control Matrix
 
 > [!NOTE]
-> **Table Legend:** Entries that are identical and strictly controlled across all three models have **no symbol**. Entries with architecture-specific variations or model differences are color-coded with **⭕**.
+> **Table Legend:** Entries governed by a shared benchmark policy have **no symbol**. Entries with architecture-specific variations or model differences are marked with **⭕**; the shared-policy entries should still be read with the qualifications in the fairness audit.
 
 <div align="center">
 
@@ -305,16 +301,16 @@ To guarantee architectural fairness without distorting framework-native optimiza
 | | **Training Budget** | 220 Epochs | 220 Epochs | 220 Epochs | Fixed fine-tuning budget |
 | | **Early Stopping** | Disabled | Disabled | Disabled | Full 220 epochs executed without early termination |
 | | **Physical Batch Size** | `8` | `8` | `8` | Physical batch size = 8 during training (fitting RTX 4060 8 GB VRAM budget at 640×640) |
-| | **Gradient Accumulation** | 4 steps (`nbs=32`) | 4 steps (`accum=4`) | 4 steps (`nbs=32`) | Effective nominal batch size = 32 (stabilizes Batch Normalization & Hungarian matching) |
-| | **Training Precision** | FP16 AMP | FP16 AMP | FP16 AMP | Official framework Automatic Mixed Precision |
-| | **Random Seed** | `13` | `13` | `13` | Fixed deterministic seed across PyTorch, CUDA, CuDNN, and data loaders |
+| | **Gradient Accumulation** | `nbs=32`; warm-up ramps 1→4 | Fixed 4 steps | `nbs=32`; warm-up ramps 1→4 | Nominal effective batch 32 after YOLO warm-up; exact update schedules differ |
+| | **Training Precision** | FP16 AMP | FP16 AMP | FP16 AMP | Shared AMP policy implemented by each pinned framework |
+| | **Random Seed** | `13` | `13` | `13` | Shared seed; framework-specific samplers and kernels need not produce identical trajectories |
 | | **DataLoader Workers** | `4` | `4` | `4` | Uniform multi-processing data ingestion |
 | | **Hardware Platform** | NVIDIA RTX 4060 | NVIDIA RTX 4060 | NVIDIA RTX 4060 | Dedicated GPU with 8 GB VRAM |
 | | **Training Runs** | 1 single run | 1 single run | 1 single run | Single training trajectory (no multi-seed averaging) |
-| | **Optimizer Family** | ⭕ SGD (`momentum=0.937`) | ⭕ AdamW | ⭕ SGD (`momentum=0.937`) | Official model-specific optimizer family retained |
-| | **Base LR & Weight Decay** | ⭕ `lr0=0.01, wd=0.0005` | ⭕ `lr=0.00025, wd=0.0001` | ⭕ `lr0=0.01, wd=0.0005` | Official model-specific learning rate and weight decay |
-| | **LR Schedule** | ⭕ Linear / Cosine decay | ⭕ Step / Cosine annealing | ⭕ Linear / Cosine decay | Official model-specific learning rate schedule |
-| | **Data Augmentation** | ⭕ Mosaic, Mixup, HSV, Flips | ⭕ Multi-scale, Crop, Flips | ⭕ Mosaic, Mixup, Flips | Official model-specific augmentation pipeline |
+| | **Optimizer Family** | ⭕ SGD (`momentum=0.937`) | ⭕ AdamW | ⭕ SGD (`momentum=0.937`) | Benchmark-pinned model-specific optimizer family |
+| | **Base LR & Weight Decay** | ⭕ `lr0=0.01, wd=0.0005` | ⭕ `lr=0.00025, backbone_lr=0.0000125, wd=0.0001` | ⭕ `lr0=0.01, wd=0.0005` | Benchmark-pinned values; not unchanged upstream defaults |
+| | **LR Schedule** | ⭕ Ultralytics linear decay | ⭕ Pinned D-FINE `MultiStepLR` (milestone 500) | ⭕ Ultralytics linear decay | Exact model-specific schedule from each pinned backend |
+| | **Data Augmentation** | ⭕ Mosaic, HSV, flips (`mixup=0`) | ⭕ Photometric, zoom-out, crop, flips; fixed 640 | ⭕ Mosaic, HSV, flips (`mixup=0`) | Exact model-specific augmentation pipeline from each pinned backend |
 | **Validation & Calibration** | **Test Isolation Rule** | Zero test access | Zero test access | Zero test access | Test split untouched during training, tuning, checkpointing, and calibration |
 | | **Checkpoint Selection** | Highest Val mAP | Highest Val mAP | Highest Val mAP | 1st: Val mAP@0.5:0.95; 2nd: Val mAP@0.5; 3rd: Later epoch |
 | | **Threshold Search Space** | τ ∈ [0.01, 0.99] | τ ∈ [0.01, 0.99] | τ ∈ [0.01, 0.99] | Fixed 99-point numerical grid sweep (Δτ = 0.01) on validation split only |
@@ -324,10 +320,10 @@ To guarantee architectural fairness without distorting framework-native optimiza
 | | **Parameter Freezing** | Checkpoint & τ* | Checkpoint & τ* | Checkpoint & τ* | Selected checkpoint weights and τ* frozen prior to single test pass |
 | **Runtime & Profiling** | **Runtime Backend** | PyTorch + CUDA | PyTorch + CUDA | PyTorch + CUDA | Native PyTorch (no TensorRT / ONNX Runtime / OpenVINO exports) |
 | | **Runtime Hardware** | NVIDIA RTX 4060 | NVIDIA RTX 4060 | NVIDIA RTX 4060 | Consistent 8 GB VRAM GPU environment |
-| | **Runtime Precision** | FP16 | FP16 | FP16 | Standard half-precision inference |
+| | **Runtime Precision** | FP16 weights/input | CUDA AMP FP16 input | FP16 weights/input | Shared FP16 policy with distinct recorded execution modes |
 | | **Runtime Batch Size** | `1` | `1` | `1` | Single-frame edge stream latency profiling |
 | | **Warm-up Protocol** | 10 passes | 10 passes | 10 passes | Untimed warm-up passes on 640×640 frames before latency capture |
-| | **Timing Scope / Boundary** | Forward pass only | Forward pass only | Forward pass only | Excludes disk I/O, image decode, pre-processing, post-processing/NMS, & metrics |
+| | **Timing Scope / Boundary** | Forward pass only | Forward pass only | Forward pass only | Model-forward comparison only; excludes required postprocessing/NMS and is not end-to-end latency |
 | | **Timing Mechanism** | PyTorch CUDA Events | PyTorch CUDA Events | PyTorch CUDA Events | Hardware-synchronized `torch.cuda.Event` timers |
 | | **Test Set Coverage** | 3,213 test frames | 3,213 test frames | 3,213 test frames | Complete unseen test split evaluated in a single pass |
 | | **Latency Metrics** | p50, p95, p99 (ms) | p50, p95, p99 (ms) | p50, p95, p99 (ms) | Median, 95th, and 99th percentile inference latency |
@@ -337,9 +333,9 @@ To guarantee architectural fairness without distorting framework-native optimiza
 | | **IoU Matching Rule** | COCO One-to-One | COCO One-to-One | COCO One-to-One | Greedy matching in descending confidence order at IoU ≥ 0.50 |
 | | **Detection Metrics** | mAP@0.5:0.95, mAP@0.5 | mAP@0.5:0.95, mAP@0.5 | mAP@0.5:0.95, mAP@0.5 | Full test set and per-class Average Precision |
 | | **Operating Point Metrics** | P, R, F1 | P, R, F1 | P, R, F1 | Evaluated at frozen validation-optimal threshold τ* (IoU = 0.50) |
-| | **False Alarm Rate (FAR)** | (FP_neg / N_neg) × 100% | (FP_neg / N_neg) × 100% | (FP_neg / N_neg) × 100% | Evaluated across all 12,722 negative background frames |
+| | **False Alarm Rate (FAR)** | FP detections per 100 negative frames | FP detections per 100 negative frames | FP detections per 100 negative frames | Test denominator is 2,599 negative frames; the value is not necessarily bounded by 100 |
 | | **Workload Profiling** | THOP GFLOPs | THOP GFLOPs | THOP GFLOPs | Measured at 1 × 3 × 640 × 640 with convention 1 MAC = 2 FLOPs |
-| | **Model File Size** | Local Checkpoint MB | Local Checkpoint MB | Local Checkpoint MB | Measured directly from the saved `.pt` artifact file on disk |
+| | **Checkpoint File Size** | Raw `.pt` bytes | Raw `.pth` bytes | Raw `.pt` bytes | Descriptive training-artifact size only; serialization payloads are not standardized deployment packages |
 
 </div>
 
@@ -364,11 +360,11 @@ under COCO one-to-one $\text{IoU} \ge 0.50$ matching. Once identified, $\tau^*$ 
 > **Strict Zero-Test-Access Protocol:**
 > Neither candidate model weights nor confidence thresholds ($\tau^*$) have access to the $3,213$ test frames during training, tuning, or calibration. The unseen test split is evaluated exactly once in a single frozen pass to prevent optimistic metric contamination.
 
-In accordance with MLPerf edge benchmarking standards, the unseen Test split ($S_{\text{test}}$, 3,213 frames) is evaluated exactly once without post-hoc tuning:
+The unseen Test split ($S_{\text{test}}$, 3,213 frames) is evaluated exactly once without post-hoc tuning:
 - **Detection Accuracy:** $\text{mAP}@0.5:0.95$ and $\text{mAP}@0.5$ computed against master COCO ground truth.
 - **Operating Performance:** Precision, Recall, and $F_1$ score evaluated at the frozen threshold $\tau^*$.
-- **Background False Alarm Rate (FAR):** $\text{FAR} = (\text{FP}_{\text{neg}} / N_{\text{neg}}) \times 100\%$ on negative background frames.
-- **Latency & Throughput:** Model-only forward latency ($p50, p95, p99$) and continuous throughput (FPS) captured via synchronized CUDA events at batch size 1 in FP16.
+- **Background False Alarm Rate (FAR):** false-positive detections per 100 negative test frames, with $N_{\text{neg}}=2{,}599$.
+- **Latency & Throughput:** Model-forward-only latency ($p50, p95, p99$) and throughput captured via synchronized CUDA events at batch size 1 under the recorded FP16 execution mode; postprocessing/NMS is excluded.
 - **Memory Footprint:** Peak VRAM allocated via `torch.cuda.max_memory_allocated()`.
 
 ---
@@ -379,11 +375,11 @@ In accordance with MLPerf edge benchmarking standards, the unseen Test split ($S
 
 <sub><b>Table 4.</b> Controlled comparative evaluation results framework on unseen test split (S_test, 3,213 frames, RTX 4060, Batch Size 1, FP16).</sub>
 
-| Model Architecture | Params (M) | Local GFLOPs | Peak VRAM (MB) | Latency p50 (ms) | Latency p95 (ms) | Latency p99 (ms) | Throughput (FPS) | FAR (%) | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
+| Model Architecture | Params (M) | Local GFLOPs | Peak VRAM (MB) | Latency p50 (ms) | Latency p95 (ms) | Latency p99 (ms) | Throughput (FPS) | FAR / 100 negative frames | mAP@0.5:0.95 | mAP@0.5 | Precision | Recall | F1 Score |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Ultralytics YOLO11n** | 2.6M | 6.5G | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* |
-| **Ultralytics YOLO26n** | 2.4M | 5.8G | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* |
-| **D-FINE-N** | 3.8M | 8.4G | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* |
+| **Ultralytics YOLO11n** | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* |
+| **Ultralytics YOLO26n** | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* |
+| **D-FINE-N** | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* | *[PENDING]* |
 
 </div>
 
@@ -405,10 +401,12 @@ In accordance with MLPerf edge benchmarking standards, the unseen Test split ($S
 
 ```text
 DMS-Eval/
-├── configs/                                  # Model and dataset training configs
+├── configs/                                  # Frozen protocol, backend pins, and model configs
+│   ├── benchmark.yaml                        # Machine-readable shared benchmark policy
+│   ├── backends.yaml                         # Pinned repositories and pretrained weights
 │   ├── dfine/dfine_n_dms.yml                 # D-FINE-N training configuration
-│   └── yolo/dms_eval.yaml                    # YOLO dataset configuration
-├── core/                                     # Core benchmarking dataset classes
+│   └── yolo/dms_eval.yaml                    # Shared Ultralytics training arguments
+├── core/                                     # Adapters, validation, evaluation, isolation, profiling
 ├── dataset/                                  # Annotation files & subject partitions
 │   ├── annotations.json                      # Authoritative master COCO JSON
 │   ├── splits.json                           # Frozen 8/3/3 subject-disjoint partitions
@@ -418,6 +416,8 @@ DMS-Eval/
 │   ├── annotation-protocol.md                # 4-cue ontology & annotation guide
 │   ├── training-protocol.md                  # Locked training controls & recipe rules
 │   ├── evaluation-protocol.md                # Evaluator harness, metrics & runtime profiling
+│   ├── benchmark-readiness.md                # Guarded lifecycle and readiness evidence
+│   ├── fairness.md                           # Cross-model comparability audit
 │   └── manual-annotation-guide.pdf           # 1-page desktop annotation quick-reference
 ├── manuscript/                               # Full conference paper source & PDF
 │   ├── main.tex                              # LaTeX source manuscript
@@ -427,8 +427,11 @@ DMS-Eval/
     ├── balance_splits.py                     # Exhaustive 8/3/3 combinatorial optimizer
     ├── extract_and_crop_dmd.py               # DMD frame extraction and 640x640 cropping
     ├── assemble_master_coco.py               # Master COCO annotation builder
-    ├── train_yolo.py                         # YOLO training engine with gradient accumulation
-    └── charts/                               # High-resolution publication chart generators
+    ├── train_yolo.py                         # Guarded Ultralytics training launcher
+    ├── train_dfine.py                        # Guarded D-FINE-N training launcher
+    ├── evaluate_benchmark.py                 # Shared protected evaluation lifecycle
+    ├── validate_dataset.py                   # Full frozen-data and derived-format audit
+    └── generate_publication_tables.py        # Result-to-publication table generator
 ```
 
 <div align="center">
@@ -442,6 +445,8 @@ DMS-Eval/
 | [**Manual Annotation Guide (PDF)**](./docs/manual-annotation-guide.pdf) | 1-page field reference: hotkeys, bounding-box extents, and decision matrix | 📋 Field Guide |
 | [**Training Protocol**](./docs/training-protocol.md) | Initialization, locked training controls, and model-specific optimization recipes | 🧊 Frozen |
 | [**Evaluation Protocol**](./docs/evaluation-protocol.md) | Metrics, shared evaluator, test isolation, threshold sweep, and runtime profiling | 🧊 Frozen |
+| [**Benchmark Readiness**](./docs/benchmark-readiness.md) | Machine-readable controls, guarded commands, and verification coverage | ✅ Implemented |
+| [**Fairness Audit**](./docs/fairness.md) | Disclosed asymmetries, likely directional effects, and recommended corrections | ⚠️ Disclosed |
 
 </div>
 
@@ -472,4 +477,3 @@ DMS-Eval/
 This benchmark builds upon the open-source architectures and tools developed by the teams behind [Ultralytics YOLO](https://github.com/ultralytics/ultralytics), [D-FINE](https://github.com/Peterande/D-FINE), and [Label Studio](https://github.com/HumanSignal/label-studio). We sincerely thank their authors and maintainers for making these frameworks available to the research community.
 
 This project is licensed under the **Apache License 2.0** — see the [LICENSE](LICENSE) file for details.
-

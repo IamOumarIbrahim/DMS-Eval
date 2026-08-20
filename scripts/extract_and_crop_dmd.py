@@ -25,7 +25,7 @@ import sys
 import time
 import json
 import argparse
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import cv2
 import numpy as np
@@ -120,7 +120,7 @@ def parse_args():
 
 def discover_rgb_face_videos(dmd_dir, raw_out_base):
     categories = ["distraction", "gaze", "di21-dmd-dataset-drowsiness"]
-    tasks = []
+    sources = []
 
     for cat in categories:
         cat_path = os.path.join(dmd_dir, cat)
@@ -142,7 +142,7 @@ def discover_rgb_face_videos(dmd_dir, raw_out_base):
                     session = parts[3]
                     out_dir = os.path.join(raw_out_base, cat_name, group, subject, session)
 
-                    tasks.append({
+                    sources.append({
                         "video_path": full_path,
                         "out_dir": out_dir,
                         "cat_name": cat_name,
@@ -152,7 +152,17 @@ def discover_rgb_face_videos(dmd_dir, raw_out_base):
                         "session": session,
                         "filename": f,
                     })
-    return tasks
+    # Multiple recordings can map to one canonical subject/session. Preserve
+    # the frozen dataset's observed overlay deterministically: sources are
+    # applied in ascending path order, so the later recording replaces the
+    # shared prefix while a longer earlier recording retains its tail.
+    grouped = defaultdict(list)
+    for source in sources:
+        grouped[source["out_dir"]].append(source)
+    return [
+        {"out_dir": out_dir, "sources": sorted(group, key=lambda item: item["video_path"])}
+        for out_dir, group in sorted(grouped.items())
+    ]
 
 
 def extract_video_worker(task, sample_fps, jpeg_quality):
@@ -197,26 +207,43 @@ def extract_video_worker(task, sample_fps, jpeg_quality):
     return task, extracted_count, dur, None
 
 
+def extract_session_worker(task, sample_fps, jpeg_quality):
+    counts = []
+    durations = []
+    for source in task["sources"]:
+        _, count, duration, error = extract_video_worker(source, sample_fps, jpeg_quality)
+        if error:
+            return task, counts, durations, error
+        counts.append(count)
+        durations.append(duration)
+    return task, counts, durations, None
+
+
 def run_extraction(tasks, workers, sample_fps, jpeg_quality):
-    print(f"\n[Step 1/3] Extracting frames at {sample_fps} FPS across {len(tasks)} videos...")
+    source_count = sum(len(task["sources"]) for task in tasks)
+    print(f"\n[Step 1/3] Extracting frames at {sample_fps} FPS across {source_count} recordings into {len(tasks)} canonical sessions...")
+    occupied = [task["out_dir"] for task in tasks if os.path.isdir(task["out_dir"]) and any(name.lower().endswith(".jpg") for name in os.listdir(task["out_dir"]))]
+    if occupied:
+        raise RuntimeError(f"Refusing extraction into {len(occupied)} non-empty session directories; use a new --out-raw-images directory")
     t_start = time.time()
     total_frames = 0
     completed = 0
 
     with ProcessPoolExecutor(max_workers=workers) as executor:
-        futures = {executor.submit(extract_video_worker, t, sample_fps, jpeg_quality): t for t in tasks}
+        futures = {executor.submit(extract_session_worker, t, sample_fps, jpeg_quality): t for t in tasks}
         for f in as_completed(futures):
-            task, count, dur, err = f.result()
+            task, counts, durations, err = f.result()
             completed += 1
-            total_frames += count
+            retained_count = max(counts, default=0)
+            total_frames += retained_count
             pct = round((completed / len(tasks)) * 100, 1)
             if err:
-                print(f"  [{pct}%] FAILED {task['cat_name']}/{task['group']}/{task['subject']}/{task['session']}: {err}")
+                print(f"  [{pct}%] FAILED {task['out_dir']}: {err}")
             else:
-                print(f"  [{pct}%] ({completed}/{len(tasks)}) {task['cat_name']}/{task['group']}/{task['subject']}/{task['session']}: {count} frames ({dur}s)")
+                print(f"  [{pct}%] ({completed}/{len(tasks)}) {task['out_dir']}: {retained_count} frames from {len(counts)} source(s) ({sum(durations):.1f}s)")
 
     elapsed = round(time.time() - t_start, 1)
-    print(f"-> Extraction complete: {total_frames} frames from {completed} videos in {elapsed}s.\n")
+    print(f"-> Extraction complete: {total_frames} retained frames across {completed} sessions in {elapsed}s.\n")
     return total_frames
 
 
@@ -255,7 +282,8 @@ def collect_crop_tasks(raw_base, crop_base):
                 "original_session": session,
                 "frame_count": len(jpgs),
                 "source_dir": rel,
-                "target_dir": f"{sub_folder}/{vid_folder}"
+                "target_dir": f"{sub_folder}/{vid_folder}",
+                "source_collision_policy": "lexicographic_overlay_later_source_wins_shared_prefix"
             })
 
     return dir_tasks, manifest_entries

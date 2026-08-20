@@ -1,0 +1,70 @@
+"""Pinned D-FINE-N launcher with accumulation patch and explicit training gate."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import torch
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from core.protocol import ProtocolError, REPO_ROOT, load_backends, load_protocol, resolve_repo_path
+from scripts.setup_backends import ensure_dfine, ensure_weight
+
+
+def build_plan() -> dict:
+    protocol = load_protocol()
+    backend = load_backends()["dfine"]
+    ensure_dfine(False)
+    weight = ensure_weight(backend["weight"], False)
+    output = REPO_ROOT / "runs" / "train" / "dfine_n_seed13"
+    return {
+        "model_id": "dfine_n",
+        "upstream_commit": backend["commit"],
+        "config": str(resolve_repo_path(backend["config"])),
+        "tuning": weight["file"],
+        "output_dir": str(output),
+        "epochs": protocol["training"]["epochs"],
+        "physical_batch_size": protocol["training"]["physical_batch_size"],
+        "gradient_accumulation_steps": protocol["training"]["gradient_accumulation_steps"],
+        "effective_batch_size": protocol["training"]["effective_batch_size"],
+        "seed": protocol["seed"],
+        "amp": True,
+        "device": "cuda:0",
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--execute-training", action="store_true", help="Explicitly start the 220-epoch training run")
+    args = parser.parse_args()
+    plan = build_plan()
+    print(json.dumps(plan, indent=2))
+    if not args.execute_training:
+        print("Dry-run only. Training was NOT started; add --execute-training to execute this frozen plan.")
+        return 0
+    if not torch.cuda.is_available() or "RTX 4060" not in torch.cuda.get_device_name(0):
+        raise ProtocolError("Frozen training requires the RTX 4060 CUDA environment")
+    output_dir = Path(plan["output_dir"])
+    if output_dir.exists():
+        raise ProtocolError(f"Refusing to reuse existing run directory: {output_dir}")
+    command = [
+        sys.executable,
+        str(REPO_ROOT / "third_party" / "D-FINE" / "train.py"),
+        "--config", plan["config"],
+        "--tuning", plan["tuning"],
+        "--device", plan["device"],
+        "--seed", str(plan["seed"]),
+        "--use-amp",
+        "--output-dir", plan["output_dir"],
+    ]
+    subprocess.run(command, cwd=REPO_ROOT, check=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
