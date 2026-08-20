@@ -83,6 +83,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+> [!TIP]
+> **Hardware Recommendation:** We recommend an NVIDIA GPU with at least 8 GB VRAM (such as an RTX 4060 / RTX 3060) to run full FP16 Automatic Mixed Precision (AMP) training. For CPU-only environments, append `--device cpu` to training scripts.
+
 ### 2. Dataset Extraction & Preprocessing Pipeline
 
 ```bash
@@ -140,7 +143,10 @@ Despite substantial progress in driver monitoring, **no existing study provides 
 - **Open Reproducibility:** Public release of all COCO annotations, partitioning scripts, configuration recipes, and evaluation tooling.
 
 ### 1.3 Research Question
-> **RQ:** *Under a controlled, compute-constrained evaluation, how do sub-5M-parameter detectors from fundamentally different paradigms—convolutional single-stage detectors versus Real-Time Detection Transformers—compare in detection accuracy, inference latency, and false-alarm suppression when identifying spatial visual cues of driver distraction and drowsiness on edge hardware?*
+
+> [!NOTE]
+> **Core Benchmark Research Question (RQ):**
+> *Under a controlled, compute-constrained evaluation, how do sub-5M-parameter detectors from fundamentally different paradigms—convolutional single-stage detectors versus Real-Time Detection Transformers—compare in detection accuracy, inference latency, and false-alarm suppression when identifying spatial visual cues of driver distraction and drowsiness on edge hardware?*
 
 ---
 
@@ -179,8 +185,15 @@ Ground truth is generated through 100% manual human inspection in Label Studio w
 </p>
 
 ### 2.3 Single-Annotation Policy & Negative Sample Richness
-- **Single-Annotation Policy ($\le 1$ label/frame):** Each sampled frame contains at most one bounding box annotation. In particular, `yawning` and `hand_over_mouth` are strictly mutually exclusive: if a driver yawns while a hand covers the mouth, the instance is uniquely labeled as `hand_over_mouth`.
-- **Excluded Classes (`head_turned_away`, `eyes_closed`):** Drivers perform frequent, safe mirror checks during routine driving; in static 1 FPS frames without 3D gaze tracking, safe glances cannot be distinguished from prolonged inattention. Similarly, single-frame blink detection produces excessive false alarms without temporal sequence modeling.
+
+> [!IMPORTANT]
+> **Strict Single-Annotation Policy ($\le 1$ label/frame):**
+> Each sampled frame contains at most one bounding box annotation. In particular, `yawning` and `hand_over_mouth` are strictly mutually exclusive: if a driver yawns while a hand covers the mouth, the instance is uniquely labeled as `hand_over_mouth` (full head/face).
+
+> [!WARNING]
+> **Deliberate Cue Exclusions (`head_turned_away`, `eyes_closed`):**
+> Drivers perform frequent, safe mirror glances during routine driving; in static 1 FPS frames without 3D gaze tracking, safe glances cannot be distinguished from prolonged inattention. Similarly, single-frame blink detection produces unacceptable false alarms on natural physiological blinks without multi-frame temporal modeling.
+
 - **Naturalistic Negative Frames (80.91%):** Incorporating all three DMD session folders (`distraction`, `drowsiness`, and `gaze`) supplies **12,722 true negative background frames (80.91%)** alongside **3,001 positive cue frames (19.09%)**, training detectors to suppress false alarms during alert driving.
 
 <p align="center">
@@ -195,6 +208,10 @@ Ground truth is generated through 100% manual human inspection in Label Studio w
 ### 3.1 Strict Subject-Disjoint Partitioning Principle
 To eliminate identity leakage, the 14 participants are partitioned into 8 Training, 3 Validation, and 3 Test subjects such that no individual appears in more than one partition:
 $$S_{\text{train}} \cap S_{\text{val}} = \emptyset, \quad S_{\text{train}} \cap S_{\text{test}} = \emptyset, \quad S_{\text{val}} \cap S_{\text{test}} = \emptyset$$
+
+> [!CAUTION]
+> **Zero Identity Leakage Requirement:**
+> Splitting datasets at the random frame level introduces massive biometric identity leakage between training and testing sets, creating artificially inflated accuracy numbers that collapse in real-world deployment. DMS-Eval enforces strictly subject-disjoint whole-participant partitions.
 
 ### 3.2 Authoritative Combinatorial Optimization
 Because volunteer participants exhibit varying behavioral frequencies, random assignment leads to severe class imbalance. We formalize an authoritative selection rule implemented in [`scripts/balance_splits.py`](./scripts/balance_splits.py):
@@ -253,6 +270,10 @@ We benchmark three state-of-the-art nano-scale real-time object detector archite
 ## 5. Experimental Setup & Benchmark Controls
 
 To guarantee architectural fairness without distorting framework-native optimizations, DMS-Eval enforces the **Controlled-Comparison Principle**: all models share identical training budgets, hardware, data partitions, resolution, evaluation harnesses, and test access policies, while retaining their official optimizer families, learning rate schedules, and data augmentations.
+
+> [!IMPORTANT]
+> **Controlled Training & Gradient Dynamics:**
+> Training is strictly executed with physical mini-batch size 8 and gradient accumulation over 4 steps (effective nominal batch size 32) under FP16 AMP. This stabilizes Batch Normalization statistics and transformer bipartite matching while keeping memory strictly within the 8 GB VRAM envelope.
 
 ### 5.1 Master Benchmark Control Matrix
 
@@ -338,6 +359,11 @@ $$\tau^* = \arg\max_{\tau \in [0.01, 0.99]} F_1(\tau; S_{\text{val}}) = \frac{2 
 under COCO one-to-one $\text{IoU} \ge 0.50$ matching. Once identified, $\tau^*$ and the selected checkpoint weights are permanently frozen.
 
 ### 6.3 Isolated Single-Pass Test Evaluation
+
+> [!CAUTION]
+> **Strict Zero-Test-Access Protocol:**
+> Neither candidate model weights nor confidence thresholds ($\tau^*$) have access to the $3,213$ test frames during training, tuning, or calibration. The unseen test split is evaluated exactly once in a single frozen pass to prevent optimistic metric contamination.
+
 In accordance with MLPerf edge benchmarking standards, the unseen Test split ($S_{\text{test}}$, 3,213 frames) is evaluated exactly once without post-hoc tuning:
 - **Detection Accuracy:** $\text{mAP}@0.5:0.95$ and $\text{mAP}@0.5$ computed against master COCO ground truth.
 - **Operating Performance:** Precision, Recall, and $F_1$ score evaluated at the frozen threshold $\tau^*$.
