@@ -61,6 +61,16 @@ runs/
 predictions/
 results/
 generated/
+# Keep the manuscript's visible baseline registry/tables under version control;
+# final and mock postprocessor artifacts remain ignored unless explicitly added.
+!manuscript/generated/
+manuscript/generated/*
+!manuscript/generated/results_macros.tex
+!manuscript/generated/tables/
+manuscript/generated/tables/*
+!manuscript/generated/tables/primary_results.tex
+!manuscript/generated/tables/per_class_results.tex
+!manuscript/generated/tables/per_seed_results.tex
 third_party/
 *.pt
 *.pth

@@ -1,0 +1,7 @@
+{
+  "artifact": "mock_protected_test_result",
+  "model_id": "dfine_n",
+  "schema_version": 1,
+  "training_seed": 73,
+  "watermark": "MOCK DATA - NOT BENCHMARK RESULTS"
+}

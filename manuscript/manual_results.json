@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "training_duration_hours": {
+    "yolo11n": "TO_BE_UPDATED",
+    "yolo26n": "TO_BE_UPDATED",
+    "dfine_n": "TO_BE_UPDATED"
+  },
+  "best_tradeoff_model": "TO_BE_UPDATED",
+  "discussion_tradeoff_sentence": "TO_BE_UPDATED"
+}

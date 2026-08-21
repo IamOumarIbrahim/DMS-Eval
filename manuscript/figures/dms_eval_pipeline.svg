@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="413.928pt" height="189.036pt" viewBox="0 0 413.928 189.036" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>DMS-Eval deterministic postprocessor</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 189.036
+L 413.928 189.036
+L 413.928 0
+L 0 0
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 13.8588 85.456698
+L 133.7172 85.456698
+L 133.7172 32.736396
+L 13.8588 32.736396
+z
+" clip-path="url(#p5575c78a79)" style="fill: #f7f7f7; stroke: #0072b2; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 13.8588 47.563981
+L 133.7172 47.563981
+L 133.7172 32.736396
+L 13.8588 32.736396
+z
+" clip-path="url(#p5575c78a79)" style="fill: #0072b2"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 147.0348 85.456698
+L 266.8932 85.456698
+L 266.8932 32.736396
+L 147.0348 32.736396
+z
+" clip-path="url(#p5575c78a79)" style="fill: #f7f7f7; stroke: #009e73; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 147.0348 47.563981
+L 266.8932 47.563981
+L 266.8932 32.736396
+L 147.0348 32.736396
+z
+" clip-path="url(#p5575c78a79)" style="fill: #009e73"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 280.2108 85.456698
+L 400.0692 85.456698
+L 400.0692 32.736396
+L 280.2108 32.736396
+z
+" clip-path="url(#p5575c78a79)" style="fill: #f7f7f7; stroke: #e69f00; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 280.2108 47.563981
+L 400.0692 47.563981
+L 400.0692 32.736396
+L 280.2108 32.736396
+z
+" clip-path="url(#p5575c78a79)" style="fill: #e69f00"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 280.2108 161.242132
+L 400.0692 161.242132
+L 400.0692 108.52183
+L 280.2108 108.52183
+z
+" clip-path="url(#p5575c78a79)" style="fill: #f7f7f7; stroke: #d55e00; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 280.2108 123.349415
+L 400.0692 123.349415
+L 400.0692 108.52183
+L 280.2108 108.52183
+z
+" clip-path="url(#p5575c78a79)" style="fill: #d55e00"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 147.0348 161.242132
+L 266.8932 161.242132
+L 266.8932 108.52183
+L 147.0348 108.52183
+z
+" clip-path="url(#p5575c78a79)" style="fill: #f7f7f7; stroke: #cc79a7; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 147.0348 123.349415
+L 266.8932 123.349415
+L 266.8932 108.52183
+L 147.0348 108.52183
+z
+" clip-path="url(#p5575c78a79)" style="fill: #cc79a7"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 13.8588 161.242132
+L 133.7172 161.242132
+L 133.7172 108.52183
+L 13.8588 108.52183
+z
+" clip-path="url(#p5575c78a79)" style="fill: #f7f7f7; stroke: #56b4e9; stroke-width: 1.3; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 13.8588 123.349415
+L 133.7172 123.349415
+L 133.7172 108.52183
+L 13.8588 108.52183
+z
+" clip-path="url(#p5575c78a79)" style="fill: #56b4e9"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #ffffff" x="73.788" y="42.280587" transform="rotate(-0 73.788 42.280587)">1  Data adaptation</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="20.5176" y="59.293651" transform="rotate(-0 20.5176 59.293651)">68 public sessions / 14 subjects</text>
+   </g>
+   <g id="text_3">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="20.5176" y="70.002462" transform="rotate(-0 20.5176 70.002462)">1 FPS; direct 640 x 640 crop</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="20.5176" y="80.711274" transform="rotate(-0 20.5176 80.711274)">15,723 frames; 12,722 no-cue</text>
+   </g>
+   <g id="text_5">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #ffffff" x="206.964" y="42.280587" transform="rotate(-0 206.964 42.280587)">2  Frozen split</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="153.6936" y="59.293651" transform="rotate(-0 153.6936 59.293651)">8/3/3 disjoint subjects</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="153.6936" y="70.002462" transform="rotate(-0 153.6936 70.002462)">60,060 assignments scored</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="153.6936" y="80.711274" transform="rotate(-0 153.6936 80.711274)">Zero identity overlap</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #ffffff" x="340.14" y="42.280587" transform="rotate(-0 340.14 42.280587)">3  Controlled training</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="286.8696" y="59.293651" transform="rotate(-0 286.8696 59.293651)">3 systems x 3 seeds</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="286.8696" y="70.002462" transform="rotate(-0 286.8696 70.002462)">220 epochs; batch 8 x 4</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="286.8696" y="80.711274" transform="rotate(-0 286.8696 80.711274)">All trajectories retained</text>
+   </g>
+   <g id="text_13">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #ffffff" x="340.14" y="118.066021" transform="rotate(-0 340.14 118.066021)">4  Validation only</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="286.8696" y="135.079085" transform="rotate(-0 286.8696 135.079085)">Checkpoint + threshold selection</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="286.8696" y="145.787896" transform="rotate(-0 286.8696 145.787896)">No protected-test feedback</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="286.8696" y="156.496708" transform="rotate(-0 286.8696 156.496708)">Immutable run manifests</text>
+   </g>
+   <g id="text_17">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #ffffff" x="206.964" y="118.066021" transform="rotate(-0 206.964 118.066021)">5  Protected evaluation</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="153.6936" y="135.079085" transform="rotate(-0 153.6936 135.079085)">One ledger-gated pass per run</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="153.6936" y="145.787896" transform="rotate(-0 153.6936 145.787896)">Shared COCO metrics</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="153.6936" y="156.496708" transform="rotate(-0 153.6936 156.496708)">Latency, resources, fixed examples</text>
+   </g>
+   <g id="text_21">
+    <text style="font-weight: 700; font-size: 8.2px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #ffffff" x="73.788" y="118.066021" transform="rotate(-0 73.788 118.066021)">6  Verified reporting</text>
+   </g>
+   <g id="text_22">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="20.5176" y="135.079085" transform="rotate(-0 20.5176 135.079085)">Complete 3 x 3 matrix required</text>
+   </g>
+   <g id="text_23">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="20.5176" y="145.787896" transform="rotate(-0 20.5176 145.787896)">Mean + sample SD; no best seed</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 7.1px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #202020" x="20.5176" y="156.496708" transform="rotate(-0 20.5176 156.496708)">Deterministic tables, plots, prose</text>
+   </g>
+   <g id="patch_14">
+    <path d="M 135.716791 59.096547
+Q 140.376904 59.096547 143.695376 59.096547
+" style="fill: none; stroke: #333333; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 140.695376 57.596547
+L 143.695376 59.096547
+L 140.695376 60.596547
+z
+" style="fill: #333333; stroke: #333333; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 268.892791 59.096547
+Q 273.552904 59.096547 276.871376 59.096547
+" style="fill: none; stroke: #333333; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 273.871376 57.596547
+L 276.871376 59.096547
+L 273.871376 60.596547
+z
+" style="fill: #333333; stroke: #333333; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 340.14 87.458567
+Q 340.14 96.991288 340.14 105.182368
+" style="fill: none; stroke: #333333; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 341.64 102.182368
+L 340.14 105.182368
+L 338.64 102.182368
+z
+" style="fill: #333333; stroke: #333333; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_17">
+    <path d="M 278.211209 134.881981
+Q 273.551096 134.881981 270.232624 134.881981
+" style="fill: none; stroke: #333333; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 273.232624 136.381981
+L 270.232624 134.881981
+L 273.232624 133.381981
+z
+" style="fill: #333333; stroke: #333333; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_18">
+    <path d="M 145.035209 134.881981
+Q 140.375096 134.881981 137.056624 134.881981
+" style="fill: none; stroke: #333333; stroke-width: 1.2; stroke-linecap: round"/>
+    <path d="M 140.056624 136.381981
+L 137.056624 134.881981
+L 140.056624 133.381981
+z
+" style="fill: #333333; stroke: #333333; stroke-width: 1.2; stroke-linecap: round"/>
+   </g>
+   <g id="text_25">
+    <text style="font-weight: 700; font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #1d2a3a" x="206.964" y="17.471644" transform="rotate(-0 206.964 17.471644)">Frozen DMS-Eval lifecycle</text>
+   </g>
+   <g id="text_26">
+    <text style="font-size: 7.4px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #444444" x="206.964" y="26.421404" transform="rotate(-0 206.964 26.421404)">Data and decisions flow left-to-right, then right-to-left; protected-test access begins only at stage 5.</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p5575c78a79">
+   <rect x="7.2" y="7.2" width="399.528" height="174.636"/>
+  </clipPath>
+ </defs>
+</svg>

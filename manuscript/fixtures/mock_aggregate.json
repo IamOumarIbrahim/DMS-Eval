@@ -1,0 +1,720 @@
+{
+  "artifact": "dms_eval_aggregate",
+  "dispersion": "sample_standard_deviation",
+  "fixture": true,
+  "rows": [
+    {
+      "far_per_100_negative_frames": {
+        "mean": 8.1,
+        "sample_std": 0.09999999999999964
+      },
+      "flop_estimates": {
+        "thop": {
+          "mean": 6010000000.0,
+          "sample_std": 10000000.0
+        },
+        "torch_profiler": {
+          "mean": 5709000000.0,
+          "sample_std": 9000000.0
+        }
+      },
+      "inference_artifact_bytes": {
+        "mean": 5200000.0,
+        "sample_std": 0.0
+      },
+      "map_50": {
+        "mean": 0.6050000000000001,
+        "sample_std": 0.0050000000000000044
+      },
+      "map_50_95": {
+        "mean": 0.405,
+        "sample_std": 0.0050000000000000044
+      },
+      "micro_f1": {
+        "mean": 0.677,
+        "sample_std": 0.0030000000000000027
+      },
+      "model_forward_p50_ms": {
+        "mean": 2.4,
+        "sample_std": 0.10000000000000009
+      },
+      "model_forward_p95_ms": {
+        "mean": 2.9,
+        "sample_std": 0.10000000000000009
+      },
+      "model_forward_p99_ms": {
+        "mean": 3.1,
+        "sample_std": 0.10000000000000009
+      },
+      "model_forward_sustained_fps": {
+        "mean": 392.5595395390861,
+        "sample_std": 15.406334675942647
+      },
+      "model_id": "yolo11n",
+      "parameters": {
+        "mean": 2600000.0,
+        "sample_std": 0.0
+      },
+      "peak_allocated_vram_bytes": {
+        "mean": 902000000.0,
+        "sample_std": 2000000.0
+      },
+      "per_class_ap_50_95": {
+        "drinking": {
+          "mean": 0.39,
+          "sample_std": 0.0050000000000000044
+        },
+        "hand_over_mouth": {
+          "mean": 0.42,
+          "sample_std": 0.0050000000000000044
+        },
+        "phone_use": {
+          "mean": 0.375,
+          "sample_std": 0.0050000000000000044
+        },
+        "yawning": {
+          "mean": 0.405,
+          "sample_std": 0.0050000000000000044
+        }
+      },
+      "precision": {
+        "mean": 0.703,
+        "sample_std": 0.0030000000000000027
+      },
+      "recall": {
+        "mean": 0.654,
+        "sample_std": 0.0040000000000000036
+      },
+      "runs": 3,
+      "tensor_to_final_detections_p50_ms": {
+        "mean": 3.1,
+        "sample_std": 0.10000000000000009
+      },
+      "tensor_to_final_detections_p95_ms": {
+        "mean": 3.8000000000000003,
+        "sample_std": 0.10000000000000009
+      },
+      "tensor_to_final_detections_p99_ms": {
+        "mean": 4.2,
+        "sample_std": 0.10000000000000053
+      },
+      "tensor_to_final_detections_sustained_fps": {
+        "mean": 307.8866959463974,
+        "sample_std": 9.477922563184052
+      },
+      "training_seeds": [
+        13,
+        37,
+        73
+      ]
+    },
+    {
+      "far_per_100_negative_frames": {
+        "mean": 7.6,
+        "sample_std": 0.10000000000000009
+      },
+      "flop_estimates": {
+        "thop": {
+          "mean": 6710000000.0,
+          "sample_std": 10000000.0
+        },
+        "torch_profiler": {
+          "mean": 6359000000.0,
+          "sample_std": 9000000.0
+        }
+      },
+      "inference_artifact_bytes": {
+        "mean": 5900000.0,
+        "sample_std": 0.0
+      },
+      "map_50": {
+        "mean": 0.63,
+        "sample_std": 0.0050000000000000044
+      },
+      "map_50_95": {
+        "mean": 0.43000000000000005,
+        "sample_std": 0.0050000000000000044
+      },
+      "micro_f1": {
+        "mean": 0.6920000000000001,
+        "sample_std": 0.0030000000000000027
+      },
+      "model_forward_p50_ms": {
+        "mean": 3.1999999999999997,
+        "sample_std": 0.10000000000000009
+      },
+      "model_forward_p95_ms": {
+        "mean": 3.6999999999999997,
+        "sample_std": 0.10000000000000009
+      },
+      "model_forward_p99_ms": {
+        "mean": 3.9,
+        "sample_std": 0.10000000000000009
+      },
+      "model_forward_sustained_fps": {
+        "mean": 298.6849476142143,
+        "sample_std": 8.919942030317214
+      },
+      "model_id": "yolo26n",
+      "parameters": {
+        "mean": 2950000.0,
+        "sample_std": 0.0
+      },
+      "peak_allocated_vram_bytes": {
+        "mean": 1002000000.0,
+        "sample_std": 2000000.0
+      },
+      "per_class_ap_50_95": {
+        "drinking": {
+          "mean": 0.41500000000000004,
+          "sample_std": 0.0050000000000000044
+        },
+        "hand_over_mouth": {
+          "mean": 0.445,
+          "sample_std": 0.0050000000000000044
+        },
+        "phone_use": {
+          "mean": 0.4,
+          "sample_std": 0.0050000000000000044
+        },
+        "yawning": {
+          "mean": 0.43000000000000005,
+          "sample_std": 0.0050000000000000044
+        }
+      },
+      "precision": {
+        "mean": 0.718,
+        "sample_std": 0.0030000000000000027
+      },
+      "recall": {
+        "mean": 0.669,
+        "sample_std": 0.0040000000000000036
+      },
+      "runs": 3,
+      "tensor_to_final_detections_p50_ms": {
+        "mean": 3.9,
+        "sample_std": 0.10000000000000009
+      },
+      "tensor_to_final_detections_p95_ms": {
+        "mean": 4.6,
+        "sample_std": 0.10000000000000009
+      },
+      "tensor_to_final_detections_p99_ms": {
+        "mean": 5.0,
+        "sample_std": 0.09999999999999964
+      },
+      "tensor_to_final_detections_sustained_fps": {
+        "mean": 247.01399754354188,
+        "sample_std": 6.100970598536086
+      },
+      "training_seeds": [
+        13,
+        37,
+        73
+      ]
+    },
+    {
+      "far_per_100_negative_frames": {
+        "mean": 7.1,
+        "sample_std": 0.10000000000000009
+      },
+      "flop_estimates": {
+        "thop": {
+          "mean": 7410000000.0,
+          "sample_std": 10000000.0
+        },
+        "torch_profiler": {
+          "mean": 7009000000.0,
+          "sample_std": 9000000.0
+        }
+      },
+      "inference_artifact_bytes": {
+        "mean": 6600000.0,
+        "sample_std": 0.0
+      },
+      "map_50": {
+        "mean": 0.655,
+        "sample_std": 0.0050000000000000044
+      },
+      "map_50_95": {
+        "mean": 0.455,
+        "sample_std": 0.0050000000000000044
+      },
+      "micro_f1": {
+        "mean": 0.7070000000000001,
+        "sample_std": 0.0030000000000000027
+      },
+      "model_forward_p50_ms": {
+        "mean": 3.9999999999999996,
+        "sample_std": 0.10000000000000009
+      },
+      "model_forward_p95_ms": {
+        "mean": 4.499999999999999,
+        "sample_std": 0.10000000000000009
+      },
+      "model_forward_p99_ms": {
+        "mean": 4.699999999999999,
+        "sample_std": 0.10000000000000009
+      },
+      "model_forward_sustained_fps": {
+        "mean": 241.05718443855307,
+        "sample_std": 5.8102934957192955
+      },
+      "model_id": "dfine_n",
+      "parameters": {
+        "mean": 3300000.0,
+        "sample_std": 0.0
+      },
+      "peak_allocated_vram_bytes": {
+        "mean": 1102000000.0,
+        "sample_std": 2000000.0
+      },
+      "per_class_ap_50_95": {
+        "drinking": {
+          "mean": 0.44000000000000006,
+          "sample_std": 0.0050000000000000044
+        },
+        "hand_over_mouth": {
+          "mean": 0.47000000000000003,
+          "sample_std": 0.0050000000000000044
+        },
+        "phone_use": {
+          "mean": 0.42500000000000004,
+          "sample_std": 0.0050000000000000044
+        },
+        "yawning": {
+          "mean": 0.45500000000000007,
+          "sample_std": 0.0050000000000000044
+        }
+      },
+      "precision": {
+        "mean": 0.733,
+        "sample_std": 0.0030000000000000027
+      },
+      "recall": {
+        "mean": 0.684,
+        "sample_std": 0.0040000000000000036
+      },
+      "runs": 3,
+      "tensor_to_final_detections_p50_ms": {
+        "mean": 4.699999999999999,
+        "sample_std": 0.10000000000000009
+      },
+      "tensor_to_final_detections_p95_ms": {
+        "mean": 5.3999999999999995,
+        "sample_std": 0.10000000000000009
+      },
+      "tensor_to_final_detections_p99_ms": {
+        "mean": 5.8,
+        "sample_std": 0.10000000000000053
+      },
+      "tensor_to_final_detections_sustained_fps": {
+        "mean": 206.24402827332833,
+        "sample_std": 4.253358220677342
+      },
+      "training_seeds": [
+        13,
+        37,
+        73
+      ]
+    }
+  ],
+  "run_policy": "three_predeclared_equal_seeds_no_run_selection",
+  "runs": [
+    {
+      "far_per_100_negative_frames": 7.0,
+      "flop_estimates": {
+        "thop": {
+          "flops": 7400000000
+        },
+        "torch_profiler": {
+          "flops": 7000000000
+        }
+      },
+      "inference_artifact_bytes": 6600000,
+      "inference_artifact_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "manifest_id": "mock-dfine_n-13",
+      "map_50": 0.65,
+      "map_50_95": 0.45,
+      "micro_f1": 0.7040000000000001,
+      "model_forward_p50_ms": 3.8999999999999995,
+      "model_forward_p95_ms": 4.3999999999999995,
+      "model_forward_p99_ms": 4.6,
+      "model_forward_sustained_fps": 246.9135802469136,
+      "model_id": "dfine_n",
+      "parameters": 3300000,
+      "peak_allocated_vram_bytes": 1100000000,
+      "per_class_ap_50_95": {
+        "drinking": 0.43500000000000005,
+        "hand_over_mouth": 0.465,
+        "phone_use": 0.42000000000000004,
+        "yawning": 0.45000000000000007
+      },
+      "precision": 0.73,
+      "qualitative_analysis": {
+        "path": "mock",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "recall": 0.68,
+      "source": "manuscript/fixtures/mock_protected_results/dfine_n_seed13.json",
+      "suite_id": "mock-suite-not-results",
+      "tensor_to_final_detections_p50_ms": 4.6,
+      "tensor_to_final_detections_p95_ms": 5.3,
+      "tensor_to_final_detections_p99_ms": 5.699999999999999,
+      "tensor_to_final_detections_sustained_fps": 210.52631578947367,
+      "training_seed": 13
+    },
+    {
+      "far_per_100_negative_frames": 7.1,
+      "flop_estimates": {
+        "thop": {
+          "flops": 7410000000
+        },
+        "torch_profiler": {
+          "flops": 7009000000
+        }
+      },
+      "inference_artifact_bytes": 6600000,
+      "inference_artifact_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "manifest_id": "mock-dfine_n-37",
+      "map_50": 0.655,
+      "map_50_95": 0.455,
+      "micro_f1": 0.7070000000000001,
+      "model_forward_p50_ms": 3.999999999999999,
+      "model_forward_p95_ms": 4.499999999999999,
+      "model_forward_p99_ms": 4.699999999999999,
+      "model_forward_sustained_fps": 240.9638554216868,
+      "model_id": "dfine_n",
+      "parameters": 3300000,
+      "peak_allocated_vram_bytes": 1102000000,
+      "per_class_ap_50_95": {
+        "drinking": 0.44000000000000006,
+        "hand_over_mouth": 0.47000000000000003,
+        "phone_use": 0.42500000000000004,
+        "yawning": 0.45500000000000007
+      },
+      "precision": 0.733,
+      "qualitative_analysis": {
+        "path": "mock",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "recall": 0.684,
+      "source": "manuscript/fixtures/mock_protected_results/dfine_n_seed37.json",
+      "suite_id": "mock-suite-not-results",
+      "tensor_to_final_detections_p50_ms": 4.699999999999999,
+      "tensor_to_final_detections_p95_ms": 5.3999999999999995,
+      "tensor_to_final_detections_p99_ms": 5.799999999999999,
+      "tensor_to_final_detections_sustained_fps": 206.18556701030928,
+      "training_seed": 37
+    },
+    {
+      "far_per_100_negative_frames": 7.2,
+      "flop_estimates": {
+        "thop": {
+          "flops": 7420000000
+        },
+        "torch_profiler": {
+          "flops": 7018000000
+        }
+      },
+      "inference_artifact_bytes": 6600000,
+      "inference_artifact_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "manifest_id": "mock-dfine_n-73",
+      "map_50": 0.66,
+      "map_50_95": 0.46,
+      "micro_f1": 0.7100000000000001,
+      "model_forward_p50_ms": 4.1,
+      "model_forward_p95_ms": 4.6,
+      "model_forward_p99_ms": 4.8,
+      "model_forward_sustained_fps": 235.2941176470588,
+      "model_id": "dfine_n",
+      "parameters": 3300000,
+      "peak_allocated_vram_bytes": 1104000000,
+      "per_class_ap_50_95": {
+        "drinking": 0.44500000000000006,
+        "hand_over_mouth": 0.47500000000000003,
+        "phone_use": 0.43000000000000005,
+        "yawning": 0.4600000000000001
+      },
+      "precision": 0.736,
+      "qualitative_analysis": {
+        "path": "mock",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "recall": 0.6880000000000001,
+      "source": "manuscript/fixtures/mock_protected_results/dfine_n_seed73.json",
+      "suite_id": "mock-suite-not-results",
+      "tensor_to_final_detections_p50_ms": 4.8,
+      "tensor_to_final_detections_p95_ms": 5.5,
+      "tensor_to_final_detections_p99_ms": 5.9,
+      "tensor_to_final_detections_sustained_fps": 202.02020202020202,
+      "training_seed": 73
+    },
+    {
+      "far_per_100_negative_frames": 8.0,
+      "flop_estimates": {
+        "thop": {
+          "flops": 6000000000
+        },
+        "torch_profiler": {
+          "flops": 5700000000
+        }
+      },
+      "inference_artifact_bytes": 5200000,
+      "inference_artifact_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "manifest_id": "mock-yolo11n-13",
+      "map_50": 0.6000000000000001,
+      "map_50_95": 0.4,
+      "micro_f1": 0.674,
+      "model_forward_p50_ms": 2.3,
+      "model_forward_p95_ms": 2.8,
+      "model_forward_p99_ms": 3.0,
+      "model_forward_sustained_fps": 408.1632653061224,
+      "model_id": "yolo11n",
+      "parameters": 2600000,
+      "peak_allocated_vram_bytes": 900000000,
+      "per_class_ap_50_95": {
+        "drinking": 0.385,
+        "hand_over_mouth": 0.415,
+        "phone_use": 0.37,
+        "yawning": 0.4
+      },
+      "precision": 0.7,
+      "qualitative_analysis": {
+        "path": "mock",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "recall": 0.65,
+      "source": "manuscript/fixtures/mock_protected_results/yolo11n_seed13.json",
+      "suite_id": "mock-suite-not-results",
+      "tensor_to_final_detections_p50_ms": 3.0,
+      "tensor_to_final_detections_p95_ms": 3.7,
+      "tensor_to_final_detections_p99_ms": 4.1,
+      "tensor_to_final_detections_sustained_fps": 317.46031746031747,
+      "training_seed": 13
+    },
+    {
+      "far_per_100_negative_frames": 8.1,
+      "flop_estimates": {
+        "thop": {
+          "flops": 6010000000
+        },
+        "torch_profiler": {
+          "flops": 5709000000
+        }
+      },
+      "inference_artifact_bytes": 5200000,
+      "inference_artifact_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "manifest_id": "mock-yolo11n-37",
+      "map_50": 0.605,
+      "map_50_95": 0.405,
+      "micro_f1": 0.677,
+      "model_forward_p50_ms": 2.4000000000000004,
+      "model_forward_p95_ms": 2.9,
+      "model_forward_p99_ms": 3.1,
+      "model_forward_sustained_fps": 392.15686274509807,
+      "model_id": "yolo11n",
+      "parameters": 2600000,
+      "peak_allocated_vram_bytes": 902000000,
+      "per_class_ap_50_95": {
+        "drinking": 0.39,
+        "hand_over_mouth": 0.42,
+        "phone_use": 0.375,
+        "yawning": 0.405
+      },
+      "precision": 0.703,
+      "qualitative_analysis": {
+        "path": "mock",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "recall": 0.654,
+      "source": "manuscript/fixtures/mock_protected_results/yolo11n_seed37.json",
+      "suite_id": "mock-suite-not-results",
+      "tensor_to_final_detections_p50_ms": 3.1,
+      "tensor_to_final_detections_p95_ms": 3.8,
+      "tensor_to_final_detections_p99_ms": 4.2,
+      "tensor_to_final_detections_sustained_fps": 307.6923076923077,
+      "training_seed": 37
+    },
+    {
+      "far_per_100_negative_frames": 8.2,
+      "flop_estimates": {
+        "thop": {
+          "flops": 6020000000
+        },
+        "torch_profiler": {
+          "flops": 5718000000
+        }
+      },
+      "inference_artifact_bytes": 5200000,
+      "inference_artifact_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "manifest_id": "mock-yolo11n-73",
+      "map_50": 0.6100000000000001,
+      "map_50_95": 0.41000000000000003,
+      "micro_f1": 0.68,
+      "model_forward_p50_ms": 2.5,
+      "model_forward_p95_ms": 3.0,
+      "model_forward_p99_ms": 3.2,
+      "model_forward_sustained_fps": 377.3584905660377,
+      "model_id": "yolo11n",
+      "parameters": 2600000,
+      "peak_allocated_vram_bytes": 904000000,
+      "per_class_ap_50_95": {
+        "drinking": 0.395,
+        "hand_over_mouth": 0.425,
+        "phone_use": 0.38,
+        "yawning": 0.41000000000000003
+      },
+      "precision": 0.706,
+      "qualitative_analysis": {
+        "path": "mock",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "recall": 0.658,
+      "source": "manuscript/fixtures/mock_protected_results/yolo11n_seed73.json",
+      "suite_id": "mock-suite-not-results",
+      "tensor_to_final_detections_p50_ms": 3.2,
+      "tensor_to_final_detections_p95_ms": 3.9000000000000004,
+      "tensor_to_final_detections_p99_ms": 4.300000000000001,
+      "tensor_to_final_detections_sustained_fps": 298.5074626865672,
+      "training_seed": 73
+    },
+    {
+      "far_per_100_negative_frames": 7.5,
+      "flop_estimates": {
+        "thop": {
+          "flops": 6700000000
+        },
+        "torch_profiler": {
+          "flops": 6350000000
+        }
+      },
+      "inference_artifact_bytes": 5900000,
+      "inference_artifact_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "manifest_id": "mock-yolo26n-13",
+      "map_50": 0.625,
+      "map_50_95": 0.42500000000000004,
+      "micro_f1": 0.6890000000000001,
+      "model_forward_p50_ms": 3.0999999999999996,
+      "model_forward_p95_ms": 3.5999999999999996,
+      "model_forward_p99_ms": 3.8,
+      "model_forward_sustained_fps": 307.6923076923077,
+      "model_id": "yolo26n",
+      "parameters": 2950000,
+      "peak_allocated_vram_bytes": 1000000000,
+      "per_class_ap_50_95": {
+        "drinking": 0.41000000000000003,
+        "hand_over_mouth": 0.44,
+        "phone_use": 0.395,
+        "yawning": 0.42500000000000004
+      },
+      "precision": 0.715,
+      "qualitative_analysis": {
+        "path": "mock",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "recall": 0.665,
+      "source": "manuscript/fixtures/mock_protected_results/yolo26n_seed13.json",
+      "suite_id": "mock-suite-not-results",
+      "tensor_to_final_detections_p50_ms": 3.8,
+      "tensor_to_final_detections_p95_ms": 4.5,
+      "tensor_to_final_detections_p99_ms": 4.9,
+      "tensor_to_final_detections_sustained_fps": 253.16455696202533,
+      "training_seed": 13
+    },
+    {
+      "far_per_100_negative_frames": 7.6,
+      "flop_estimates": {
+        "thop": {
+          "flops": 6710000000
+        },
+        "torch_profiler": {
+          "flops": 6359000000
+        }
+      },
+      "inference_artifact_bytes": 5900000,
+      "inference_artifact_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "manifest_id": "mock-yolo26n-37",
+      "map_50": 0.6300000000000001,
+      "map_50_95": 0.43000000000000005,
+      "micro_f1": 0.6920000000000001,
+      "model_forward_p50_ms": 3.2,
+      "model_forward_p95_ms": 3.6999999999999997,
+      "model_forward_p99_ms": 3.9,
+      "model_forward_sustained_fps": 298.5074626865672,
+      "model_id": "yolo26n",
+      "parameters": 2950000,
+      "peak_allocated_vram_bytes": 1002000000,
+      "per_class_ap_50_95": {
+        "drinking": 0.41500000000000004,
+        "hand_over_mouth": 0.445,
+        "phone_use": 0.4,
+        "yawning": 0.43000000000000005
+      },
+      "precision": 0.718,
+      "qualitative_analysis": {
+        "path": "mock",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "recall": 0.669,
+      "source": "manuscript/fixtures/mock_protected_results/yolo26n_seed37.json",
+      "suite_id": "mock-suite-not-results",
+      "tensor_to_final_detections_p50_ms": 3.9,
+      "tensor_to_final_detections_p95_ms": 4.6,
+      "tensor_to_final_detections_p99_ms": 5.0,
+      "tensor_to_final_detections_sustained_fps": 246.9135802469136,
+      "training_seed": 37
+    },
+    {
+      "far_per_100_negative_frames": 7.7,
+      "flop_estimates": {
+        "thop": {
+          "flops": 6720000000
+        },
+        "torch_profiler": {
+          "flops": 6368000000
+        }
+      },
+      "inference_artifact_bytes": 5900000,
+      "inference_artifact_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "manifest_id": "mock-yolo26n-73",
+      "map_50": 0.635,
+      "map_50_95": 0.43500000000000005,
+      "micro_f1": 0.6950000000000001,
+      "model_forward_p50_ms": 3.3,
+      "model_forward_p95_ms": 3.8,
+      "model_forward_p99_ms": 4.0,
+      "model_forward_sustained_fps": 289.8550724637681,
+      "model_id": "yolo26n",
+      "parameters": 2950000,
+      "peak_allocated_vram_bytes": 1004000000,
+      "per_class_ap_50_95": {
+        "drinking": 0.42000000000000004,
+        "hand_over_mouth": 0.45,
+        "phone_use": 0.405,
+        "yawning": 0.43500000000000005
+      },
+      "precision": 0.721,
+      "qualitative_analysis": {
+        "path": "mock",
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "recall": 0.673,
+      "source": "manuscript/fixtures/mock_protected_results/yolo26n_seed73.json",
+      "suite_id": "mock-suite-not-results",
+      "tensor_to_final_detections_p50_ms": 4.0,
+      "tensor_to_final_detections_p95_ms": 4.7,
+      "tensor_to_final_detections_p99_ms": 5.1,
+      "tensor_to_final_detections_sustained_fps": 240.96385542168673,
+      "training_seed": 73
+    }
+  ],
+  "schema_version": 3,
+  "suite_id": "mock-suite-not-results",
+  "training_seeds": [
+    13,
+    37,
+    73
+  ],
+  "watermark": "MOCK DATA - NOT BENCHMARK RESULTS"
+}
